@@ -1,0 +1,10 @@
+DIALOGCLASS 8 *LOAD*
+BEGIN
+MESSAGECLASS MON_D747 (BYTE ParOpen CHAR[3] CurrencyCode CHAR[3] Currency BYTE CurrencyExponent CHAR[7] CurrencyExchangeRate BYTE CurrencyExchangeRateExponent BYTE CurrencyActive BYTE CurrencyToPrint BYTE CurrencyExchangeRateToPrint BYTE ParClose BYTE[2] CR)
+MESSAGECLASS SIT_D753 (BYTE ParOpen CHAR[8] SystemAcceptationIdentification CHAR[14] SIRET CHAR[4] MerchantCategoryCode CHAR[20] MerchantContractNumber CHAR[20] TerminalIdentification CHAR[20] MerchantIdentifier CHAR[60] MerchantNameAndLocation CHAR[11] AcquirerIdentifier BYTE p BYTE p1 BYTE ParClose BYTE[2] CR)
+MESSAGECLASS EPV_D787 (BYTE ParOpen CHAR[10] RID CHAR[22] PIX CHAR[4] ApplicationVersionNumber CHAR[2] Priority BYTE ForceTransaction BYTE ParClose BYTE[2] CR)
+MESSAGECLASS APL_D253 (BYTE ParOpen CHAR[40] Pan BYTE Status BYTE ParClose BYTE[2] CR)
+MESSAGECLASS APB_D236 (BYTE ParOpen CHAR[19] FromBin CHAR[19] ToBin CHAR[2] Status CHAR[2] TreatmentCode CHAR[158] RUF BYTE ParClose BYTE[2] CR)
+MESSAGECLASS EPT_D778 (BYTE ParOpen CHAR[10] RID CHAR[22] PIX CHAR[10] TerminalActionCodeDenial CHAR[10] TerminalActionCodeOnline CHAR[10] TerminalActionCodeDefault BYTE ParClose BYTE[2] CR)
+MESSAGECLASS EPK_D782 (BYTE ParOpen CHAR[10] RID CHAR[20] RUF CHAR[6] CertificationAuthorityPublicKeyIndex	CHAR[6] IssuerPublicKeyExponent CHAR[4] IssuerPublicKeyModulusSize CHAR[512] IssuerPublicKeyModulus CHAR[256] IssuerPublicKeyRemainder BYTE ParClose BYTE[2] CR)
+END

@@ -1,0 +1,11 @@
+C:\PROJECTS_CROSS\EMV\Server\src\actys.c;C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x64\Debug\obj\actys.obj
+C:\PROJECTS_CROSS\EMV\Server\src\CB2A.c;C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x64\Debug\obj\CB2A.obj
+C:\PROJECTS_CROSS\EMV\Server\src\EMV.c;C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x64\Debug\obj\EMV.obj
+C:\PROJECTS_CROSS\EMV\Server\src\EMVCallback.c;C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x64\Debug\obj\EMVCallback.obj
+C:\PROJECTS_CROSS\EMV\Server\src\EMVError.c;C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x64\Debug\obj\EMVError.obj
+C:\PROJECTS_CROSS\EMV\Server\src\EMVFile.c;C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x64\Debug\obj\EMVFile.obj
+C:\PROJECTS_CROSS\EMV\Server\src\EMVTag.c;C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x64\Debug\obj\EMVTag.obj
+C:\PROJECTS_CROSS\EMV\Server\src\EMVTools.c;C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x64\Debug\obj\EMVTools.obj
+C:\PROJECTS_CROSS\EMV\Server\src\EMVTrace.c;C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x64\Debug\obj\EMVTrace.obj
+C:\PROJECTS_CROSS\EMV\Server\src\main.cpp;C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x64\Debug\obj\main.obj
+C:\PROJECTS_CROSS\EMV\Server\src\tlv.c;C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x64\Debug\obj\tlv.obj

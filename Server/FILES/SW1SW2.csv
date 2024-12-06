@@ -1,0 +1,204 @@
+SW1;SW2;Info/Warning/Error/Security;Description
+62;0;W;No information given (NV-Ram not changed)
+63;0;W;No information given (NV-Ram changed)
+64;0;E;No information given (NV-Ram not changed)
+65;0;E;No information given
+66;0;S;Error while receiving (timeout)
+67;0;E;Wrong length
+68;0;E;No information given (The request function is not supported by the card)
+69;0;E;No information given (Command not allowed)
+6A;0;E;No information given (Bytes P1 and/or P2 are incorrect)
+6B;0;E;Wrong parameter(s) P1-P2
+6C;0;E;Incorrect P3 length.
+6D;0;E;Instruction code not supported or invalid
+6E;0;E;Class not supported
+6F;0;E;Command aborted - more exact diagnosis not possible (e.g., operating system error).
+90;0;I;Command successfully executed (OK).
+91;0;;OK
+94;0;E;No EF selected.
+97;0;;PIN blocked and Unblock Try Counter is 1 or 2
+99;0;W;1 PIN try left
+9A;0;E;2 PIN try left
+9E;0;E;PIN not installed
+9F;0;E;PIN blocked and Unblock Try Counter is 3
+62;1;W;NV-Ram not changed 1.
+64;1;E;Command timeout. Immediate response required by the card.
+65;1;E;Write error. Memory failure. There have been problems in writing or reading the EEPROM. Other hardware problems may also bring this error.
+66;1;S;Error while receiving (character parity error)
+69;1;E;Command not accepted (inactive state)
+91;1;;States.activity, States.lock Status or States.lockable has wrong value
+93;1;;Integrity error
+94;1;;Candidate currency code does not match purse currency
+66;2;S;Wrong checksum
+91;2;;Transaction number reached its limit
+93;2;;Candidate S2 invalid
+94;2;;Candidate amount too high
+94;2;E;Address range exceeded.
+97;2;;Main keys are blocked
+98;2;E;No PIN defined.
+66;3;S;The current DF file without FCI
+93;3;E;Application is permanently locked
+94;3;;Candidate amount too low
+66;4;S;No SF or KF under the current DF
+90;4;W;PIN not succesfully verified, 3 or more PIN tries left
+94;4;E;FID not found, record not found or comparison pattern not found.
+97;4;;PIN not succesfully verified, 3 or more PIN tries left
+98;4;E;Access conditions not satisfied, authentication failed.
+99;4;E;PIN not succesfully verified, 1 PIN try left
+9A;4;E;PIN not succesfully verified, 2 PIN try left
+9E;4;E;PIN not succesfully verified, PIN not installed
+9F;4;E;PIN not succesfully verified, PIN blocked and Unblock Try Counter is 3
+94;5;;Problems in the data field
+9D;5;E;Incorrect certificate type
+94;6;E;Required MAC unavailable
+94;7;;Bad currency : purse engine has no slot with R3bc currency
+9D;7;E;Incorrect session data size
+90;8;;Key/file not found
+94;8;;R3bc currency not supported in purse engine
+94;8;E;Selected file type does not match command.
+9D;8;E;Incorrect DIR file record size
+9D;9;E;Incorrect FCI record size
+92;10;E;Insufficient memory. No more storage available.
+9D;10;E;Insufficient memory to load application
+9D;11;E;Invalid AID
+9D;12;E;Duplicate AID
+9D;13;E;Application previously loaded
+9D;14;E;Application history list full
+9D;15;E;Application not open
+9D;17;E;Invalid offset
+9D;18;E;Application already loaded
+9D;19;E;Invalid certificate
+9D;20;E;Application not loaded
+9D;21;E;Invalid Open command data length
+9D;30;E;Check data parameter is incorrect (invalid start address)
+9D;31;E;Check data parameter is incorrect (invalid length)
+9D;32;E;Check data parameter is incorrect (illegal memory check area)
+98;35;E;ASK RANDOM or GIVE RANDOM not executed.
+91;40;;Invalid key number specified
+92;40;E;Writing to EEPROM not successful.
+98;40;E;PIN verification not successful.
+9D;40;E;Invalid MSM Controls ciphertext
+9D;41;E;MSM controls already set
+9D;42;E;Set MSM Controls data length less than 2 bytes
+9D;43;E;Invalid MSM Controls data length
+9D;44;E;Excess MSM Controls ciphertext
+9D;45;E;Verification of MSM Controls data failed
+98;50;E;INCREASE or DECREASE could not be executed because a limit has been reached.
+9D;50;E;Invalid MCD Issuer production ID
+9D;51;E;Invalid MCD Issuer ID
+9D;52;E;Invalid set MSM controls data date
+9D;53;E;Invalid MCD number
+9D;54;E;Reserved field error
+9D;55;E;Reserved field error
+9D;56;E;Reserved field error
+9D;57;E;Reserved field error
+9D;60;E;MAC verification failed
+9D;61;E;Maximum number of unblocks reached
+98;62;E;Authentication Error, application specific (incorrect MAC)
+9D;62;E;Card was not blocked
+9D;63;E;Crypto functions not available
+9D;64;E;No application loaded
+66;69;S;Incorrect Encryption/Decryption Padding
+9A;71;E;Wrong parameter value - Double agent AID
+9A;72;E;Wrong parameter value - Double agent Type
+6A;80;E;The parameters in the data field are incorrect.
+90;80;W;Unblock Try Counter has reached zero
+95;80;;Bad sequence
+62;81;W;Part of returned data may be corrupted
+63;81;W;File filled up by the last write. Loading/updating is not allowed.
+65;81;E;Memory failure
+68;81;E;Logical channel not supported
+69;81;E;Command incompatible with file structure
+6A;81;E;Function not supported
+96;81;;Slave not found
+62;82;W;End of file/record reached before reading Le bytes
+63;82;W;Card key not supported.
+68;82;E;Secure messaging not supported
+69;82;E;Security condition not satisfied.
+6A;82;E;File not found
+62;83;W;Selected file invalidated
+63;83;W;Reader key not supported.
+68;83;E;Last command of the chain expected
+69;83;E;Authentication method blocked
+6A;83;E;Record not found
+62;84;W;Selected file is not valid. FCI not formated according to ISO
+63;84;W;Plaintext transmission not supported.
+68;84;E;Command chaining not supported
+69;84;E;Referenced data reversibly blocked (invalidated)
+6A;84;E;There is insufficient memory space in record or file
+97;84;;Base key
+62;85;W;No input data available from a sensor on the card. No Purse Engine enslaved for R3bc
+63;85;W;Secured transmission not supported.
+69;85;E;Conditions of use not satisfied.
+6A;85;E;Lc inconsistent with TLV structure
+97;85;;Limit exceeded - C-MAC key
+99;85;E;Wrong status - Cardholder lock
+63;86;W;Volatile memory is not available.
+69;86;E;Command not allowed (no current EF)
+6A;86;E;Incorrect P1 or P2 parameter.
+97;86;;SM error - Limit exceeded - R-MAC key
+99;86;E;Missing privilege
+63;87;W;Non-volatile memory is not available.
+69;87;E;Expected secure messaging (SM) object missing
+6A;87;E;Lc inconsistent with P1-P2
+97;87;;Limit exceeded - sequence counter
+99;87;E;PIN is not installed
+63;88;W;Key number not valid.
+69;88;E;Incorrect secure messaging (SM) data object
+6A;88;E;Referenced data not found
+97;88;;Limit exceeded - R-MAC length
+99;88;E;Wrong status - R-MAC state
+63;89;W;Key length is not correct.
+6A;89;E;File already exists
+97;89;;Service not available
+69;96;E;Data must be updated again
+9D;0A;E;Incorrect code size
+91;0C;;No changes
+91;0E;;Insufficient NV-Memory to complete command
+92;0x;I;Writing to EEPROM successful after 'x' attempts.
+9D;1A;E;Invalid signature
+9D;1B;E;Invalid KTU
+91;1C;;Command code not supported
+9D;1D;E;MSM controls not set
+91;1E;;CRC or MAC does not match data
+9D;1E;E;Application signature does not exist
+9D;1F;E;KTU does not exist
+91;7E;;Length of command string invalid
+6A;8A;E;DF name already exists.
+69;8D;;Reserved
+91;9D;;Not allow the requested command
+91;9E;;Value of the parameter invalid
+91;A0;;Requested AID not present on PICC
+91;A1;;Unrecoverable error within application
+62;A2;W;Wrong R-MAC
+62;A4;W;Card locked (during reset( ))
+91;AE;;Authentication status does not allow the requested command
+91;AF;;Additional data frame is expected to be sent
+91;BE;;Out of boundary
+63;C0;W;Verify fail, no try left.
+63;C1;W;Verify fail, 1 try left.
+91;C1;;Unrecoverable error within PICC
+63;C2;W;Verify fail, 2 tries left.
+63;C3;W;Verify fail, 3 tries left.
+91;CA;;Previous Command was not fully completed
+91;CD;;PICC was disabled by an unrecoverable error
+91;CE;;Number of Applications limited to 28
+62;CX;W;Counter with value x (command dependent)
+63;CX;W;The counter has reached the value 'x' (0 = x = 15) (command dependent).
+91;DE;;File or application already exists
+69;E1;E;POL1 of the currently Enabled Profile prevents this action.
+91;EE;;Could not complete NV-write operation due to loss of power
+69;F0;E;Permission Denied
+6A;F0;E;Wrong parameter value
+91;F0;;Specified file number does not exist
+62;F1;W;Wrong C-MAC
+63;F1;W;More data expected.
+69;F1;E;Permission Denied - Missing Privilege
+91;F1;;Unrecoverable error within file
+63;F2;W;More data expected and proactive command pending.
+62;F3;W;Internal reset
+62;F5;W;Default agent locked
+62;F7;W;Cardholder locked
+62;F8;W;Basement is current agent
+62;F9;W;CALC Key Set not unblocked
+6F;FF;E;Card dead (overuse, …)

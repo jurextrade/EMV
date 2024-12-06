@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\src\actys.c" />
+    <ClCompile Include="..\..\..\..\src\CB2A.c" />
+    <ClCompile Include="..\..\..\..\src\EMV.c" />
+    <ClCompile Include="..\..\..\..\src\EMVCallback.c" />
+    <ClCompile Include="..\..\..\..\src\EMVError.c" />
+    <ClCompile Include="..\..\..\..\src\EMVFile.c" />
+    <ClCompile Include="..\..\..\..\src\EMVTag.c" />
+    <ClCompile Include="..\..\..\..\src\EMVTools.c" />
+    <ClCompile Include="..\..\..\..\src\EMVTrace.c" />
+    <ClCompile Include="..\..\..\..\src\main.cpp" />
+    <ClCompile Include="..\..\..\..\src\tlv.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{a8487646-f9df-445c-8ba7-6705c5f7545e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files">
+      <UniqueIdentifier>{c5c27e83-47c6-4283-afca-4133e24ccbe9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\src\actys.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\cb2a.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\cb2aCode.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\EMV.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\EMVCallback.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\EMVError.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\EMVFile.H">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\EMVTag.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\EMVTools.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\EMVTrace.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\tagcode.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\tlv.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\MX\apdu.mx">
+      <Filter>Files</Filter>
+    </None>
+    <None Include="..\..\..\..\MX\dialogfiles.mx">
+      <Filter>Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>

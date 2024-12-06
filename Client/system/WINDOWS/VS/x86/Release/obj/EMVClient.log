@@ -1,0 +1,9 @@
+﻿  Card.c
+  EMVError.c
+  EMVTools.c
+  main.cpp
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 791 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  EMVClient.vcxproj -> C:\PROJECTS_CROSS\EMV\Client\system\WINDOWS\VS\x86\Release\exe\EMVClient32.exe

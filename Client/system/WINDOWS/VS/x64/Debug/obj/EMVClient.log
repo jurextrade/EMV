@@ -1,0 +1,5 @@
+﻿  Card.c
+  EMVTools.c
+  Generating Code...
+C:\PROJECTS_CROSS\EMV\Client\src\EMVTools.c(46,9): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+  EMVClient.vcxproj -> C:\PROJECTS_CROSS\EMV\Client\system\WINDOWS\VS\x64\Debug\exec\EMVClient64.exe
