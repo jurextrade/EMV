@@ -7,7 +7,7 @@
 
 #include "EMVTag.h"
 #include "EMVTools.h"
-#include "EMVCallBack.h"
+#include "EMVConnect.h"
 #include "EMVError.h"
 #include "EMVFile.h"
 #include "EMVTrace.h"
@@ -695,7 +695,7 @@ typedef struct _EMVAid
 	BYTE			AID[16];							// Ex. {0xA0, 0x00, 0x00, 0x00, 0x00, 0x10, 0x10}
 	int				Priority;
 	BYTE			ApplicationVersionNumber[2];		// Ex. {0x00, 0x8C}
-	char			applicationSelectionIndicator;		// Application Selection Indicator, 0 - if application must match AID exactly, 1 - if allow partial
+	BYTE			applicationSelectionIndicator;		// Application Selection Indicator, 0 - if application must match AID exactly, 1 - if allow partial
 	BYTE			ForceTransaction;					// Indicates if a transaction can be forced to accept by acceptor if refused by terminal
 	BYTE			TerminalActionCodeDenial[5];		// Terminal Action Code - Denial
 	BYTE			TerminalActionCodeOnline[5];		// Terminal Action Code - Online
@@ -1076,8 +1076,7 @@ extern EMVExceptionCard* EMVGetExceptionPanFromPan (EMV* pemv, EMVClient* pclien
 extern EMVRangeBin* EMVGetRangeBinFromPan (EMV* pemv, EMVClient* pclient, BYTE* pan, int tagPanSize);
 
 
-extern int			EMVGetProcessingOption (EMV* pemv, EMVClient* pclient);
-
+extern int			EMVGetProcessingOption(EMV* pemv, EMVClient* pclient, unsigned char *lcdolData, int lcSize);
 extern int			EMVGetICCDynamicNumber (EMV* pemv, EMVClient* pclient);
 extern int			EMVGetATC (EMV* pemv, EMVClient* pclient);
 extern int			EMVGetLastOnlineATC (EMV* pemv, EMVClient* pclient);
@@ -1192,9 +1191,11 @@ extern void			Send_Start(MXCom* pcom, EMVClient* pclient);
 extern void			Send_End(MXCom* pcom, EMVClient* pclient);
 
 extern void			Send_Trace(MXCom* pcom, EMVClient* pclient, char* message);
+extern void			Send_Info(MXCom* pcom, EMVClient* pclient, char* command, char* message);
+
 extern void			Send_TLV(MXCom* pcom, EMVClient* pclient, BYTE* tlvbuffer, int tlvsize);
 
-extern void			Send_APDU(MXCom* pcom, EMVClient* pclient, BYTE cla, BYTE ins, BYTE p1, BYTE p2, int datasize, char* data, int way);
+extern void			Send_APDU(MXCom* pcom, EMVClient* pclient, BYTE cla, BYTE ins, BYTE p1, BYTE p2, int datasize, BYTE* data, int way);
 extern void			Send_Command(MXCom* pcom, EMVClient* pclient, char* command, long long par);
 extern void			Send_Step(MXCom* pcom,  EMVClient* pclient, int step);
 extern void			Send_SetTSI(MXCom* pcom, EMVClient* pclient, unsigned short b);

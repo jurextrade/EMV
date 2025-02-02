@@ -1,9 +1,5 @@
 #include "EMV.h"
 
-
-
-
-
 void EMVAddFile (EMV* pemv, EMVFile* pfile)
 {
 	ListNewr (&pemv->Settings.appFiles, pfile);
@@ -192,4 +188,265 @@ void EMVLoadAuthorityPublicKeys (EMV* pemv)
 		MXFreeMessage (pemv->pMX, pmessage);
 	
 	MXCloseCom (pemv->pMX, pFileCom); 
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+int OnLoadAcceptor(MXMessage* pmessage, MXCom* pcom, void* applicationfield)
+{
+	EMVAcceptor* pAcceptor;
+	EMVAcquirer* pAcquirer;
+	EMV* pemv = (EMV*)applicationfield;
+
+	if (*(BYTE*)MXGetValue(pmessage, "ParOpen", 1) != '[') return 1;
+
+	pAcceptor = EMVInitAcceptor(pemv);
+	pAcquirer = EMVInitAcquirer(pemv);
+
+
+
+	strncpy(pAcceptor->SIRET, (char*)MXGetValue(pmessage, "SIRET", 1), 14);
+	strncpy(pAcceptor->SystemAcceptationIdentification, (char*)MXGetValue(pmessage, "SystemAcceptationIdentification", 1), 8);
+	strncpy(pAcceptor->MerchantIdentifier, (char*)MXGetValue(pmessage, "MerchantIdentifier", 1), 15);
+	CharArrayToHexaArray((char*)MXGetValue(pmessage, "MerchantCategoryCode", 1), 4, 2, "b", pAcceptor->MerchantCategoryCode);
+	strncpy(pAcceptor->MerchantContractNumber, (char*)MXGetValue(pmessage, "MerchantContractNumber", 1), 7);
+	strncpy(pAcceptor->TerminalIdentification, (char*)MXGetValue(pmessage, "TerminalIdentification", 1), 8);
+
+	strncpy(pAcceptor->MerchantNameAndLocation, (char*)MXGetValue(pmessage, "MerchantNameAndLocation", 1), 40);  // variable should end with 0
+
+	CharArrayToBCDArray((char*)MXGetValue(pmessage, "AcquirerIdentifier", 1), 11, 11, "n", pAcquirer->AcquirerIdentifier);
+	pemv->pAcceptor = pAcceptor;
+	pemv->pAcquirer = pAcquirer;
+
+	return 1;
+}
+
+int OnLoadApplications(MXMessage* pmessage, MXCom* pcom, void* applicationfield)
+{
+	BYTE	AID[16];
+	BOOL    found = FALSE;
+	int		AIDLen = 0;
+
+	char	sPix[23];
+	char	sRid[11];
+	char	sAid[33];
+	BYTE	sPriority[2];
+	int		j;
+	int		i = 0;
+
+
+	EMVApplication* pApplication;
+	EMV* pemv = (EMV*)applicationfield;
+
+	if (*(BYTE*)MXGetValue(pmessage, "ParOpen", 1) != '[') return 1;
+
+	memset(sRid, 0, 11);
+	memset(sPix, 0, 23);
+	memset(sAid, 0, 33);
+	memset(sPriority, 0, 2);
+
+	strncpy(sRid, (char*)MXGetValue(pmessage, "RID", 1), 10);
+	strncpy(sPix, (char*)MXGetValue(pmessage, "PIX", 1), 21);
+
+	strcat(sAid, sRid);
+	strcat(sAid, sPix);
+
+	while (i < 32 && sAid[i] != ' ') i++;
+	AIDLen = (i + 1) / 2;
+
+	CharArrayToHexaArray(sAid, i, AIDLen, "b", AID);
+
+	pApplication = EMVGetApplicationFromAID(pemv, AID);
+	if (!pApplication)
+	{
+		pApplication = EMVInitApplication(pemv);
+		memcpy(pApplication->RID, AID, 5);
+		EMVAddApplication(pemv, pApplication);
+	}
+
+
+	for (j = 0; j < pApplication->AIDCount; j++)
+		if (pApplication->AID[j].Length == AIDLen && memcmp(pApplication->AID[j].AID, AID, AIDLen) == 0)
+			found = TRUE;
+	if (!found)
+	{
+		memcpy(pApplication->AID[j].AID, AID, AIDLen);
+		pApplication->AID[j].Length = AIDLen;
+		pApplication->AID[j].applicationSelectionIndicator = 1;
+		j = pApplication->AIDCount;
+		pApplication->AIDCount++;
+	}
+
+	CharArrayToHexaArray((char*)MXGetValue(pmessage, "ApplicationVersionNumber", 1), 4, 2, "b", pApplication->AID[j].ApplicationVersionNumber);
+	CharArrayToHexaArray((char*)MXGetValue(pmessage, "Priority", 1), 2, 1, "b", sPriority);
+	pApplication->AID[j].Priority = sPriority[0];
+	pApplication->AID[j].ForceTransaction = *(BYTE*)MXGetValue(pmessage, "ForceTransaction", 1);
+
+	/*
+
+
+		memcpy(visa->TransactionReferenceCurrency, "x09\x78", 2);
+		visa->TransactionReferenceCurrencyExponent = 2;
+		memcpy(cb->TransactionReferenceCurrency, "x09\x78", 2);
+		cb->TransactionReferenceCurrencyExponent = 2;
+		memcpy(mc->TransactionReferenceCurrency, "x09\x78", 2);
+		mc->TransactionReferenceCurrencyExponent = 2;
+		*/
+	return 1;
+}
+
+int OnLoadTacs(MXMessage* pmessage, MXCom* pcom, void* applicationfield)
+{
+	BYTE	AID[16];
+	BOOL    found = FALSE;
+	int		AIDLen = 0;
+
+	char	sPix[23];
+	char	sRid[11];
+	char	sAid[33];
+
+	int		j;
+	int		i = 0;
+
+
+	EMVApplication* pApplication;
+	EMV* pemv = (EMV*)applicationfield;
+
+	if (*(BYTE*)MXGetValue(pmessage, "ParOpen", 1) != '[') return 1;
+
+
+	memset(sRid, 0, 11);
+	memset(sPix, 0, 23);
+	memset(sAid, 0, 33);
+
+
+
+	strncpy(sRid, (char*)MXGetValue(pmessage, "RID", 1), 10);
+	strncpy(sPix, (char*)MXGetValue(pmessage, "PIX", 1), 21);
+
+	strcat(sAid, sRid);
+	strcat(sAid, sPix);
+	while (i < 32 && sAid[i] != ' ') i++;
+	AIDLen = (i + 1) / 2;
+
+	CharArrayToHexaArray(sAid, i, AIDLen, "b", AID);
+
+	pApplication = EMVGetApplicationFromAID(pemv, AID);
+	if (!pApplication)
+	{
+		pApplication = EMVInitApplication(pemv);
+		memcpy(pApplication->RID, AID, 5);
+		EMVAddApplication(pemv, pApplication);
+	}
+
+
+	for (j = 0; j < pApplication->AIDCount; j++)
+		if (pApplication->AID[j].Length == AIDLen && memcmp(pApplication->AID[j].AID, AID, AIDLen) == 0)
+		{
+			found = TRUE;
+			break;
+		}
+	if (!found)
+	{
+		memcpy(pApplication->AID[j].AID, AID, AIDLen);
+		pApplication->AID[j].Length = AIDLen;
+		j = pApplication->AIDCount;
+		pApplication->AIDCount++;
+	}
+
+	CharArrayToHexaArray((char*)MXGetValue(pmessage, "TerminalActionCodeDenial", 1), 10, 5, "b", pApplication->AID[j].TerminalActionCodeDenial);
+	CharArrayToHexaArray((char*)MXGetValue(pmessage, "TerminalActionCodeOnline", 1), 10, 5, "b", pApplication->AID[j].TerminalActionCodeOnline);
+	CharArrayToHexaArray((char*)MXGetValue(pmessage, "TerminalActionCodeDefault", 1), 10, 5, "b", pApplication->AID[j].TerminalActionCodeDefault);
+	return 1;
+}
+
+int OnLoadExceptionCards(MXMessage* pmessage, MXCom* pcom, void* applicationfield)
+{
+	EMVExceptionCard* pExceptionCard;
+	EMV* pemv = (EMV*)applicationfield;
+
+	if (*(BYTE*)MXGetValue(pmessage, "ParOpen", 1) != '[') return 1;
+
+	pExceptionCard = (EMVExceptionCard*)malloc(sizeof(EMVExceptionCard));
+
+
+	CharArrayToHexaArray((char*)MXGetValue(pmessage, "Pan", 1), 20, 10, "b", pExceptionCard->Pan);
+	CharArrayToHexaArray((char*)MXGetValue(pmessage, "Status", 1), 1, 1, "b", &pExceptionCard->Status);
+
+	ListInsert(&pemv->ExceptionCardList, pExceptionCard);
+
+	return 1;
+}
+
+int OnLoadCurrencies(MXMessage* pmessage, MXCom* pcom, void* applicationfield)
+{
+	BYTE FirstChar;
+
+	EMV* pemv = (EMV*)applicationfield;
+	FirstChar = *(BYTE*)MXGetValue(pmessage, "ParOpen", 1);
+
+	if (*(BYTE*)MXGetValue(pmessage, "ParOpen", 1) != '[') return 1;
+
+	CharArrayToHexaArray((char*)MXGetValue(pmessage, "CurrencyExponent", 1), 1, 1, "b", &pemv->ApplicationCurrencyExponent);
+	CharArrayToBCDArray((char*)MXGetValue(pmessage, "CurrencyCode", 1), 3, 3, "n", pemv->ApplicationCurrencyCode);
+
+	return 1;
+}
+
+int OnLoadRangeBins(MXMessage* pmessage, MXCom* pcom, void* applicationfield)
+{
+	int i = 0;
+	EMVRangeBin* pRangeBin;
+	EMV* pemv = (EMV*)applicationfield;
+
+
+	if (*(BYTE*)MXGetValue(pmessage, "ParOpen", 1) != '[') return 1;
+
+	pRangeBin = (EMVRangeBin*)malloc(sizeof(EMVRangeBin));
+
+	CharArrayToHexaArray((char*)MXGetValue(pmessage, "FromBin", 1), 19, 10, "b", pRangeBin->FromBin);
+	CharArrayToHexaArray((char*)MXGetValue(pmessage, "ToBin", 1), 19, 10, "b", pRangeBin->ToBin);
+	CharArrayToHexaArray((char*)MXGetValue(pmessage, "Status", 1), 2, 1, "b", &pRangeBin->Status);
+	CharArrayToHexaArray((char*)MXGetValue(pmessage, "TreatmentCode", 1), 2, 1, "b", &pRangeBin->TreatmentCode);
+
+	ListInsert(&pemv->RangBinList, pRangeBin);
+
+	return 1;
+}
+
+int OnLoadAuthorityPublicKeys(MXMessage* pmessage, MXCom* pcom, void* applicationfield)
+{
+	char	sRid[11];
+	BYTE	RID[5];
+	EMVAuthorityPublicKey* pAuthorityPublicKey;
+	EMV* pemv = (EMV*)applicationfield;
+	EMVApplication* pApplication;
+
+	if (*(BYTE*)MXGetValue(pmessage, "ParOpen", 1) != '[') return 1;
+
+	pAuthorityPublicKey = (EMVAuthorityPublicKey*)malloc(sizeof(EMVAuthorityPublicKey));
+
+	memset(sRid, 0, 11);
+
+	strncpy(sRid, (char*)MXGetValue(pmessage, "RID", 1), 10);
+	CharArrayToHexaArray(sRid, 10, 5, "b", RID);
+
+	pApplication = EMVGetApplicationFromRID(pemv, RID);
+	if (!pApplication)
+	{
+		pApplication = EMVInitApplication(pemv);
+		memcpy(pApplication->RID, RID, 5);
+		EMVAddApplication(pemv, pApplication);
+	}
+
+
+	CharArrayToHexaArray((char*)MXGetValue(pmessage, "CertificationAuthorityPublicKeyIndex", 1) + 4, 2, 1, "b", &pAuthorityPublicKey->CertificationAuthorityPublicKeyIndex);
+	CharArrayToHexaArray((char*)MXGetValue(pmessage, "IssuerPublicKeyExponent", 1), 6, 3, "b", pAuthorityPublicKey->IssuerPublicKeyExponent);
+	pAuthorityPublicKey->IssuerPublicKeyModulusSize = atoi((char*)MXGetValue(pmessage, "IssuerPublicKeyModulusSize", 1));
+	CharArrayToHexaArray((char*)MXGetValue(pmessage, "IssuerPublicKeyModulus", 1), 512, 256, "b", pAuthorityPublicKey->IssuerPublicKeyModulus);
+	CharArrayToHexaArray((char*)MXGetValue(pmessage, "IssuerPublicKeyRemainder", 1), 256, 128, "b", pAuthorityPublicKey->IssuerPublicKeyRemainder);
+	ListInsert(&pApplication->AuthorityPublicKeys, pAuthorityPublicKey);
+
+	return 1;
+
 }

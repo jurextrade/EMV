@@ -58,7 +58,7 @@ void CB2ACheckAndExtendBuffer(CB2AMessage* pmessage, int incrSize)
 	{
 		// Init size
 		pmessage->tlv_allocated = 2 * 1024;
-		pmessage->tlv_buffer = malloc(pmessage->tlv_allocated);
+		pmessage->tlv_buffer = (BYTE*)malloc(pmessage->tlv_allocated);
         memset (pmessage->tlv_buffer, 0, pmessage->tlv_allocated);
 	} else
 	{
@@ -67,7 +67,7 @@ void CB2ACheckAndExtendBuffer(CB2AMessage* pmessage, int incrSize)
 		while (pmessage->tlv_length + incrSize > pmessage->tlv_allocated)
 			pmessage->tlv_allocated *= 2;
 		// Realloc must copy old data
-		pmessage->tlv_buffer = realloc(pmessage->tlv_buffer, pmessage->tlv_allocated);
+		pmessage->tlv_buffer = (BYTE*)realloc(pmessage->tlv_buffer, pmessage->tlv_allocated);
         memset (pmessage->tlv_buffer + old_size, 0, pmessage->tlv_allocated - old_size  );
 	}
 
@@ -95,7 +95,7 @@ void CB2AAddField (CB2A* pcb2a, CB2AField* pfield)
 
 CB2AFieldValue* CB2AInitFieldValue (CB2A* pcb2a, CB2AField* pfield)
 {
-	CB2AFieldValue* pfieldvalue = malloc (sizeof (CB2AFieldValue));
+	CB2AFieldValue* pfieldvalue = (CB2AFieldValue *)malloc (sizeof (CB2AFieldValue));
 	pfieldvalue->Value	= NULL;
 	pfieldvalue->Size	= 0;
 	pfieldvalue->pField = pfield;
@@ -105,7 +105,7 @@ CB2AFieldValue* CB2AInitFieldValue (CB2A* pcb2a, CB2AField* pfield)
 
 CB2ATagValue* CB2AInitTagValue (CB2A* pcb2a, CB2ATag* ptag)
 {
-	CB2ATagValue* ptagvalue = malloc (sizeof (CB2ATagValue));
+	CB2ATagValue* ptagvalue = (CB2ATagValue* )malloc (sizeof (CB2ATagValue));
 	ptagvalue->Value	= NULL;
 	ptagvalue->Size	= 0;
 	ptagvalue->pTag = ptag;
@@ -132,7 +132,7 @@ CB2AMessage* CB2AInitMessage (CB2A* pcb2a, char* sidentifier)
 	List* listtag = NULL; 
 	CB2AFieldValue* pfirstvalue;
 
-	CB2AMessage* pmessage = malloc (sizeof (CB2AMessage));
+	CB2AMessage* pmessage = (CB2AMessage*)malloc(sizeof(CB2AMessage));
 	pmessage->FieldsValue = NULL;
 
 	idsize = CharArrayToBCDArray (sidentifier, strlen (sidentifier), CB2A_IDENTIFIER_SIZE, "n", pmessage->Identifier);
@@ -316,14 +316,14 @@ void CB2ASetField (CB2AMessage* pmessage, CB2AFieldValue* pfieldvalue, EMVTag* p
 
   
     if (pfieldvalue->pField->From != -1)
-       tagsize = memcpyHexa (tagvalue, tagsize, pfieldvalue->pField->From, pfieldvalue->pField->To, "n", endBuffer);
+       tagsize = memcpyHexa ((char*)tagvalue, tagsize, pfieldvalue->pField->From, pfieldvalue->pField->To, "n", endBuffer);
     else
 	if (fielddatatype ==  emvtagdatatype)
     {
         memcpy(endBuffer, tagvalue, tagsize);
     }
 	else
-		tagsize = CB2AWriteEMVTag (emvtagdatatype,  emvtagsize,  fielddatatype, tagvalue, tagsize, endBuffer);
+		tagsize = CB2AWriteEMVTag (emvtagdatatype,  emvtagsize,  fielddatatype, (char*)tagvalue, tagsize, endBuffer);
 		
     if (!pfieldvalue->pField->IsVariable)
         tagsize = CB2AGetFieldSize (pfieldvalue->pField);
@@ -379,7 +379,7 @@ void CB2ASetTag (CB2AMessage* pmessage, CB2ATagValue* ptagvalue, EMVTag* pemvtag
 		BYTE Output[5];
 		int i;
 		char stype[6];
-		char* sizeBuffer;
+		BYTE* sizeBuffer;
 
 		CB2ACheckAndExtendBuffer(pmessage, 3 + tagsize);			
 		endBuffer = pmessage->tlv_buffer + pmessage->tlv_length;
@@ -401,7 +401,7 @@ void CB2ASetTag (CB2AMessage* pmessage, CB2ATagValue* ptagvalue, EMVTag* pemvtag
 	
 
 		if (emvtagdatatype ==  DATA_TYPE_a)
-			tagsize = CB2AWriteEMVTag (ptagvalue->pTag->DataType,  ptagvalue->pTag->Size,  ptagvalue->pTag->pField->DataType, tagvalue, tagsize, endBuffer);
+			tagsize = CB2AWriteEMVTag (ptagvalue->pTag->DataType,  ptagvalue->pTag->Size,  ptagvalue->pTag->pField->DataType, (char*)tagvalue, tagsize, endBuffer);
 		else
 			memcpy(endBuffer, tagvalue, tagsize);
 			

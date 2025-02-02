@@ -28,7 +28,6 @@
 #define  EurCode   "978"
 #define  FranceCode "x02\x50"
 
-
 typedef struct _Card
 {
 	char				UserName[30];
@@ -37,10 +36,8 @@ typedef struct _Card
 	SCARD_IO_REQUEST    Request;
 	char				strATR[100];
 	BYTE				MediaType;
-	MXCom*				pCom;
-
+	MXCom* pCom;                 //EMVServer
 }CARD;
-
 
 
 typedef struct _CardContext {
@@ -53,18 +50,24 @@ typedef struct _CardContext {
 	CARD*				pCurrentCard;
 	int					ShouldRelase;
 	List*				appApduErrors;
+	int                 WebUser;
 }CardContext;
 
 
 typedef struct _CardConnector {
-	MX*					pMX;
-
+	MX* pMX;
 	CardContext*		pCardContext;
-	MXCom*				pRouterCom;
+	MXCom*				pRouterCom;				//Router Com
 	char				UserName[30];
 	char				UserPassword[30];
-
+	char				UserID[30];
 }CC;
+
+
+
+
+
+
 
 
 
@@ -84,48 +87,47 @@ extern char		LoginServer[300];
 extern BYTE		transactiontype;
 extern char		amount[100];
 extern char		currency[4];
-extern char		smessage[300];
+extern char		smessage[1300];
 extern CARD*	CurrentCard;
+extern CC*		CardConnector;
 
 
 extern MXCom*	EMVRooterCom;
+extern MXCom*	EMVServerCom;
+
+
+extern int			CardApplicationProcedure(MX* pmx, void* par);
+extern int			OnConnect(MXCom* pcom, void* applicationfield);
+extern int			OnClose(MXCom* pcom, void* applicationfield);
+
+extern int			Readers_Init(CardContext* pCardContext);
+extern int			ReaderPlugging(CardContext* pCardContext);
 
 extern				CC* CCInit(MX* pmx);
 extern				void CCEnd(CC* pcc);
 
+extern char*		CardStrError(const long pcscError);
+extern char			CardCorrectATR(unsigned char* bufATR, int size);
+
+
 extern CardContext* CardContext_Init();
 extern LONG			CardContext_End(CardContext* pCardContext);
-
-extern MXCom*		Connect_RouterServer(CC* pcc);
-extern MXCom*		Connect_EMVServer(CC* pcc, CARD* pCard);
-
-extern void 		s_printf(char* message, char* format, char* string);
-extern void			Send_Start(MXCom* pcom);
-extern void			Send_Trace(MXCom* pcom, char* message);
-void				Send_APDU(MXCom* pcom, BYTE cla, BYTE ins, BYTE p1, BYTE p2, int datasize, unsigned char* data, int way);
-extern int			Send_Login(CC* pcc);
-
-
-
-extern int			Readers_Init(CardContext* pCardContext);
-extern int			OnCardConnected(CC* pcc);
-extern void			OnCardDisconnected(CARD* pCard);
 
 
 extern int			CardInit ();
 extern void			CardEnd ();
 extern int			CardRead ();
-
 extern char			CardAPDU (CARD* pCard, unsigned char cla, unsigned char ins, unsigned char p1, unsigned char p2,  unsigned char dataSize, unsigned char* data,
 								            int* outDataSize, unsigned char* outData);
-extern char*		CardStrError (const long pcscError);
-extern char			CardCorrectATR(unsigned char* bufATR, int size);
-extern int			CardApplicationProcedure (MX* pmx, void* par);
+extern int			OnCardConnected(CC* pcc);
+extern void			OnCardDisconnected(CARD* pCard);
 
 
+extern MXCom*		Connect_EMVServer(CC* pcc, CARD* pCard);
 
-extern int			OnConnect (MXCom* pcom, void* applicationfield);
-extern int			OnClose (MXCom* pcom, void* applicationfield);
+extern int			SendTransaction(MXCom* pcom, char type, char* currency, char* amount, BYTE mediatype);
+extern int			SendATR(MXCom* pcom, char* atr);
+extern int			SendUserInfo(MXCom* pcom, char* username, char* password);
 
 extern int          OnRecvACFirst            (MXMessage*  pmessage, MXCom* pcom, void* applicationfield);
 extern int          OnSendACFirst            (MXMessage*  pmessage, MXCom* pcom, void* applicationfield);
@@ -144,6 +146,19 @@ extern int          OnRecvSendCommand        (MXMessage*  pmessage, MXCom* pcom,
 extern int			EMVReadApduErrorFile(CardContext* pCardContext);
 extern void			EMVAddApduError(CardContext* pCardContext, EMVApduError* perror);
 extern EMVApduError* EMVGetErrorFromSW1SW2(CardContext* pCardContext, BYTE SW1, BYTE SW2);
+
+extern MXCom*		Connect_RouterServer(CC* pcc);
+
+extern void			Send_Start(MXCom* pcom);
+extern void			Send_Trace(MXCom* pcom, char* message);
+extern void			Send_Select(MXCom* pcom, char* message);
+extern void			Send_Plug(MXCom* pcom, char* message);
+void				Send_APDU(MXCom* pcom, BYTE cla, BYTE ins, BYTE p1, BYTE p2, int datasize, unsigned char* data, int way);
+extern int			Send_Login(CC* pcc);
+
+extern int			OnSendRouter(MXMessage* pmessage, MXCom* pcom, void* applicationfield);
+extern int			OnRecvRouter(MXMessage* pmessage, MXCom* pcom, void* applicationfield);
+extern void 		s_printf(char* message, char* format, char* string);
 
 #ifdef __cplusplus
 };

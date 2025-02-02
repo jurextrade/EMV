@@ -158,14 +158,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\Card.c" />
+    <ClCompile Include="..\..\..\..\src\EMVConnect.c" />
     <ClCompile Include="..\..\..\..\src\EMVError.c" />
     <ClCompile Include="..\..\..\..\src\EMVTools.c" />
     <ClCompile Include="..\..\..\..\src\main.cpp" />
+    <ClCompile Include="..\..\..\..\src\RouterConnect.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\src\Card.h" />
     <ClInclude Include="..\..\..\..\src\EMVError.h" />
     <ClInclude Include="..\..\..\..\src\EMVTools.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\MX\apdu.mx" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

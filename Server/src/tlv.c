@@ -37,14 +37,14 @@ static void TLVCheckAndExtendBuffer(TLV* ptlv, int incrSize)
 	{
 		// Init size
 		ptlv->tlv_allocated = 2 * 1024;
-		ptlv->tlv_buffer = malloc(ptlv->tlv_allocated);
+		ptlv->tlv_buffer = (BYTE*)malloc(ptlv->tlv_allocated);
 	} else
 	{
 		// incrSize musn't very big, but just in case
 		while (ptlv->tlv_length + incrSize > ptlv->tlv_allocated)
 			ptlv->tlv_allocated *= 2;
 		// Realloc must copy old data
-		ptlv->tlv_buffer = realloc(ptlv->tlv_buffer, ptlv->tlv_allocated);
+		ptlv->tlv_buffer = (BYTE*)realloc(ptlv->tlv_buffer, ptlv->tlv_allocated);
 	}
 
 	// Unable allocate

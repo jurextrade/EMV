@@ -19,24 +19,23 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\src\actys.c" />
     <ClCompile Include="..\..\..\..\src\CB2A.c" />
     <ClCompile Include="..\..\..\..\src\EMV.c" />
-    <ClCompile Include="..\..\..\..\src\EMVCallback.c" />
+    <ClCompile Include="..\..\..\..\src\EMVConnect.c" />
     <ClCompile Include="..\..\..\..\src\EMVError.c" />
     <ClCompile Include="..\..\..\..\src\EMVFile.c" />
     <ClCompile Include="..\..\..\..\src\EMVTag.c" />
     <ClCompile Include="..\..\..\..\src\EMVTools.c" />
     <ClCompile Include="..\..\..\..\src\EMVTrace.c" />
     <ClCompile Include="..\..\..\..\src\main.cpp" />
+    <ClCompile Include="..\..\..\..\src\RouterConnect.c" />
     <ClCompile Include="..\..\..\..\src\tlv.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\src\actys.h" />
     <ClInclude Include="..\..\..\..\src\cb2a.h" />
     <ClInclude Include="..\..\..\..\src\cb2aCode.h" />
     <ClInclude Include="..\..\..\..\src\EMV.h" />
-    <ClInclude Include="..\..\..\..\src\EMVCallback.h" />
+    <ClInclude Include="..\..\..\..\src\EMVConnect.h" />
     <ClInclude Include="..\..\..\..\src\EMVError.h" />
     <ClInclude Include="..\..\..\..\src\EMVFile.H" />
     <ClInclude Include="..\..\..\..\src\EMVTag.h" />
@@ -48,6 +47,12 @@
   <ItemGroup>
     <None Include="..\..\..\..\MX\apdu.mx" />
     <None Include="..\..\..\..\MX\dialogfiles.mx" />
+    <None Include="..\..\..\..\WPAF\apb_d236.wp" />
+    <None Include="..\..\..\..\WPAF\apl_d253.wp" />
+    <None Include="..\..\..\..\WPAF\epk_d782.wp" />
+    <None Include="..\..\..\..\WPAF\ept_d778.wp" />
+    <None Include="..\..\..\..\WPAF\epv_d787.wp" />
+    <None Include="..\..\..\..\WPAF\sit_d753.wp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4AF0C9A3-BF2D-49DF-A265-2EF59B5E311D}</ProjectGuid>

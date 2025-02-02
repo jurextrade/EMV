@@ -9,7 +9,8 @@ int t = 0;
 BYTE transactiontype;
 char amount[100];
 char currency[4];
-  
+
+
 
 CC* CCInit(MX* pmx)
 {
@@ -18,6 +19,7 @@ CC* CCInit(MX* pmx)
 	  
 	pcc->pMX = pmx;
 	pcc->pRouterCom = NULL;
+
 
 	pcc->pCardContext = CardContext_Init();
 	if (pcc == NULL)
@@ -129,6 +131,8 @@ int Card_Init(CardContext* pCardContext, CARD* pCard)
 	pCard->Request.dwProtocol	= dwAP;
 	pCard->Request.cbPciLength	= sizeof(pCard->Request);
 	pCardContext->pCurrentCard  = pCard;
+
+
 	return lReturn;
 }
 
@@ -139,6 +143,52 @@ void Card_End(CARD* pCard)
 //	free(CurrentCard);
 }
 
+int ReaderPlugging(CardContext* pCardContext) {
+
+	char   message[300] = { 0 };
+	if (pCardContext->WebUser == 0) {
+		// OFFLINE METHOD BLOCKING
+		char input[300] = { 0 };
+		s_printf(message, "%s", "Plug In a Reader and type a char\n>");
+		scanf("%s", input);
+		return 1;
+	}
+	else
+	{
+		s_printf(smessage, "%s", "Plug In a Reader and type a char\n>");
+		Send_Plug(EMVRooterCom, smessage);
+
+		MXMessage* pmessage = MXRecv(EMVRooterCom->MX, EMVRooterCom);
+
+		BUFFERPARM* Buffer = (BUFFERPARM*)MXGetValue(pmessage, "Buffer", 1);
+		char* outData = (char*)Buffer->BufferContent;
+		DWORD size = Buffer->BufferSize;
+		printf("Receive from router : %.*s\n", size, outData);
+
+		strncpy(message, outData, size);
+		free(Buffer->BufferContent);
+		free(Buffer);
+		MXFreeMessage(EMVRooterCom->MX, pmessage);
+
+
+		char Command[20] = { 0 };
+		char Parameter[20] = { 0 };
+		char UserId[20] = { 0 };
+
+		sscanf(message, "%[0-9]*%[a-zA-Z]*%[a-zA-Z ]*", UserId, Command, Parameter);
+
+		if (strcmp(Command, "ABORT") == 0) {
+			return 1;
+		}
+		else
+		{
+			if (strcmp(Command, "PLUG") == 0) {
+				return 1;
+			}
+		}
+	}
+	return 1;
+}
 
 
 int Readers_Init(CardContext* pCardContext)
@@ -151,7 +201,6 @@ int Readers_Init(CardContext* pCardContext)
 	if (lReturn != SCARD_S_SUCCESS || *pCardContext->pReaders == '\0')
 	{
 		s_printf(smessage, "%s\n", CardStrError(lReturn));
-		s_printf(smessage, "%s", "Plug In a Reader and type a char\n>");
 		return -1;
 	}
 
@@ -238,16 +287,17 @@ int OnCardConnected (CC* pcc)
 			break;
 		}
 // look ATR
-	unsigned char			strAtr[200];
-	strAtr[0] = 0;
+	unsigned char			strAtr[200] = { 0 };
 
 	if ((int)CardCorrectATR(bAttr, cByte))
 	{
-
-		memset(strAtr, 0, sizeof(strAtr));
+		char message[200] = { 0 };
 		ByteArrayToHexStr(bAttr, 0, cByte, strAtr);
 
-		s_printf(smessage, "ATR ok : %s \n", (char*)strAtr);
+
+		sprintf (message, "ATR ok : %s \n", (char*)strAtr);
+
+		s_printf(smessage, "%s", message);
 		strcpy(pCard->strATR, (char*)strAtr);
 	}
 	else
@@ -257,40 +307,15 @@ int OnCardConnected (CC* pcc)
 	}
 
 
-	if (!Connect_EMVServer(pcc, pCard))
+	EMVServerCom = Connect_EMVServer(pcc, pCard);
+	if (!EMVServerCom)
 	{
-		s_printf(smessage, "%s", "Can not connect to EMV server \n");
 		return -1;
 	}
 
-	MXMessage* pmessage;
-
-	printf("Send Userinfo to EMV Server\n");
-
-	pmessage = MXCreateMessage(pCard->pCom->MX, "APDU", "UserInfo");
-	MXSetValue(pmessage, "UserName",     1, pcc->UserName);
-	MXSetValue(pmessage, "UserPassword", 1, pcc->UserPassword);
-	MXSend(pCard->pCom->MX, pCard->pCom, pmessage);
-
-
-
-	printf("Send Transaction to EMV Server\n");
-
-	pmessage = MXCreateMessage(pCard->pCom->MX, "APDU", "SendTransaction");
-	MXSetValue(pmessage, "Type",	 1, &transactiontype);
-	MXSetValue(pmessage, "Currency", 1, currency);
-	MXSetValue(pmessage, "Amount",   1, amount);
-	MXSetValue(pmessage, "Media",    1, &pCard->MediaType);
-	MXSend(pCard->pCom->MX, pCard->pCom, pmessage);
-
-
-	printf("Send ATR to EMV Server\n");
-
-	pmessage = MXCreateMessage(pCard->pCom->MX, "APDU", "SendATR");
-	MXSetValue(pmessage, "Atr", 1, strAtr);
-	MXSend(pCard->pCom->MX, pCard->pCom, pmessage);
-
-
+	SendUserInfo(pCard->pCom, pcc->UserName, pcc->UserPassword);
+	SendTransaction(pCard->pCom, transactiontype, currency, amount, pCard->MediaType);
+	SendATR(pCard->pCom, strAtr);
 	return 0;
 }
 
@@ -397,394 +422,6 @@ char CardCorrectATR(unsigned char* bufATR, int size)
 	return 0;
 }
 
-int OnSendAPDU (MXMessage*  pmessage, MXCom* pcom, void* applicationfield)
-{
-	s_printf(smessage, "%s", "Sending APDU Answer to Server \n");
-	return 1;
-
-}
-
-int OnSendACFirst (MXMessage*  pmessage, MXCom* pcom, void* applicationfield)
-{
-	s_printf(smessage, "%s", "Sending Generate AC First Answer to Server \n");
-	return 1;
-
-}
-
-int OnSendACSecond (MXMessage*  pmessage, MXCom* pcom, void* applicationfield)
-{
-	s_printf(smessage, "%s", "Sending Generate AC Second Answer to Server \n");
-	return 1;
-
-}
-
-int OnSendVerify (MXMessage*  pmessage, MXCom* pcom, void* applicationfield)
-{
-	s_printf(smessage, "%s", "Sending Verify Answer to Server \n");
-	return 1;
-
-}
-
-
-int OnSendTransaction (MXMessage*  pmessage, MXCom* pcom, void* applicationfield)
-{
-	s_printf(smessage, "%s", "Sending Transaction  to Server \n");
-	return 1;
-
-}
-
-int OnSendATR (MXMessage*  pmessage, MXCom* pcom, void* applicationfield)
-{
-	s_printf(smessage, "%s", "Sending ATR  to Server \n");
-	return 1;
-
-}
-
-int OnRecvSendCommand (MXMessage*  pmessage, MXCom* pcom, void* applicationfield)
-{
-
-	int outDataSize;
-	unsigned char outData[258];
-	char strError[250];
-	BUFFERPARM OutBuffer;
-	MXMessage* Outpmessage;
-    CARD* pCard = (CARD*)applicationfield;
-
-	BYTE	p1   = *(BYTE *)MXGetValue (pmessage, "P1", 1);
-	BYTE	p2   = *(BYTE *)MXGetValue (pmessage, "P2", 1);
-
-	s_printf(smessage, "%s", "Receiving APDU Command from Server \n");
-	
-	Send_APDU(EMVRooterCom, 0x00, 0xCA, p1, p2, 0, outData, 0);
-
-	if (!CardAPDU (pCard, 0x00, 0xCA, p1, p2, 0, (unsigned char*)"", &outDataSize, outData))
-	{
-		sprintf(strError, "%s", "APDU failed, transmission error\n");
-		
-		Outpmessage = MXPutMessage (pcom, "APDU", "SendError");
-		MXSetValue (Outpmessage, "Error", 1, strError);
-
-		MXCloseCom (pCard->pCom->MX, pCard->pCom);
-		return 1;
-	}
-	// Response data must at least have SW1 SW2
-	if (outDataSize < 2)
-	{
-		sprintf(strError, "%s", "APDU failed, wrong size\n");
-		
-		Outpmessage = MXPutMessage (pcom, "APDU", "SendError");
-		MXSetValue (Outpmessage, "Error", 1, strError);
-		
-		MXCloseCom (pCard->pCom->MX, pCard->pCom);
-		return 1;
-	}
-	s_printf(smessage, "%s", "Response APDU From Card \n");
-
-	OutBuffer.BufferType	= 'B';
-	OutBuffer.BufferSize	= outDataSize;
-	OutBuffer.BufferContent = (char*)&outData;
-
-	Outpmessage = MXPutMessage (pcom, "APDU", "RecvCommand");
-	MXSetValue (Outpmessage, "Size",    1, &outDataSize);
-	MXSetValue (Outpmessage, "Data",    1, &OutBuffer);
-    MXSetValue (Outpmessage, "P1",		1, &p1) ;
-    MXSetValue (Outpmessage, "P2",		1, &p2) ;
-
-	Send_APDU(EMVRooterCom, 0x00, 0xCA, p1, p2, outDataSize, outData, 1);
-
-	return 1;
-}
-
-
-int OnRecvAPDU (MXMessage*  pmessage, MXCom* pcom, void* applicationfield)
-{
-	int outDataSize;
-	unsigned char outData[2000];
-	char strError[250];
-	
-	MXMessage* Outpmessage;
-	BUFFERPARM OutBuffer;
-    CARD* pCard = (CARD*)applicationfield;
-
-
-	BYTE	Cla			= *(BYTE *)MXGetValue (pmessage, "Cla", 1);
-	BYTE	Ins			= *(BYTE *)MXGetValue (pmessage, "Ins", 1);
-	BYTE	P1			= *(BYTE *)MXGetValue (pmessage, "P1", 1);
-	BYTE	P2			= *(BYTE *)MXGetValue (pmessage, "P2", 1);
-	BYTE	Size		= *(BYTE *)MXGetValue (pmessage, "Size", 1);
-	BUFFERPARM* Buffer  = (BUFFERPARM *)MXGetValue (pmessage, "Data", 1);
-
-	s_printf (smessage, "%s", "Receiving APDU Command from Terminal \n");
-	Send_APDU (EMVRooterCom, Cla, Ins, P1, P2, Size, (unsigned char*)Buffer->BufferContent, 0);
-
-	if (!CardAPDU (pCard, Cla, Ins, P1, P2, Size, (unsigned char*)Buffer->BufferContent, &outDataSize, (unsigned char*)&outData))
-	{
-		sprintf(strError, "%s", "APDU failed, transmission error\n");
-
-		Outpmessage = MXPutMessage (pcom, "APDU", "SendError");
-		MXSetValue (Outpmessage, "Error", 1, strError);
-
-		MXCloseCom (pCard->pCom->MX, pCard->pCom);
-		return 1;
-	}
-	// Response data must at least have SW1 SW2
-	if (outDataSize < 2)
-	{
-		sprintf(strError, "%s", "APDU failed, wrong size\n");
-		
-		Outpmessage = MXPutMessage (pcom, "APDU", "SendError");
-		MXSetValue (Outpmessage, "Error", 1, strError);
-		
-		MXCloseCom (pCard->pCom->MX, pCard->pCom);
-		return 1;
-	}
-
-	s_printf(smessage, "%s", "Response APDU From Card \n");
-
-	OutBuffer.BufferType	= 'B';
-	OutBuffer.BufferSize    = outDataSize ;
-	OutBuffer.BufferContent = (char*)&outData;
-	
-	Outpmessage = MXPutMessage (pcom, "APDU", "R-APDU");
-	MXSetValue (Outpmessage, "Cla",  1, &Cla);
-	MXSetValue (Outpmessage, "Ins",  1, &Ins);
-	MXSetValue (Outpmessage, "Size", 1, &outDataSize);
-	MXSetValue (Outpmessage, "Data", 1, &OutBuffer);
-
-    free (Buffer->BufferContent);
-    free (Buffer);
-
-	Send_APDU(EMVRooterCom, Cla, Ins, P1, P2, outDataSize, outData, 1);
-	
-	return 1;
-}
-
-
-int OnRecvACFirst (MXMessage*  pmessage, MXCom* pcom, void* applicationfield)
-{
-
-	int outDataSize;
-	unsigned char outData[258];
-	char strError[250];
-	
-	MXMessage* Outpmessage;
-	BUFFERPARM OutBuffer;
-    CARD* pCard = (CARD*)applicationfield;
-
-
-	BYTE	Cla  = *(BYTE *)MXGetValue (pmessage, "Cla", 1);
-	BYTE	Ins  = *(BYTE *)MXGetValue (pmessage, "Ins", 1);
-	BYTE	P1   = *(BYTE *)MXGetValue (pmessage, "P1", 1);
-	BYTE	P2   = *(BYTE *)MXGetValue (pmessage, "P2", 1);
-	BYTE	Size = *(BYTE *)MXGetValue (pmessage, "Size", 1);
-	BUFFERPARM* Buffer = (BUFFERPARM *)MXGetValue (pmessage, "Data", 1);
-
-	s_printf(smessage, "%s", "Receiving GENERATE AC FIRST Command from Server \n");
-	
-	Send_APDU(EMVRooterCom, Cla, Ins, P1, P2, Size, (unsigned char*)Buffer->BufferContent, 0);
-
-	if (!CardAPDU (pCard, Cla, Ins, P1, P2, Size, (unsigned char*)Buffer->BufferContent, &outDataSize, outData))
-	{
-		sprintf(strError, "%s", "APDU failed, transmission error\n");
-
-		Outpmessage = MXPutMessage (pcom, "APDU", "SendError");
-		MXSetValue (Outpmessage, "Error", 1, strError);
-
-		MXCloseCom (pCard->pCom->MX, pCard->pCom);
-		return 1;
-	}
-	// Response data must at least have SW1 SW2
-	if (outDataSize < 2)
-	{
-		sprintf(strError, "%s", "APDU failed, wrong size\n");
-		
-		Outpmessage = MXPutMessage (pcom, "APDU", "SendError");
-		MXSetValue (Outpmessage, "Error", 1, strError);
-		
-		MXCloseCom (pCard->pCom->MX, pCard->pCom);
-		return 1;
-	}
-	s_printf(smessage, "%s", "Response APDU From Card \n");
-
-
-	OutBuffer.BufferType	= 'B';
-	OutBuffer.BufferSize	= outDataSize;
-	OutBuffer.BufferContent = (char*)&outData;
-
-	Outpmessage = MXPutMessage (pcom, "APDU", "RecvACFirst");
-	MXSetValue (Outpmessage, "Cla",  1, &Cla);
-	MXSetValue (Outpmessage, "Ins",  1, &Ins);
-	MXSetValue (Outpmessage, "Size", 1, &outDataSize);
-	MXSetValue (Outpmessage, "Data", 1, &OutBuffer);
-
-	free(Buffer->BufferContent);
-	free(Buffer);
-
-	Send_APDU(EMVRooterCom, Cla, Ins, P1, P2, outDataSize, outData, 1);
-
-	return 1;
-}
-
-int OnRecvACSecond (MXMessage*  pmessage, MXCom* pcom, void* applicationfield)
-{
-
-	int outDataSize;
-	unsigned char outData[258];
-	char strError[250];
-	
-	MXMessage* Outpmessage;
-	BUFFERPARM OutBuffer;
-    CARD* pCard = (CARD*)applicationfield;
-
-
-	BYTE	Cla  = *(BYTE *)MXGetValue (pmessage, "Cla", 1);
-	BYTE	Ins  = *(BYTE *)MXGetValue (pmessage, "Ins", 1);
-	BYTE	P1   = *(BYTE *)MXGetValue (pmessage, "P1", 1);
-	BYTE	P2   = *(BYTE *)MXGetValue (pmessage, "P2", 1);
-	BYTE	Size = *(BYTE *)MXGetValue (pmessage, "Size", 1);
-	BUFFERPARM* Buffer = (BUFFERPARM *)MXGetValue (pmessage, "Data", 1);
-
-	printf("Receiving GENERATE AC SECOND Command from Server \n");
-
-	Send_APDU(EMVRooterCom, Cla, Ins, P1, P2, Size, (unsigned char*)Buffer->BufferContent, 0);
-
-	if (!CardAPDU (pCard, Cla, Ins, P1, P2, Size, (unsigned char*)Buffer->BufferContent, &outDataSize, outData))
-	{
-		sprintf(strError, "%s", "APDU failed, transmission error\n");
-		
-		Outpmessage = MXPutMessage (pcom, "APDU", "SendError");
-		MXSetValue (Outpmessage, "Error", 1, strError);
-		
-		MXCloseCom (pCard->pCom->MX, pCard->pCom);
-		return 1;
-	}
-	// Response data must at least have SW1 SW2
-	if (outDataSize < 2)
-	{
-		sprintf(strError, "%s", "APDU failed, wrong size\n");
-		
-		Outpmessage = MXPutMessage (pcom, "APDU", "SendError");
-		MXSetValue (Outpmessage, "Error", 1, strError);
-		
-		MXCloseCom (pCard->pCom->MX, pCard->pCom);
-		return 1;
-	}
-
-
-	OutBuffer.BufferType    = 'B';
-	OutBuffer.BufferSize    = outDataSize;
-	OutBuffer.BufferContent = (char*)&outData;
-
-	Outpmessage = MXPutMessage (pcom, "APDU", "RecvACSecond");
-	MXSetValue (Outpmessage, "Cla",  1, &Cla);
-	MXSetValue (Outpmessage, "Ins",  1, &Ins);
-	MXSetValue (Outpmessage, "Size", 1, &outDataSize);
-	MXSetValue (Outpmessage, "Data", 1, &OutBuffer);
-
-	free(Buffer->BufferContent);
-	free(Buffer);
-
-	Send_APDU(EMVRooterCom, Cla, Ins, P1, P2, outDataSize, outData, 1);
-
-	return 1;
-}
-
-int OnRecvVerify (MXMessage*  pmessage, MXCom* pcom, void* applicationfield)
-{
-	BUFFERPARM OutBuffer;
-	int outDataSize;
-	unsigned char outData[258];
-	char strError[250];
-	char c;
-	unsigned char PinCode[10];
-	MXMessage* Outpmessage;
-    CARD* pCard = (CARD*)applicationfield;
-	BYTE	Enciphered  = *(BYTE *)MXGetValue (pmessage, "Enciphered", 1);
-	int i = 0;
-
-	memset (PinCode, 0xFF, 10);
-	
-	s_printf(smessage, "%s", "Receiving Verify Command from Server \n");
-
-	fseek(stdin,0,SEEK_END);
-	printf(smessage, "Enter Pin Code : ");
-	while ((c = getchar()) != '\n')
-	{
-		PinCode[i] = c;
-		i++;
-	}		
-
-	if (!CardAPDU (pCard, 0x00, 0x20, 0x00, 0x08, 0x08, PinCode, &outDataSize, outData))
-	{
-		sprintf(strError, "%s", "APDU failed, Verify\n");
-
-		Outpmessage = MXPutMessage (pcom, "APDU", "SendError");
-		MXSetValue (Outpmessage, "Error", 1, strError);
-		
-		MXCloseCom (pCard->pCom->MX, pCard->pCom);
-		return 1;
-	}
-	// Response data must at least have SW1 SW2
-	if (outDataSize < 2)
-	{
-		sprintf(strError, "%s", "APDU Verify failed, wrong size\n");
-		
-		Outpmessage = MXPutMessage (pcom, "APDU", "SendError");
-		MXSetValue (Outpmessage, "Error", 1, strError);
-		
-		MXCloseCom (pCard->pCom->MX, pCard->pCom);
-		return 1;
-	}
-
-	OutBuffer.BufferType	= 'B';
-	OutBuffer.BufferSize	= outDataSize;
-	OutBuffer.BufferContent = (char*)&outData;
-
-	Outpmessage = MXPutMessage (pcom, "APDU", "RecvVerify");
-	MXSetValue (Outpmessage, "Size",  1, &outDataSize);
-	MXSetValue (Outpmessage, "Data",  1, &OutBuffer);
-
-	return 1;
-}
-
-int OnRecvSendAppliSelection (MXMessage*  pmessage, MXCom* pcom, void* applicationfield)
-{
-	int idx;
-	char charindex;
-	MXMessage* Outpmessage;
-
-	BYTE	count  = *(BYTE *)MXGetValue (pmessage, "Count", 1);
-	STRING  label  = (STRING)MXGetValue (pmessage, "Label", 1);
-
-	if (count == 1)
-	{
-		s_printf(smessage, "Confirm select app %s (y/n): " , label);
-		charindex = getchar();
-		if (charindex != 'y')
-			charindex = -1; 
-		else
-			charindex = 0; 
-	}
-	else
-	{
-		s_printf(smessage, "%s", "Select application from list:\n");
-
-		for (idx = 0; idx < count; idx++)
-		{
-			BYTE	priority = *(BYTE*)MXGetValue(pmessage, "Priority", idx + 1);
-			label = (STRING)MXGetValue(pmessage, "Label", idx + 1);
-			printf("%d (priority %d) - %s\n", idx, priority, label);
-		}
-		s_printf(smessage, "%s", "Index: ");
-		fseek(stdin, 0, SEEK_END);
-		charindex = getchar() - '0';
-	}
-
-	Outpmessage = MXPutMessage(pcom, "APDU", "RecvAppliSelection");
-	MXSetValue (Outpmessage, "Index", 1, &charindex);	
-	
-	return 1;
-}
 
 int CardRead ()
 {

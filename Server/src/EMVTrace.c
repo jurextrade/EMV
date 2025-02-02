@@ -348,8 +348,8 @@ void EMVTraceTerminal(EMVClient* pclient)
 	if (EMVTerminalIs(pclient, Card_capture)) { sprintf(strace + i, "%50s : %s\n", "Card capture", "YES"); i = strlen(strace); }
 	if (EMVTerminalIs(pclient, CDA)) { sprintf(strace + i, "%50s : %s\n", "CDA", "YES"); i = strlen(strace); }
 	
-	BYTE *TC;
-	TC = &pclient->pTerminal->TerminalCapabilities;
+	BYTE TC[3];
+	memcpy(&TC, &pclient->pTerminal->TerminalCapabilities, 3);
 	Send_Command(EMVRooterCom, pclient, "TC", (TC[0] << 16 | TC[1] << 8 | TC[2]));
 
 	
@@ -385,8 +385,9 @@ void EMVTraceTerminal(EMVClient* pclient)
 
 	s_printf(smessage, pclient, "%s", strace);
 	
-	BYTE* ATC;
-	ATC = &pclient->pTerminal->AdditionalTerminalCapabilities;
+	BYTE ATC[5];
+	memcpy(&ATC, &pclient->pTerminal->AdditionalTerminalCapabilities, 5);
+
 	Send_Command(EMVRooterCom, pclient, "ATC", ((long long)ATC[0] << 32 | ATC[1] << 24 | ATC[2] << 16 | ATC[3] << 8 | ATC[4]));
 
 	printf("\n");
@@ -407,7 +408,8 @@ void EMVTraceCryptogramType (EMVClient* pclient)
 		sprintf (strace, "\n%-5s", "Terminal Decision TC : Transaction approved\n");
 
 	s_printf(smessage, pclient, "%s", strace);
-
+	Send_Info(EMVRooterCom, pclient, "INFO", strace);
+	   
 	Send_Command(EMVRooterCom, pclient, "CRYPTO", pclient->Cryptogram);
 }
 
@@ -885,7 +887,7 @@ void EMVTraceTLV (EMVClient* pclient)
 	int totalSize = 0;
 	int tagSize = 0;
 
-	BYTE* tData = malloc(2 * pclient->pTLV->tlv_length);  //alloc 2 times 
+	BYTE* tData = (BYTE*)malloc(2 * pclient->pTLV->tlv_length);  //alloc 2 times 
 	memset(tData, 0, 2 * pclient->pTLV->tlv_length);
 
 
@@ -930,7 +932,7 @@ void EMVTraceTLV (EMVClient* pclient)
 
 }
 
-void EMVTraceAPDU (EMVClient* pclient, BYTE cla, BYTE ins, BYTE p1, BYTE p2, BYTE* Data,  int dataSize, int way)
+void EMVTraceAPDU (EMVClient* pclient, BYTE cla, BYTE ins, BYTE p1, BYTE p2,BYTE* Data,  int dataSize, int way)
 {
 	int i;
 	EMVApduError* perror;

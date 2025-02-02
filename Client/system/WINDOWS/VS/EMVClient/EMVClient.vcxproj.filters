@@ -5,10 +5,15 @@
     <ClCompile Include="..\..\..\..\src\EMVError.c" />
     <ClCompile Include="..\..\..\..\src\EMVTools.c" />
     <ClCompile Include="..\..\..\..\src\main.cpp" />
+    <ClCompile Include="..\..\..\..\src\EMVConnect.c" />
+    <ClCompile Include="..\..\..\..\src\RouterConnect.c" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="include">
       <UniqueIdentifier>{1d0c18fd-64a5-4865-b9ca-128952528423}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files">
+      <UniqueIdentifier>{421603b7-8884-478e-bc50-c3f0f257757e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -21,5 +26,10 @@
     <ClInclude Include="..\..\..\..\src\EMVTools.h">
       <Filter>include</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\MX\apdu.mx">
+      <Filter>Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

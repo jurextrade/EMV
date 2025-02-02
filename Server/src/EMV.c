@@ -121,6 +121,7 @@ EMVAuthorityPublicKey* EMVGetAuthorityPublicKeyFromKeyIndex (EMV* pemv, EMVClien
 		memset(strace, 0, 1000);
 		sprintf(strace, "Find the issuer public key certificate from issuer with index %d", keyindex);
 		s_printf(smessage, pclient, "%s", strace);
+		Send_Info(EMVRooterCom, pclient, "INFO", strace);
 	}
 	
 	while (AuthorityPublicKeys)
@@ -191,9 +192,9 @@ void EMVSetTag(EMVClient* pclient, unsigned short tag, BYTE* data, int size) {
 void EMVSetAcceptor (EMV* pemv, EMVClient* pclient, EMVAcceptor* pacceptor)
 {
 	pemv->pAcceptor = pacceptor;
-	EMVSetTag(pclient, TAG_SIRET,						pacceptor->SIRET, 14);
-	EMVSetTag(pclient, TAG_IDSA,						pacceptor->SystemAcceptationIdentification, 8);
-	EMVSetTag(pclient, TAG_MERCHANT_CONTRACT_NUMBER,	pacceptor->MerchantContractNumber, 7);
+	EMVSetTag(pclient, TAG_SIRET,						(BYTE*)pacceptor->SIRET, 14);
+	EMVSetTag(pclient, TAG_IDSA,                        (BYTE*)pacceptor->SystemAcceptationIdentification, 8);
+	EMVSetTag(pclient, TAG_MERCHANT_CONTRACT_NUMBER,    (BYTE*)pacceptor->MerchantContractNumber, 7);
 
 	EMVSetTag(pclient, TAG_MERCHANT_CATEGORY_CODE,	pacceptor->MerchantCategoryCode, 2);
 	EMVSetTag(pclient, TAG_MERCHANT_IDENTIFIER,		(BYTE*)pacceptor->MerchantIdentifier, strlen(pacceptor->MerchantIdentifier));
@@ -212,9 +213,9 @@ void EMVSetPointOfSale (EMV* pemv, EMVClient* pclient, EMVPointOfSale* ppointofs
 	pclient->pPointOfSale = ppointofsale;
 
 
-	EMVSetTag(pclient, TAG_IDPA,						ppointofsale->PointAcceptationIdentification, 8);
-	EMVSetTag(pclient, TAG_SA_NUMBER,					ppointofsale->SystemAcceptationLogicalNumber, 3);
-	EMVSetTag(pclient, TAG_PA_NUMBER,					ppointofsale->PointAcceptationLogicalNumber, 3);
+	EMVSetTag(pclient, TAG_IDPA,                        (BYTE*)ppointofsale->PointAcceptationIdentification, 8);
+	EMVSetTag(pclient, TAG_SA_NUMBER,					(BYTE*)ppointofsale->SystemAcceptationLogicalNumber, 3);
+	EMVSetTag(pclient, TAG_PA_NUMBER,					(BYTE*)ppointofsale->PointAcceptationLogicalNumber, 3);
 
 
 }
@@ -227,7 +228,7 @@ void EMVSetTerminal (EMV* pemv, EMVClient* pclient, EMVTerminal* pTerminal)
 	EMVSetTag(pclient, TAG_TERMINAL_CAPABILITIES,				pTerminal->TerminalCapabilities, 3);
 	EMVSetTag(pclient, TAG_ADDITIONAL_TERMINAL_CAPABILITIES,	pTerminal->AdditionalTerminalCapabilities, 5);
 	EMVSetTag(pclient, TAG_TERMINAL_TYPE,						&pTerminal->TerminalType, 1);
-	EMVSetTag(pclient, TAG_IFD_SERIAL_NUMBER,					pTerminal->IFDSerialNumber, strlen(pTerminal->IFDSerialNumber));
+	EMVSetTag(pclient, TAG_IFD_SERIAL_NUMBER,					(BYTE*)pTerminal->IFDSerialNumber, strlen(pTerminal->IFDSerialNumber));
 	EMVSetTag(pclient, TAG_TTQ,                                 pTerminal->TTQ, 4);
 
 	if (pemv->DebugEnabled)
@@ -542,30 +543,19 @@ int EMVCandidateListCreation (EMV* pemv, EMVClient* pclient)
 	return EMV_OK;
 }
 
-int EMVApplicationSelection (EMV* pemv, EMVClient* pclient) 
+int EMVApplicationSelection(EMV* pemv, EMVClient* pclient)
 {
 
 	BYTE idx;
 	int resultSelectApplication;
-	
-	pclient->Step = EMV_STEP_APPLICATION_SELECTION;
-	EMVTraceStep (pclient);
 
-	pclient->SubStep  = EMV_SUBSTEP_SELECT_APPLICATION_FILE;
+	pclient->Step = EMV_STEP_APPLICATION_SELECTION;
+	EMVTraceStep(pclient);
+
+	pclient->SubStep = EMV_SUBSTEP_SELECT_APPLICATION_FILE;
 	EMVTraceSubStep(pclient);
 
 	resultSelectApplication = EMVApplicationPriority(pemv, pclient);
-	
-	if (resultSelectApplication == EMV_TERMINATED) 
-    {
-		EMVEndClient(pemv, pclient);
-		return EMV_TERMINATED;
-    }
-
-	if (resultSelectApplication == EMV_UNKNOWN_ERROR)
-		EMVEndClient(pemv, pclient);
-		return EMV_TERMINATED;
-
 
 	if (resultSelectApplication == EMV_NEED_CONFIRM_APPLICATION)
 	{
@@ -607,6 +597,17 @@ int EMVApplicationSelection (EMV* pemv, EMVClient* pclient)
 		}
 		return 1;
 	}
+	
+	if (resultSelectApplication == EMV_UNKNOWN_ERROR)
+	{
+		return EMVTransactionCompletion(pemv, pclient, 1);
+	}
+
+	if (resultSelectApplication == EMV_TERMINATED)
+	{
+		return EMVTransactionCompletion(pemv, pclient, 1);
+	}
+
 	return 1;
 }
 
@@ -656,7 +657,7 @@ int EMVReadApplicationData (EMV* pemv, EMVClient* pclient)
 		for (record = aflCurrent[1]; record <= aflCurrent[2]; record++)
 		{
 			// READ RECORD
-			pemv->APDU(pemv, pclient, 0x00, INS_READ_RECORD, record, p2, 0, "");
+			pemv->APDU(pemv, pclient, 0x00, INS_READ_RECORD, record, p2, 0, (const BYTE*)"");
 			pclient->NumberOfRecordsToRead++;
 		}
 	}
@@ -785,6 +786,7 @@ int EMVReadApplicationData (EMV* pemv, EMVClient* pclient)
 						memset(strace, 0, 1000);
 						sprintf(strace, "%5s%s", "", "CVM List Not present and AIP indicates that cardholder verification is supported\n");
 						s_printf(smessage, pclient, "%s", strace);
+						Send_Info(EMVRooterCom, pclient, "INFO", strace);
 					}
 					EMVSetTVR (pemv, pclient, ICC_data_missing, 1);
 				}
@@ -798,6 +800,7 @@ int EMVReadApplicationData (EMV* pemv, EMVClient* pclient)
 						memset(strace, 0, 1000);
 						sprintf(strace, "%5s%s", "", "Not present and AIP indicates SDA supported\n");
 						s_printf(smessage, pclient, "%s", strace);
+						Send_Info(EMVRooterCom, pclient, "INFO", strace);
 					}
 
 					EMVSetTVR (pemv, pclient, ICC_data_missing, 1);
@@ -816,6 +819,7 @@ int EMVReadApplicationData (EMV* pemv, EMVClient* pclient)
 						memset(strace, 0, 1000);
 						sprintf(strace, "%5s%s", "", "Issuer Public Key Not present and AIP indicates any form of offline data authentication is supported (SDA, DDA or CDA)\n");
 						s_printf(smessage, pclient, "%s", strace);
+						Send_Info(EMVRooterCom, pclient, "INFO", strace);
 					}
 					EMVSetTVR (pemv, pclient, ICC_data_missing, 1);
 				}
@@ -831,6 +835,7 @@ int EMVReadApplicationData (EMV* pemv, EMVClient* pclient)
 						memset(strace, 0, 1000);
 						sprintf(strace, "%5s%s", "", "ICC Public Key Not present and AIP indicates DDA or CDA supported\n");
 						s_printf(smessage, pclient, "%s", strace);
+						Send_Info(EMVRooterCom, pclient, "INFO", strace);
 					}
 					EMVSetTVR (pemv, pclient, ICC_data_missing, 1);
 				}
@@ -887,8 +892,15 @@ int EMVDataAuthentification (EMV* pemv, EMVClient* pclient)
 				}
 				if (EMVTerminalIsOnlineOnly (pclient))
 				{
-					printf("%5s%s", "", "Terminal is Online only. Skip Offline Authentification\n");
-					EMVSetTVR (pemv, pclient, Offline_data_authentication_was_not_performed, 1);
+					EMVSetTVR(pemv, pclient, Offline_data_authentication_was_not_performed, 1);
+					if (pemv->DebugEnabled)
+					{
+						char strace[1000];
+						memset(strace, 0, 1000);
+						sprintf(strace, "%5s%s", "", "Terminal is Online only. Skip Offline Authentification\n");
+						s_printf(smessage, pclient, "%s", strace);
+						Send_Info(EMVRooterCom, pclient, "INFO", strace);
+					}
 					return -1;
 				}
 				return EMV_OK;
@@ -904,18 +916,40 @@ int EMVDataAuthentification (EMV* pemv, EMVClient* pclient)
 				
 				if (EMVTerminalAndCardSupportCDA(pclient))
 				{
-					printf("%5s%s", "", "Terminal And Card Support CDA Authentification, CDA is Selected\n\n");
+					if (pemv->DebugEnabled)
+					{
+						char strace[1000];
+						memset(strace, 0, 1000);
+						sprintf(strace, "%5s%s", "", "Terminal And Card Support CDA Authentification, CDA is Selected\n");
+						s_printf(smessage, pclient, "%s", strace);
+						Send_Info(EMVRooterCom, pclient, "INFO", strace);
+					}
 					return EMV_SUBSTEP_CDA;
 				}
 				else
 				if (EMVTerminalAndCardSupportDDA(pclient))
 				{
-					printf("%5s%s", "", "Terminal And Card Support DDA Authentification, DDA is Selected\n\n");
+					if (pemv->DebugEnabled)
+					{
+						char strace[1000];
+						memset(strace, 0, 1000);
+						sprintf(strace, "%5s%s", "", "Terminal And Card Support DDA Authentification, DDA is Selected\n");
+						s_printf(smessage, pclient, "%s", strace);
+						Send_Info(EMVRooterCom, pclient, "INFO", strace);
+					}
+
 					return EMV_SUBSTEP_OFFLINE_DDA;
 				}
 				if (EMVTerminalAndCardSupportSDA(pclient))
 				{
-					printf("%5s%s", "", "Terminal And Card Support SDA Authentification, SDA is Selected\n\n");
+					if (pemv->DebugEnabled)
+					{
+						char strace[1000];
+						memset(strace, 0, 1000);
+						sprintf(strace, "%5s%s", "", "Terminal And Card Support SDA Authentification, SDA is Selected\n");
+						s_printf(smessage, pclient, "%s", strace);
+						Send_Info(EMVRooterCom, pclient, "INFO", strace);
+					}
 					return EMV_SUBSTEP_OFFLINE_SDA;
 				}
 			
@@ -967,6 +1001,7 @@ int EMVDataAuthentification (EMV* pemv, EMVClient* pclient)
 						memset(strace, 0, 1000);
 						sprintf(strace, "\n%5s\n", "Mandatory Fields for SDA is Missing.. ");
 						s_printf(smessage, pclient, "%s", strace);
+						Send_Info(EMVRooterCom, pclient, "INFO", strace);
 					}
 					EMVSetTVR (pemv, pclient, ICC_data_missing, 1);
 					EMVSetTVR (pemv, pclient, SDA_failed, 1);
@@ -1030,6 +1065,7 @@ int EMVDataAuthentification (EMV* pemv, EMVClient* pclient)
 						memset(strace, 0, 1000);
 						sprintf(strace, "\n%5s\n", "Mandatory Fields for DDA is Missing.. ");
 						s_printf(smessage, pclient, "%s", strace);
+						Send_Info(EMVRooterCom, pclient, "INFO", strace);
 					}
 					EMVSetTVR (pemv, pclient, ICC_data_missing, 1);
 					EMVSetTVR (pemv, pclient, DDA_failed, 1);
@@ -1043,6 +1079,7 @@ int EMVDataAuthentification (EMV* pemv, EMVClient* pclient)
 						memset(strace, 0, 1000);
 						sprintf(strace, "\n%5s\n", "DDOL is Missing, We check the default DDOL personalized in the Terminal");
 						s_printf(smessage, pclient, "%s", strace);
+						Send_Info(EMVRooterCom, pclient, "INFO", strace);
 					}
 				}
 
@@ -1207,7 +1244,7 @@ int EMVProcessingRestrictions (EMV* pemv, EMVClient* pclient)
 						EMVTraceHexaBuffer(pclient->pEMV, "       -- Expiration Date: ", ExpirationDate, OutSize, "\n");
 					}
 
-					if (strncmp (ExpirationDate, dcbstrdate, OutSize) < 0)
+					if (strncmp ((char*)ExpirationDate, (char*)dcbstrdate, OutSize) < 0)
 						EMVSetTVR (pemv, pclient, Expired_application, 1);
 				}
 
@@ -1218,7 +1255,7 @@ int EMVProcessingRestrictions (EMV* pemv, EMVClient* pclient)
 					{
 						EMVTraceHexaBuffer(pclient->pEMV, "       -- Effective Date: ", EffectiveDate, OutSize, "\n");
 					}
-					if (strncmp (EffectiveDate, dcbstrdate, OutSize) > 0)
+					if (strncmp ((char*)EffectiveDate, (char*)dcbstrdate, OutSize) > 0)
 						EMVSetTVR (pemv, pclient, Application_not_yet_effective, 1);
 				}
 				else
@@ -1243,8 +1280,15 @@ int EMVCardHolderVerification (EMV* pemv, EMVClient* pclient)
 	if (!CardHolder_verification_is_supported (pclient))
 	{
 //		EMVTraceAIP (pclient);
-		printf("%5s%s", "", "Card Holder Verification is supported is not set in AIP. Skip Card Holder Verification and Set no CVM performed in CVM result: CVMR to 3F0000\n");
-		EMVSetTag(pclient, TAG_CVM_RESULTS, "\x3F\x00\x00" , 3);
+		if (pemv->DebugEnabled)
+		{
+			char strace[1000];
+			memset(strace, 0, 1000);
+			sprintf(strace, "%5s%s", "", "Card Holder Verification is supported is not set in AIP. Skip Card Holder Verification and Set no CVM performed in CVM result: CVMR to 3F0000\n");
+			s_printf(smessage, pclient, "%s", strace);
+			Send_Info(EMVRooterCom, pclient, "INFO", strace);
+		}
+		EMVSetTag(pclient, TAG_CVM_RESULTS, (BYTE*)"\x3F\x00\x00" , 3);
 		EMVTerminalRiskManagement (pemv, pclient);
 		return EMV_OK;
 	}	
@@ -1257,8 +1301,9 @@ int EMVCardHolderVerification (EMV* pemv, EMVClient* pclient)
 			memset(strace, 0, 1000);
 			sprintf(strace, "%5s%s", "", "CVM List is absent, Skip Card Holder Verification and Set no CVM performed in CVM result: CVMR to 3F0000\n");
 			s_printf(smessage, pclient, "%s", strace);
+			Send_Info(EMVRooterCom, pclient, "INFO", strace);
 		}
-		EMVSetTag(pclient, TAG_CVM_RESULTS, "\x3F\x00\x00" , 3);
+		EMVSetTag(pclient, TAG_CVM_RESULTS, (BYTE*)"\x3F\x00\x00" , 3);
 
 		EMVTerminalRiskManagement (pemv, pclient);
 		return EMV_OK;
@@ -1269,8 +1314,8 @@ int EMVCardHolderVerification (EMV* pemv, EMVClient* pclient)
 
 	pCVMList = pclient->EMV_CVM + 8;		
 	ListSize = (pclient->EMV_CVMSize - 8) / 2;
-	sscanf(pclient->EMV_CVM, "%X", &X);
-	sscanf(pclient->EMV_CVM + sizeof (DWORD), "%X", &Y);
+	sscanf((const char*)pclient->EMV_CVM, "%X", &X);
+	sscanf((const char*)pclient->EMV_CVM + sizeof (DWORD), "%X", &Y);
 	
 	EMVTraceCVM(pclient);
     if (pemv->DebugEnabled)
@@ -1620,6 +1665,7 @@ int EMVTerminalActionAnalysis (EMV* pemv, EMVClient* pclient)
 						memset(strace, 0, 1000);
 						sprintf(strace, "***ACTION RESULT : bits matches with TVR for a denial\n --REASON(S) :");
 						s_printf(smessage, pclient, "%s", strace);
+						Send_Info(EMVRooterCom, pclient, "INFO", strace);
 					}
 
 					EMVTraceTVROnlyYes (pclient, (EMV_BITS*)EMV_RESULT, "");
@@ -1632,6 +1678,7 @@ int EMVTerminalActionAnalysis (EMV* pemv, EMVClient* pclient)
 					memset(strace, 0, 1000);
 					sprintf(strace, "***ACTION RESULT : No bits matches with TVR for a denial, let's check Online action\n\n");
 					s_printf(smessage, pclient, "%s", strace);
+					Send_Info(EMVRooterCom, pclient, "INFO", strace);
 				}
 				return EMV_OK;
 
@@ -1674,6 +1721,7 @@ int EMVTerminalActionAnalysis (EMV* pemv, EMVClient* pclient)
 						memset(strace, 0, 1000);
 						sprintf(strace, "***ACTION RESULT : bits matches with TVR for online\n --REASON(S) :");
 						s_printf(smessage, pclient, "%s", strace);
+						Send_Info(EMVRooterCom, pclient, "INFO", strace);
 					}
 
 					EMVTraceTVROnlyYes (pclient, (EMV_BITS*)EMV_RESULT, "");
@@ -1686,6 +1734,7 @@ int EMVTerminalActionAnalysis (EMV* pemv, EMVClient* pclient)
 					memset(strace, 0, 1000);
 					sprintf(strace, "***ACTION RESULT : No bits matches with TVR for online. Let's check if we can approve\n\n");
 					s_printf(smessage, pclient, "%s", strace);
+					Send_Info(EMVRooterCom, pclient, "INFO", strace);
 				}
 				return EMV_OK;
 			}
@@ -1735,6 +1784,7 @@ int EMVCardActionAnalysis (EMV* pemv, EMVClient* pclient)
 					memset(strace, 0, 1000);
 					sprintf(strace, "%5s%s", "", "Make data from DOL list. If no data in buffer - fill zeros\n");
 					s_printf(smessage, pclient, "%s", strace);
+					Send_Info(EMVRooterCom, pclient, "INFO", strace);
 				}
 				pdolTagValue = TLVGetTag(pclient->pTLV, TAG_CDOL_1, &pdolTagSize);
 				if (pdolTagValue)
@@ -1748,6 +1798,7 @@ int EMVCardActionAnalysis (EMV* pemv, EMVClient* pclient)
 							memset(strace, 0, 1000);
 							sprintf(strace, ">>GENERATE_AC : Generate AC First\n");
 							s_printf(smessage, pclient, "%s", strace);
+							Send_Info(EMVRooterCom, pclient, "INFO", strace);
 						}
 
 						//now we send a Get Challenge command to the card. The card will return an 8-byte unpredictable number.				
@@ -1777,6 +1828,7 @@ int EMVOnlineOfflineDecision (EMV* pemv, EMVClient* pclient)
 			memset(strace, 0, 1000);
 			sprintf(strace, "%5s%s", "", "Card Response on GENERATE AC 1 : Decline Transaction\n");
 			s_printf(smessage, pclient, "%s", strace);
+			Send_Info(EMVRooterCom, pclient, "INFO", strace);
 		}
 		EMVTransactionCompletion (pemv, pclient, 1);
 		return EMV_OK;
@@ -1790,6 +1842,7 @@ int EMVOnlineOfflineDecision (EMV* pemv, EMVClient* pclient)
 			memset(strace, 0, 1000);
 			sprintf(strace, "%5s%s", "", "Card Response on GENERATE AC 1 : Online Transaction\n");
 			s_printf(smessage, pclient, "%s", strace);
+			Send_Info(EMVRooterCom, pclient, "INFO", strace);
 		}
         EMVOnlineProcessing (pemv, pclient);
 		return EMV_OK;
@@ -1803,6 +1856,7 @@ int EMVOnlineOfflineDecision (EMV* pemv, EMVClient* pclient)
 			memset(strace, 0, 1000);
 			sprintf(strace, "%5s%s", "", "Card Response on GENERATE AC 1 : Accept Transaction\n");
 			s_printf(smessage, pclient, "%s", strace);
+			Send_Info(EMVRooterCom, pclient, "INFO", strace);
 		}
 		EMVTransactionCompletion(pemv, pclient, 0);
 		return EMV_OK;
@@ -1990,6 +2044,7 @@ int EMVTransactionCompletion(EMV* pemv, EMVClient* pclient, int forceterminate)
 					memset(strace, 0, 1000);
 					sprintf(strace, "%5s%s", "", "Make data from DOL list. If no data in buffer - fill zeros\n");
 					s_printf(smessage, pclient, "%s", strace);
+					Send_Info(EMVRooterCom, pclient, "INFO", strace);
 				}
 
 				pdolTagValue = TLVGetTag(pclient->pTLV, TAG_CDOL_2, &pdolTagSize);
@@ -2004,6 +2059,7 @@ int EMVTransactionCompletion(EMV* pemv, EMVClient* pclient, int forceterminate)
 							memset(strace, 0, 1000);
 							sprintf(strace, ">>GENERATE_AC : Generate AC Second\n");
 							s_printf(smessage, pclient, "%s", strace);
+							Send_Info(EMVRooterCom, pclient, "INFO", strace);
 						}
 
 						//now we send a Get Challenge command to the card. The card will return an 8-byte unpredictable number.				
@@ -2019,8 +2075,10 @@ int EMVTransactionCompletion(EMV* pemv, EMVClient* pclient, int forceterminate)
 			{
 				pclient->SubStep = EMV_SUBSTEP_TERMINATE_TRANSACTION;
 				EMVTraceSubStep (pclient);
+
 			//	EMVTraceTLV(pclient);
 			    EMVEndClient (pemv, pclient);
+
 				return EMV_OK;
 			}
 
@@ -2102,12 +2160,12 @@ void EMVSetClient(EMV* pemv, EMVClient* pclient)
 	EMVSetTag(pclient, TAG_APPLICATION_CURRENCY_EXPONENT, &pemv->ApplicationCurrencyExponent, 1);
 
 
-	EMVSetTag(pclient, TAG_TVR, "\x00\x00\x00\x00\x00", 5);
-	EMVSetTag(pclient, TAG_TSI, "\x00\x00", 2);
-	EMVSetTag(pclient, TAG_AIP, "\x00\x00", 2);
-	EMVSetTag(pclient, TAG_AUC, "\x00\x00", 2);
-	EMVSetTag(pclient, TAG_CTQ, "\x00\x00", 2);
-	EMVSetTag(pclient, TAG_CVM_RESULTS, "\x00\x00\x00", 3);
+	EMVSetTag(pclient, TAG_TVR, (BYTE*)"\x00\x00\x00\x00\x00", 5);
+	EMVSetTag(pclient, TAG_TSI, (BYTE*)"\x00\x00", 2);
+	EMVSetTag(pclient, TAG_AIP, (BYTE*)"\x00\x00", 2);
+	EMVSetTag(pclient, TAG_AUC, (BYTE*)"\x00\x00", 2);
+	EMVSetTag(pclient, TAG_CTQ, (BYTE*)"\x00\x00", 2);
+	EMVSetTag(pclient, TAG_CVM_RESULTS, (BYTE*)"\x00\x00\x00", 3);
 
 	EMVSetTerminal(pemv, pclient, (EMVTerminal*)pemv->Terminals->car);
 	EMVSetPointOfSale(pemv, pclient, pclient->pPointOfSale);
@@ -2164,8 +2222,8 @@ void EMVEndClient (EMV* pemv, EMVClient* pclient)
 	{
 		return; // already removed;
 	}
-	
 	Send_End(EMVRooterCom, pclient);
+
 	CB2AEndMessage (pclient->pAutorisationMessage);
 	CB2AEndMessage (pclient->pRedressementMessage);
 	
@@ -2404,6 +2462,7 @@ int EMVBuildCandidateListUsingPSE(EMV* pemv, EMVClient* pclient, BYTE* outData, 
 							memset(strace, 0, 1000);
 							sprintf(strace, "Add candidate from PSE: %s\n", currentApplicationInfo.strApplicationLabel);
 							s_printf(smessage, pclient, "%s", strace);
+							Send_Info(EMVRooterCom, pclient, "RESULT", strace);
 						}
 						memcpy(pclient->candidateApplications + pclient->candidateApplicationCount, &currentApplicationInfo, sizeof(EMVSelectApplicationInfo));
 						pclient->candidateApplicationCount++;
@@ -2505,6 +2564,7 @@ int EMVBuildCandidateListUsingListOfAids (EMV* pemv, EMVClient* pclient)
 			memset(strace, 0, 1000);
 			sprintf(strace, "NO APPLICATION MATCHES !!! \n");
 			s_printf(smessage, pclient, "%s", strace);
+			Send_Info(EMVRooterCom, pclient, "INFO", strace);
 		}
 		return EMV_OK;
 	}
@@ -2514,6 +2574,7 @@ int EMVBuildCandidateListUsingListOfAids (EMV* pemv, EMVClient* pclient)
 		memset(strace, 0, 1000);
 		sprintf(strace, ">>SELECT AID[%d][%d]\n", pclient->indexApplicationSelected, pclient->indexApplicationAidSelected);
 		s_printf(smessage, pclient, "%s", strace);
+		Send_Info(EMVRooterCom, pclient, "INFO", strace);
 	}
 
 	pemv->APDU (pemv, pclient, 0x00, INS_SELECT, 0x04, 0, pApplicationSelected->AID[pclient->indexApplicationAidSelected].Length, pApplicationSelected->AID[pclient->indexApplicationAidSelected].AID);
@@ -2694,6 +2755,7 @@ int EMVSelectApplication (EMV* pemv, EMVClient* pclient, int indexApplication)
 			memset(strace, 0, 1000);
 			sprintf(strace, "Wrong selection... Terminated\n");
 			s_printf(smessage, pclient, "%s", strace);
+			Send_Info(EMVRooterCom, pclient, "INFO", strace);
 		}
         EMVEndClient (pemv, pclient);
 		return EMV_UNKNOWN_ERROR;
@@ -2708,6 +2770,7 @@ int EMVSelectApplication (EMV* pemv, EMVClient* pclient, int indexApplication)
 		memset(strace, 0, 1000);
 		sprintf(strace, ">>SELECT application index: %d\n", indexApplication);
 		s_printf(smessage, pclient, "%s", strace);
+		//Send_Info(EMVRooterCom, pclient, "INFO", strace);
 	}
 	pclient->IndexApplicationSelected = indexApplication;
 
@@ -2723,15 +2786,11 @@ int EMVSelectApplication (EMV* pemv, EMVClient* pclient, int indexApplication)
 // EMV_NOT_SATISFIED, EMV_ERROR_TRANSMIT, EMV_UNKNOWN_ERROR
 
 
- int EMVGetProcessingOption (EMV* pemv, EMVClient* pclient)
+ int EMVGetProcessingOption (EMV* pemv, EMVClient* pclient, unsigned char *lcpdolData, int lcSize)
 {
+	pclient->SubStep = EMV_SUBSTEP_GET_PROCESSING_OPTIONS;
+	EMVTraceSubStep(pclient);
 
-	unsigned char* pdolTagValue;
-	int pdolTagSize;
-	unsigned char dolComposed[256];
-	int dolComposedSize = 0;
-	unsigned char lcData[256];
-	int lcSize = 0;
 
 	if (pemv->DebugEnabled)
 	{
@@ -2739,34 +2798,11 @@ int EMVSelectApplication (EMV* pemv, EMVClient* pclient, int indexApplication)
 		memset(strace, 0, 1000);
 		sprintf(strace, ">>GPO : Get Processing Options\n");
 		s_printf(smessage, pclient, "%s", strace);
+		//Send_Info(EMVRooterCom, pclient, "INFO", strace);
 	}
+	unsigned char lcData[256] = { 0 };
+	memcpy(&lcData, lcpdolData, lcSize);
 
-	pdolTagValue = TLVGetTag(pclient->pTLV, TAG_PDOL, &pdolTagSize);
-	if (pdolTagValue)
-	{
-		dolComposedSize = TLVDol(pclient->pTLV, pdolTagValue, pdolTagSize, dolComposed);
-		if (dolComposedSize > 0)
-		{
-			lcSize = TLVMake (dolComposed, dolComposedSize, TAG_COMMAND_TEMPLATE, lcData);
-		}
-        EMVTraceDOL (pclient, TAG_PDOL);
-	} 
-    else
-	{
-		if (pemv->DebugEnabled)
-		{
-			char strace[1000];
-			memset(strace, 0, 1000);
-			sprintf(strace, "PDOL is absent\n");
-			s_printf(smessage, pclient, "%s", strace);
-		}
-		memset (lcData, 0, 20);
-		lcData[0] = 0x83;
-		lcData[1] = 0x00;
-		
-		lcSize = 2;
-	//	var pdol = new ByteString("83 0B 00 00 00 00 00 00 00 00 00 00 00", HEX);
-	}
 	pemv->APDU(pemv, pclient, 0x80, INS_GET_PROCESSING_OPTIONS, 0x00, 0x00, lcSize, lcData);
 	return EMV_OK;
 }
@@ -2782,6 +2818,7 @@ int EMVGetICCDynamicNumber (EMV* pemv, EMVClient* pclient)
 		memset(strace, 0, 1000);
 		sprintf(strace, ">>GET_CHALLENGE : Get ICC Dynamic Number\n");
 		s_printf(smessage, pclient, "%s", strace);
+		Send_Info(EMVRooterCom, pclient, "INFO", strace);
 	}
 	pemv->APDU(pemv, pclient, 0x00, INS_GET_CHALLENGE, 0x00, 0x00, 0, (unsigned char*)"");
 	return EMV_OK;
@@ -2795,6 +2832,7 @@ int EMVGetATC (EMV* pemv, EMVClient* pclient)
 		memset(strace, 0, 1000);
 		sprintf(strace, ">>GET_COMMAND : Get Application Transaction Counter (ATC)\n");
 		s_printf(smessage, pclient, "%s", strace);
+		Send_Info(EMVRooterCom, pclient, "INFO", strace);
 	}
 	EMVSendCommand (pemv, pclient, 0x9F, 0x36);
 	return EMV_OK;
@@ -2809,6 +2847,7 @@ int EMVGetLastOnlineATC (EMV* pemv, EMVClient* pclient)
 		memset(strace, 0, 1000);
 		sprintf(strace, ">>GET_COMMAND : Get Last Online Application Transaction Counter (ATC) Register\n");
 		s_printf(smessage, pclient, "%s", strace);
+		Send_Info(EMVRooterCom, pclient, "INFO", strace);
 	}
 	EMVSendCommand (pemv, pclient, 0x9F, 0x13);
 	return EMV_OK;
@@ -2822,6 +2861,7 @@ int EMVGetPTC (EMV* pemv, EMVClient* pclient)
 		memset(strace, 0, 1000);
 		sprintf(strace, ">>GET_COMMAND : Get Current PIN Try Counter (PTC)\n");
 		s_printf(smessage, pclient, "%s", strace);
+		Send_Info(EMVRooterCom, pclient, "INFO", strace);
 	}
 	EMVSendCommand (pemv, pclient, 0x9F, 0x17);
 	return EMV_OK;
@@ -2929,6 +2969,7 @@ int EMVOnRecvLastOnlineATC (EMV* pemv, EMVClient* pclient, BYTE p1, BYTE p2, BYT
 			memset(strace, 0, 1000);
 			sprintf(strace, "Error in Response to Get Command LATC\n");
 			s_printf(smessage, pclient, "%s", strace);
+			Send_Info(EMVRooterCom, pclient, "INFO", strace);
 		}
 		EMVSetTVR (pemv, pclient, Lower_consecutive_offline_limit_exceeded, 1);
 		EMVSetTVR (pemv, pclient, Upper_consecutive_offline_limit_exceeded, 1);
@@ -3036,6 +3077,7 @@ int EMVOnRecvACFirst (EMV* pemv, EMVClient* pclient, BYTE* outData, int outSize)
 				memset(strace, 0, 1000);
 				sprintf(strace, "\n%5s\n", "Mandatory Fields Missing.. EMV Terminated");
 				s_printf(smessage, pclient, "%s", strace);
+				Send_Info(EMVRooterCom, pclient, "INFO", strace);
 			}
 			return EMV_TERMINATED;
 		}
@@ -3100,7 +3142,9 @@ int EMVOnRecvACSecond (EMV* pemv, EMVClient* pclient, BYTE* outData, int outSize
 	parseShift_1 = TLVParse(outData, outSize - 2, &parseTag_1, &parseData_1, &parseSize_1);
 
 	if (!parseShift_1 || (parseTag_1 != TAG_RESPONSE_FORMAT_2 && parseTag_1 != TAG_RESPONSE_FORMAT_1))
-		printf ("\n%5s\n", "Mandatory Fields Missing.. EMV Terminated");
+	{
+		printf("\n%5s\n", "Mandatory Fields Missing.. EMV Terminated");
+	}
 
 	if (parseTag_1 == TAG_RESPONSE_FORMAT_2)  //77
 	{
@@ -3143,6 +3187,7 @@ int EMVOnRecvACSecond (EMV* pemv, EMVClient* pclient, BYTE* outData, int outSize
 				memset(strace, 0, 1000);
 				sprintf(strace, "\n%5s\n", "Mandatory Fields Missing.. EMV Terminated");
 				s_printf(smessage, pclient, "%s", strace);
+				Send_Info(EMVRooterCom, pclient, "INFO", strace);
 			}
 		}
 
@@ -3190,7 +3235,7 @@ int	EMVOnRecvVerify (EMV* pemv, EMVClient* pclient, BYTE* outData, int outSize)
 
 int	EMVOnRecvCardDetectionAndReset (EMV* pemv, EMVClient* pclient, BYTE* outData, int outSize)
 {
-	EMVCardDetectionAndReset (pemv, pclient, outData);
+	EMVCardDetectionAndReset (pemv, pclient, (char*)outData);
 	EMVCandidateListCreation (pemv, pclient);
 	return EMV_OK;
 }
@@ -3339,6 +3384,7 @@ int EMVOnRecvCandidateListCreation (EMV* pemv, EMVClient* pclient, BYTE* outData
 					memset(strace, 0, 1000);
 					sprintf(strace, "Add candidate from PSE: %s\n", currentApplicationInfo.strApplicationLabel);
 					s_printf(smessage, pclient, "%s", strace);
+					Send_Info(EMVRooterCom, pclient, "INFO", strace);
 				}
 
 				memcpy(pclient->candidateApplications + pclient->candidateApplicationCount, &currentApplicationInfo, sizeof(EMVSelectApplicationInfo));
@@ -3404,6 +3450,7 @@ int EMVOnRecvCandidateListCreation (EMV* pemv, EMVClient* pclient, BYTE* outData
 						memset(strace, 0, 1000);
 						sprintf(strace, "Add candidate from list AIDs, match exact: %s\n", currentApplicationInfo.strApplicationLabel);
 						s_printf(smessage, pclient, "%s", strace);
+						Send_Info(EMVRooterCom, pclient, "INFO", strace);
 					}
 					currentApplicationInfo.indexRID = pclient->indexApplicationSelected;
 					currentApplicationInfo.indexAID = pclient->indexApplicationAidSelected;
@@ -3449,6 +3496,7 @@ int EMVOnRecvCandidateListCreation (EMV* pemv, EMVClient* pclient, BYTE* outData
 					memset(strace, 0, 1000);
 					sprintf(strace, "No More Terminal AID To Select\n");
 					s_printf(smessage, pclient, "%s", strace);
+					Send_Info(EMVRooterCom, pclient, "INFO", strace);
 				}
 				EMVTraceCandidates (pemv, pclient);
 				return EMVApplicationSelection (pemv, pclient);
@@ -3465,6 +3513,7 @@ int EMVOnRecvCandidateListCreation (EMV* pemv, EMVClient* pclient, BYTE* outData
 			memset(strace, 0, 1000);
 			sprintf(strace, "SELECT AID[%d][%d]\n", pclient->indexApplicationSelected, pclient->indexApplicationAidSelected);
 			s_printf(smessage, pclient, "%s", strace);
+			Send_Info(EMVRooterCom, pclient, "INFO", strace);
 		}
 
 		pemv->APDU (pemv, pclient, 0x00, INS_SELECT, 0x04, selectionIndicator, pApplicationSelected->AID[pclient->indexApplicationAidSelected].Length, pApplicationSelected->AID[pclient->indexApplicationAidSelected].AID);
@@ -3569,17 +3618,51 @@ int EMVOnRecvApplicationSelection (EMV* pemv, EMVClient* pclient, BYTE* outData,
 				parseSize_1 -= parseShift_2;
 			}
 		} while (0);
-		
+
+
+		unsigned char lcData[256];
+		int lcSize = 0;
+		unsigned char* pdolTagValue;
+		int pdolTagSize;
+		unsigned char dolComposed[256];
+		int dolComposedSize = 0;
+
+		pdolTagValue = TLVGetTag(pclient->pTLV, TAG_PDOL, &pdolTagSize);
+		if (pdolTagValue)
+		{
+			dolComposedSize = TLVDol(pclient->pTLV, pdolTagValue, pdolTagSize, dolComposed);
+			if (dolComposedSize > 0)
+			{
+				lcSize = TLVMake(dolComposed, dolComposedSize, TAG_COMMAND_TEMPLATE, lcData);
+			}
+			EMVTraceDOL(pclient, TAG_PDOL);
+		}
+		else
+		{
+			if (pemv->DebugEnabled)
+			{
+				char strace[1000];
+				memset(strace, 0, 1000);
+				sprintf(strace, "PDOL is absent\n");
+				s_printf(smessage, pclient, "%s", strace);
+				Send_Info(EMVRooterCom, pclient, "INFO", strace);
+			}
+			memset(lcData, 0, 20);
+			lcData[0] = 0x83;
+			lcData[1] = 0x00;
+
+			lcSize = 2;
+			//	var pdol = new ByteString("83 0B 00 00 00 00 00 00 00 00 00 00 00", HEX);
+		}
+
+
 		indexRID = pclient->candidateApplications[pclient->IndexApplicationSelected].indexRID;
 		pApplication = (EMVApplication*)ListGetElt (pemv->Applications, indexRID);
 		pApplication->IndexAIDSelected = pclient->candidateApplications[pclient->IndexApplicationSelected].indexAID;
 		EMVSetApplication (pemv, pclient, pApplication);
 
 		// Application selected ok, get processing option
-		pclient->SubStep = EMV_SUBSTEP_GET_PROCESSING_OPTIONS;
-		EMVTraceSubStep(pclient);
-
-		EMVGetProcessingOption(pemv, pclient);
+		EMVGetProcessingOption(pemv, pclient, &lcData, lcSize);
 	}
 	else
 	if (pclient->SubStep == EMV_SUBSTEP_GET_PROCESSING_OPTIONS)
@@ -3832,7 +3915,7 @@ int EMVBuildCandidateList (EMV* pemv)
 			printf(">>SELECT 1PAY.SYS.DDF01\n");
 		}
 
-		if (!EMVAPDU(pemv, 0x00, INS_SELECT, 0x04, 0x00, 14, "1PAY.SYS.DDF01", &outSize, outData)) {
+		if (!EMVAPDU(pemv, 0x00, INS_SELECT, 0x04, 0x00, 14, (const unsigned char*)"1PAY.SYS.DDF01", &outSize, outData)) {
 			return EMV_ERROR_TRANSMIT;
 		}
 		
@@ -3956,7 +4039,7 @@ int EMVBuildCandidateList (EMV* pemv)
 				unsigned char* parseData_4;
 				int parseSize_4;
 
-				if (!EMVAPDU(pemv, 0x00, INS_READ_RECORD, recordNo, sfiOfPSE, 0, "", &outSize, outData)) {
+				if (!EMVAPDU(pemv, 0x00, INS_READ_RECORD, recordNo, sfiOfPSE, 0, (const unsigned char*)"", &outSize, outData)) {
 					return EMV_ERROR_TRANSMIT;
 				}
 
@@ -4244,6 +4327,7 @@ int EMVApplicationPriority (EMV* pemv, EMVClient* pclient)
 			memset(strace, 0, 1000);
 			sprintf(strace, "No Application is Matching\n");
 			s_printf(smessage, pclient, "%s", strace);
+			Send_Info(EMVRooterCom, pclient, "INFO", strace);
 		}
 
 		return EMV_TERMINATED;
@@ -4287,8 +4371,10 @@ int EMVApplicationPriority (EMV* pemv, EMVClient* pclient)
 			memset(strace, 0, 1000);
 			sprintf(strace, "User must select application\n");
 			s_printf(smessage, pclient, "%s", strace);
+			Send_Info(EMVRooterCom, pclient, "INFO", strace);
+			return EMV_NEED_SELECT_APPLICATION;
 		}
-		return EMV_NEED_SELECT_APPLICATION;
+
 	}
 
 	// Application selection doesn't supported, select auto
@@ -4298,6 +4384,7 @@ int EMVApplicationPriority (EMV* pemv, EMVClient* pclient)
 		memset(strace, 0, 1000);
 		sprintf(strace, "Select multi applications automatically\n");
 		s_printf(smessage, pclient, "%s", strace);
+		Send_Info(EMVRooterCom, pclient, "INFO", strace);
 	}
 	while (1)
 	{
