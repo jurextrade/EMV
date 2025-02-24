@@ -1,5 +1,8 @@
 ﻿  EMV.c
 C:\PROJECTS_CROSS\EMV\Server\src\EMV.c(538,60): warning C4267: 'function': conversion from 'size_t' to 'BYTE', possible loss of data
-C:\PROJECTS_CROSS\EMV\Server\src\EMV.c(3665,41): warning C4047: 'function': 'unsigned char *' differs in levels of indirection from 'unsigned char (*)[256]'
-C:\PROJECTS_CROSS\EMV\Server\src\EMV.c(3665,41): warning C4024: 'EMVGetProcessingOption': different types for formal and actual parameter 3
+C:\PROJECTS_CROSS\EMV\Server\src\EMV.c(2770,75): warning C4047: 'function': 'unsigned char *' differs in levels of indirection from 'char (*)[50]'
+C:\PROJECTS_CROSS\EMV\Server\src\EMV.c(2770,75): warning C4024: 'CharToHexaChar': different types for formal and actual parameter 2
+C:\PROJECTS_CROSS\EMV\Server\src\EMV.c(3668,41): warning C4047: 'function': 'unsigned char *' differs in levels of indirection from 'unsigned char (*)[256]'
+C:\PROJECTS_CROSS\EMV\Server\src\EMV.c(3668,41): warning C4024: 'EMVGetProcessingOption': different types for formal and actual parameter 3
+  main.cpp
   EMVServer.vcxproj -> C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x86\Debug\exe\EMVServer32.exe

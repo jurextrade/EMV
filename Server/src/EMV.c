@@ -1595,6 +1595,7 @@ int EMVTerminalRiskManagement (EMV* pemv, EMVClient* pclient)
 						memset(strace, 0, 1000);
 						sprintf(strace, "\n%5sNo Lower/Upper Consecutive Offline Limit data objects on the card : Skip velocity checking\n", "");
 						s_printf(smessage, pclient, "%s", strace);
+						Send_Info(EMVRooterCom, pclient, "INFO", strace);
 					}
 					return EMVTerminalActionAnalysis (pemv, pclient);
 				}
@@ -2761,17 +2762,17 @@ int EMVSelectApplication (EMV* pemv, EMVClient* pclient, int indexApplication)
 		return EMV_UNKNOWN_ERROR;
 	}
 
-
-
-	// SELECT AID in terminal list
 	if (pemv->DebugEnabled)
 	{
-		char strace[1000];
-		memset(strace, 0, 1000);
-		sprintf(strace, ">>SELECT application index: %d\n", indexApplication);
+		char strace[1000] = { 0 };
+		char applidfname[50] = { 0 };
+
+		CharToHexaChar(pclient->candidateApplications[indexApplication].DFName, &applidfname, pclient->candidateApplications[indexApplication].DFNameLength * 2);
+		sprintf(strace, ">>SELECT application index: %d, %s\n", indexApplication, applidfname);
 		s_printf(smessage, pclient, "%s", strace);
-		//Send_Info(EMVRooterCom, pclient, "INFO", strace);
+		Send_Info(EMVRooterCom, pclient, "INFO", strace);
 	}
+
 	pclient->IndexApplicationSelected = indexApplication;
 
 	pemv->APDU(pemv, pclient, 0x00, INS_SELECT, 0x04, 0x00, pclient->candidateApplications[indexApplication].DFNameLength,	pclient->candidateApplications[indexApplication].DFName);
@@ -3095,19 +3096,20 @@ int EMVOnRecvACFirst (EMV* pemv, EMVClient* pclient, BYTE* outData, int outSize)
 		//Issuer Application Data (IAD) (optional data object)
 		int remainsize = 0;
 
-		EMVSetTag(pclient, TAG_CID, outData + 1, 1);
-		EMVTraceTag(pclient, TAG_CID, outData + 1, 1);
+		EMVSetTag(pclient, TAG_CID, outData + 2, 1);
+		EMVTraceTag(pclient, TAG_CID, outData + 2, 1);
 
-		EMVSetTag(pclient, TAG_ATC, outData + 2, 2);
-		EMVTraceTag (pclient, TAG_ATC, outData + 2, 2);
+		EMVSetTag(pclient, TAG_ATC, outData + 3, 2);
+		EMVTraceTag (pclient, TAG_ATC, outData + 3, 2);
 
-		EMVSetTag(pclient, TAG_AC, outData + 3, 8);
-		EMVTraceTag (pclient, TAG_AC, outData + 3, 8);
+		EMVSetTag(pclient, TAG_AC, outData + 5, 8);
+		EMVTraceTag (pclient, TAG_AC, outData + 5, 8);
 
-		remainsize =  outSize - 2 - 11;
-	//IAD is Mandatory ????	
-		EMVSetTag(pclient, TAG_IAD, outData + 11, remainsize);
-		EMVTraceTag (pclient, TAG_IAD, outData + 11, remainsize);
+		remainsize =  outSize - 2 - (11 + 1 + 1);  // + tag + length	
+		
+		//IAD is Mandatory ????	
+		EMVSetTag(pclient, TAG_IAD, outData + 13, remainsize);
+		EMVTraceTag (pclient, TAG_IAD, outData + 13, remainsize);
 
 	}
     pclient->EMV_CID = (EMV_BITS*) TLVGetTag(pclient->pTLV, TAG_CID, &parseSize_1);
@@ -3204,19 +3206,20 @@ int EMVOnRecvACSecond (EMV* pemv, EMVClient* pclient, BYTE* outData, int outSize
 		//Issuer Application Data (IAD) (optional data object)
 		int remainsize = 0;
 
-		EMVSetTag(pclient, TAG_CID, outData + 1, 1);
-		EMVTraceCID (pclient);
+		EMVSetTag(pclient, TAG_CID, outData + 2, 1);
+		EMVTraceTag(pclient, TAG_CID, outData + 2, 1);
 
-		EMVSetTag(pclient, TAG_ATC, outData + 2, 2);
-		EMVTraceTag (pclient, TAG_ATC, outData + 2, 2);
+		EMVSetTag(pclient, TAG_ATC, outData + 3, 2);
+		EMVTraceTag(pclient, TAG_ATC, outData + 3, 2);
 
-		EMVSetTag(pclient, TAG_AC, outData + 3, 8);
-		EMVTraceTag (pclient, TAG_AC, outData + 3, 8);
+		EMVSetTag(pclient, TAG_AC, outData + 5, 8);
+		EMVTraceTag(pclient, TAG_AC, outData + 5, 8);
 
-		remainsize =  outSize - 2 - 11;
-		
-		EMVSetTag(pclient, TAG_IAD, outData + 11, remainsize);
-		EMVTraceTag (pclient, TAG_IAD, outData + 11, remainsize);
+		remainsize = outSize - 2 - (11 + 1 + 1);  // + tag + length	
+
+		//IAD is Mandatory ????	
+		EMVSetTag(pclient, TAG_IAD, outData + 13, remainsize);
+		EMVTraceTag(pclient, TAG_IAD, outData + 13, remainsize);
 
 	}
 

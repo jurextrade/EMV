@@ -466,7 +466,7 @@ int OnRecvSendAppliSelection(MXMessage* pmessage, MXCom* pcom, void* application
 
 
 
-			sscanf(message, "%[0-9]*%[a-zA-Z]*%[a-zA-Z ]*", UserId, Command, Parameter);
+			sscanf(message, "%[0-9]*%[a-zA-Z]*%[0-9]*", UserId, Command, Parameter);
 
 			if (strcmp(Command, "ABORT") == 0) {
 				MXCloseCom(pCard->pCom->MX, pCard->pCom);
@@ -476,7 +476,7 @@ int OnRecvSendAppliSelection(MXMessage* pmessage, MXCom* pcom, void* application
 			{
 				if (strcmp(Command, "SELECT") == 0) {
 					char charindex;
-					charindex = Parameter[0];
+					charindex = Parameter[0] - '0';
 
 					MXMessage* Outpmessage = MXPutMessage(pcom, "APDU", "RecvAppliSelection");
 					MXSetValue(Outpmessage, "Index", 1, &charindex);

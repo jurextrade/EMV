@@ -192,15 +192,20 @@ void EMVTraceCID (EMVClient* pclient)
 	if ((EMV_CID[0] & EMV_CRYPTO_TYPE_AAR) == EMV_CRYPTO_TYPE_AAR)   sprintf (strace + i, "%50s : %s\n", "AAR",	"YES");	else
     if ((EMV_CID[0] & EMV_CRYPTO_TYPE_ARQC) == EMV_CRYPTO_TYPE_ARQC) sprintf (strace + i, "%50s : %s\n", "ARQC","YES");	else
 	if ((EMV_CID[0] & EMV_CRYPTO_TYPE_TC) == EMV_CRYPTO_TYPE_TC) 	 sprintf (strace + i, "%50s : %s\n", "TC",	"YES");	else
-	if ((EMV_CID[0] & EMV_CRYPTO_TYPE_AAC) == EMV_CRYPTO_TYPE_AAC) 	 sprintf (strace + i, "%50s : %s\n", "AAC",	"YES");
+	 sprintf (strace + i, "%50s : %s\n", "AAC",	"YES"); //00
 
 	i = strlen(strace);
 
 	if (EMV_CID[0] & EMV_CRYPTO_TYPE_PSS)							{ sprintf(strace + i, "%50s : %s\n", "Payment System-specific cryptogram", "YES");  i = strlen(strace); }
-	if (EMV_CID[0] & EMV_CRYPTO_AR)									{ sprintf(strace + i, "%50s : %s\n", "Advice Required", "YES");					    i = strlen(strace); }
-	if (EMV_CID[0] & EMV_CRYPTO_SNA)								{ sprintf(strace + i, "%50s : %s\n", "Service not allowed", "YES");					i = strlen(strace); }
-	if (EMV_CID[0] & EMV_CRYPTO_TLE)								{ sprintf(strace + i, "%50s : %s\n", "PIN Try Limit exceeded", "YES");				i = strlen(strace); }
-	if (EMV_CID[0] & EMV_CRYPTO_IAF) 								{sprintf (strace + i, "%50s : %s\n", "Issuer authentication failed",	"YES");		i = strlen(strace);}
+
+	if (EMV_CID[0] & EMV_CRYPTO_AR)									{ sprintf(strace + i, "%50s : %s\n", "Advice Required", "YES");					    i = strlen(strace); } else
+																	{ sprintf(strace + i, "%50s : %s\n", "No Advice Required", "YES");					    i = strlen(strace); }
+
+	if (EMV_CID[0] & EMV_CRYPTO_RFU) { sprintf(strace + i, "%50s : %s\n", "Other Values RFU", "YES");		i = strlen(strace); }	else
+	if (EMV_CID[0] & EMV_CRYPTO_IAF) { sprintf(strace + i, "%50s : %s\n", "Issuer authentication failed", "YES");		i = strlen(strace); }	else
+	if (EMV_CID[0] & EMV_CRYPTO_TLE) { sprintf(strace + i, "%50s : %s\n", "PIN Try Limit exceeded", "YES");				i = strlen(strace); }	else
+	if (EMV_CID[0] & EMV_CRYPTO_SNA) { sprintf(strace + i, "%50s : %s\n", "Service not allowed", "YES");					i = strlen(strace); } else
+		sprintf(strace + i, "%50s : %s\n", "No Information Given", "YES");
 
 	s_printf(smessage, pclient, "%s", strace);
 

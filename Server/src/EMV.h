@@ -126,10 +126,10 @@
 #define EMV_CRYPTO_SNA					0x01 // Service not allowed", "YES");
 #define EMV_CRYPTO_TLE					0x02 // PIN Try Limit exceeded", "YES");
 #define EMV_CRYPTO_IAF					0x03 // Issuer authentication failed", 
+#define EMV_CRYPTO_RFU					0x04 // Other Values RFU", 
+#define EMV_CRYPTO_NIG					0x00 // No information given, 
 
 
-
-#define CIDResulti
 
 #define B1								0x00
 #define B2								0x01

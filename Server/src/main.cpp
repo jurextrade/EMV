@@ -485,7 +485,7 @@ CB2AMessage* pmessage = CB2AInitMessage (pcb2a, "0100");
 	srand((unsigned int) time(NULL));
 	HexaCharToChar ((BYTE *)"0000000000000000", Decimal, 16);
 	NumericDecimalCharToHexaChar (( char *)Decimal, "ab0c" , 50);
-	CharToHexaChar ((BYTE *)"111", Ascii, 3);
+	CharToHexaChar ((BYTE *)"111", Ascii, 6);
 
 	l = CharArrayToBCDArray ("C12345", 6, 12, "x+n", Ascii);
 	l = CharArrayToCharArray ("12345", 5, 12, "n", Ascii);
