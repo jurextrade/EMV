@@ -3746,6 +3746,7 @@ int EMVOnRecvApplicationSelection (EMV* pemv, EMVClient* pclient, BYTE* outData,
 						if (parseSize_2 != 2)
 							break;
 						aipExist = 1;
+					
 					}
 
 					EMVSetTag(pclient, parseTag_2, parseData_2, parseSize_2);
@@ -3761,6 +3762,7 @@ int EMVOnRecvApplicationSelection (EMV* pemv, EMVClient* pclient, BYTE* outData,
 					processingOptionResult = EMV_UNKNOWN_ERROR;
 					break;
 				}
+				EMVTraceAIP(pclient);
 				if (pemv->DebugEnabled)
 				{
 					EMVTraceHexaBuffer(pclient->pEMV, "AIP: ", tagValue, tagSize, "\n");

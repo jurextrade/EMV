@@ -442,8 +442,8 @@ void EMVTraceCVM (EMVClient* pclient)
 	BYTE* pCVMList	= pCVMData + 8;		
 	int ListSize	= (outSize - 8) / 2;
 
-	char strace[400];
-	memset(strace, 0, 400);
+	char strace[1000];
+	memset(strace, 0, 1000);
 
 	sprintf(strace, "%5s%s\n", "", "CVM List");
 	int i = strlen(strace);
@@ -565,8 +565,8 @@ void EMVTraceTVR (EMVClient* pclient, EMV_BITS* pTVR, char* label)
 
 void EMVTraceTVROnlyYes (EMVClient* pclient, EMV_BITS* pTVR, char* label)
 {
-	char strace[1000];
-	memset(strace, 0, 1000);
+	char strace[5000];
+	memset(strace, 0, 5000);
 
 	sprintf(strace, "%5s%s\n", "", label);
 	int i = strlen(strace);

@@ -927,7 +927,7 @@ extern char		EMVRooter[300];
 extern int		EMVRooterPort;
 extern char		LoginServer[300];
 extern MXCom*	EMVRooterCom;
-extern char		smessage[300];
+extern char		smessage[5000];
 
 //EMV PROCESS FUNCTIONS
 //======================

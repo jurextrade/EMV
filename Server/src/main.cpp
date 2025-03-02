@@ -18,7 +18,7 @@ char   LoginServer[300]	    = "www.jurextrade.com";
 
 MXCom* EMVRooterCom			= NULL;
 
-char   smessage[300];
+char   smessage[5000];
 
 using namespace std;
 
