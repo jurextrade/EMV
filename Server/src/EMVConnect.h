@@ -25,6 +25,7 @@ extern int			OnRecvATR (MXMessage*  pmessage, MXCom* pcom, void* applicationfiel
 extern int			OnRecvError (MXMessage*  pmessage, MXCom* pcom, void* applicationfield);
 extern int			OnRecvTransaction (MXMessage*  pmessage, MXCom* pcom, void* applicationfield);
 extern int			OnRecvCommand (MXMessage*  pmessage, MXCom* pcom, void* applicationfield);
+extern int			OnSendCommand(MXMessage* pmessage, MXCom* pcom, void* applicationfield);
 extern int			OnRecvVerify (MXMessage*  pmessage, MXCom* pcom, void* applicationfield);
 //CB2A
 extern int			OnRecvReply (MXMessage*  pmessage, MXCom* pcom, void* applicationfield);

@@ -82,6 +82,16 @@ int OnRecvATR(MXMessage* pmessage, MXCom* pcom, void* applicationfield)
 	return 1;
 }
 
+int OnSendCommand(MXMessage* pmessage, MXCom* pcom, void* applicationfield)
+{
+	EMVClient* pclient = (EMVClient*)applicationfield;
+	EMV* pemv = pclient->pEMV;
+
+	BYTE P1 = *(BYTE*)MXGetValue(pmessage, "P1", 1);
+	BYTE P2 = *(BYTE*)MXGetValue(pmessage, "P2", 1);
+}
+
+
 int OnRecvCommand(MXMessage* pmessage, MXCom* pcom, void* applicationfield)
 {
 	EMVClient* pclient = (EMVClient*)applicationfield;
@@ -97,17 +107,21 @@ int OnRecvCommand(MXMessage* pmessage, MXCom* pcom, void* applicationfield)
 
 	if (pemv->DebugEnabled)
 	{
-		EMVTraceAPDU(pclient, 0, 0, 0, 0, outData, outSize, 1);
+		EMVTraceAPDU(pclient, 0x80, 0xCA, P1, P2, outData, outSize, 1);
 	}
 
-	if (P2 == 0x36)
+	if (P2 == 0x36) {
 		EMVOnRecvATC(pemv, pclient, P1, P2, outData, outSize);
+	}
 	else
 		if (P2 == 0x13)
+		{
 			EMVOnRecvLastOnlineATC(pemv, pclient, P1, P2, outData, outSize);
+		}
 		else
-			if (P2 == 0x17)
+			if (P2 == 0x17) {
 				EMVOnRecvPinTryCounter(pemv, pclient, P1, P2, outData, outSize);
+			}
 
 	free(Buffer->BufferContent);
 	free(Buffer);

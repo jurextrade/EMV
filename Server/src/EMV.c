@@ -461,6 +461,9 @@ int EMVSendCommand (EMV* pemv, EMVClient* pclient,  unsigned char p1, unsigned c
     pmessage = MXPutMessage (pclient->pPointOfSale->pCom, "APDU", "SendCommand");
     MXSetValue(pmessage, "P1",		1,	&p1) ;
     MXSetValue(pmessage, "P2",		1,	&p2) ;
+	int outDataSize = 0;
+	unsigned char outData[258];
+	EMVTraceAPDU(pclient, 0x00, 0xCA, p1, p2, outData, outDataSize, 0);
 	return 1;
 }
 
@@ -1334,9 +1337,9 @@ int EMVCardHolderVerification (EMV* pemv, EMVClient* pclient)
 	{
 		//break;
 	}
-
-
-	EMVGetPTC (pemv, pclient);   //Pin Try Counter
+	result = EMVGetLastOnlineATC(pemv, pclient);
+	result = EMVGetATC(pemv, pclient);
+	result = EMVGetPTC (pemv, pclient);   //Pin Try Counter
 	
     EMVSetTSI (pemv, pclient, Cardholder_verification_was_performed, 1);		
 	
@@ -2825,7 +2828,7 @@ int EMVGetICCDynamicNumber (EMV* pemv, EMVClient* pclient)
 	return EMV_OK;
 }
 
-int EMVGetATC (EMV* pemv, EMVClient* pclient)
+int EMVGetATC (EMV* pemv, EMVClient* pclient)   // Tag 9F36 Application Transaction Counter
 {
 	if (pemv->DebugEnabled)
 	{
@@ -2840,7 +2843,7 @@ int EMVGetATC (EMV* pemv, EMVClient* pclient)
 }
 
 
-int EMVGetLastOnlineATC (EMV* pemv, EMVClient* pclient)
+int EMVGetLastOnlineATC (EMV* pemv, EMVClient* pclient)  //tag 9F13 ATC value of the last transaction that went online
 {
 	if (pemv->DebugEnabled)
 	{
@@ -2854,7 +2857,7 @@ int EMVGetLastOnlineATC (EMV* pemv, EMVClient* pclient)
 	return EMV_OK;
 }
 
-int EMVGetPTC (EMV* pemv, EMVClient* pclient)
+int EMVGetPTC (EMV* pemv, EMVClient* pclient) // tag 9F17 Number of PIN tries remaining
 {
 	if (pemv->DebugEnabled)
 	{
@@ -2922,7 +2925,7 @@ int		EMVAPDU (EMV* pemv, unsigned char cla, unsigned char ins, unsigned char p1,
 int EMVOnRecvPinTryCounter (EMV* pemv, EMVClient* pclient, BYTE p1, BYTE p2, BYTE* outData, int outSize)
 {
 
-	if (outSize < 2 || outSize > 3 || outData[outSize - 2] != 0x90 || outData[outSize - 1] != 0x00)
+	if (outSize < 2 || outData[outSize - 2] != 0x90 || outData[outSize - 1] != 0x00)
 	{
 		if (pemv->DebugEnabled)
 		{
@@ -2942,7 +2945,7 @@ int EMVOnRecvPinTryCounter (EMV* pemv, EMVClient* pclient, BYTE p1, BYTE p2, BYT
 int EMVOnRecvATC (EMV* pemv, EMVClient* pclient, BYTE p1, BYTE p2, BYTE* outData, int outSize)
 {
 
-	if (outSize < 2 || outSize > 3 || outData[outSize - 2] != 0x90 || outData[outSize - 1] != 0x00)
+	if (outSize < 2 || outData[outSize - 2] != 0x90 || outData[outSize - 1] != 0x00)
 	{
 		if (pemv->DebugEnabled)
 		{
@@ -2962,7 +2965,7 @@ int EMVOnRecvATC (EMV* pemv, EMVClient* pclient, BYTE p1, BYTE p2, BYTE* outData
 int EMVOnRecvLastOnlineATC (EMV* pemv, EMVClient* pclient, BYTE p1, BYTE p2, BYTE* outData, int outSize)
 {
 
-	if (outSize < 2 || outSize > 3 || outData[outSize - 2] != 0x90 || outData[outSize - 1] != 0x00)
+	if (outSize < 2  || outData[outSize - 2] != 0x90 || outData[outSize - 1] != 0x00)
 	{
 		if (pemv->DebugEnabled)
 		{

@@ -66,6 +66,7 @@ int OnConnect(MXCom* pcom, void* applicationfield)
 	MXAddComCallBack(pemv->pMX, pcom, "APDU", "SendACFirst",		MXONRECV, OnRecvACFirst,		pclient);
 	MXAddComCallBack(pemv->pMX, pcom, "APDU", "RecvAppliSelection", MXONRECV, OnRecvAppliSelection, pclient);
 	MXAddComCallBack(pemv->pMX, pcom, "APDU", "RecvCommand",		MXONRECV, OnRecvCommand,		pclient);
+	MXAddComCallBack(pemv->pMX, pcom, "APDU", "SendCommand",        MXONSEND, OnSendCommand,        pclient);
 	MXAddComCallBack(pemv->pMX, pcom, "APDU", "RecvVerify",			MXONRECV, OnRecvVerify,			pclient);
 
 	return 1;

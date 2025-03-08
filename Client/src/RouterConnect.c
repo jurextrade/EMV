@@ -283,57 +283,35 @@ void Send_APDU(MXCom* pcom, BYTE cla, BYTE ins, BYTE p1, BYTE p2, int datasize, 
 		return;
 	}
 
-	int totalsize;
-	char* adpu_buffer;
 	char header[30];
-
 	if (way) {		// R-ADPU
-		int userid_size = strlen(CardConnector->UserID) + 1; // add '^'
-		int header_size = strlen("*R-ADPU^") + userid_size;
-
-		totalsize = header_size + (2 * datasize) + 1;
-
 		sprintf(header, "%s%s^", "*R-APDU^", CardConnector->UserID);
-
-		adpu_buffer = (char*)malloc(totalsize);
-
-		totalsize = header_size + (2 * datasize) + 1;
-
-
-		adpu_buffer = (char*)malloc(totalsize);
-
-		for (int i = 0, j = 0; i < datasize; ++i, j += 2)
-			sprintf(adpu_buffer + header_size + j, "%02X", data[i] & 0xff);
-
-		memcpy(adpu_buffer, header, header_size);
-		adpu_buffer[header_size + (2 * datasize)] = '*';
-
 	}
 	else {
-		int userid_size = strlen(CardConnector->UserID) + 1; // add '^'
-		int header_size = strlen("*R-ADPU^") + userid_size;
-		int apduheader_size = 10;
-
-		totalsize = header_size + apduheader_size + (2 * datasize) + 1;
-
 		sprintf(header, "%s%s^", "*C-APDU^", CardConnector->UserID);
-
-		adpu_buffer = (char*)malloc(totalsize);
-
-		memcpy(adpu_buffer, header, header_size);
-
-		int j = 0;
-		sprintf(adpu_buffer + header_size + j, "%02X", cla & 0xFF);		 j += 2;
-		sprintf(adpu_buffer + header_size + j, "%02X", ins & 0xFF);		 j += 2;
-		sprintf(adpu_buffer + header_size + j, "%02X", p1 & 0xFF);		 j += 2;
-		sprintf(adpu_buffer + header_size + j, "%02X", p2 & 0xFF);		 j += 2;
-		sprintf(adpu_buffer + header_size + j, "%02X", datasize & 0xFF); j += 2;
-		for (int i = 0; i < datasize; ++i, j += 2)
-			sprintf(adpu_buffer + header_size + j, "%02X", data[i] & 0xff);
-
-		adpu_buffer[header_size + j] = '*';
-
 	}
+
+	int userid_size = strlen(CardConnector->UserID) + 1; // add '^'
+	int header_size = strlen("*C-ADPU^") + userid_size;
+	int apduheader_size = 10;
+
+	int totalsize = header_size + apduheader_size + (2 * datasize) + 1;
+
+	char* adpu_buffer = (char*)malloc(totalsize);
+	memcpy(adpu_buffer, header, header_size);
+
+
+	int j = 0;
+	sprintf(adpu_buffer + header_size + j, "%02X", cla & 0xFF);		 j += 2;
+	sprintf(adpu_buffer + header_size + j, "%02X", ins & 0xFF);		 j += 2;
+	sprintf(adpu_buffer + header_size + j, "%02X", p1 & 0xFF);		 j += 2;
+	sprintf(adpu_buffer + header_size + j, "%02X", p2 & 0xFF);		 j += 2;
+	sprintf(adpu_buffer + header_size + j, "%02X", datasize & 0xFF); j += 2;
+	
+	for (int i = 0; i < datasize; ++i, j += 2)
+		sprintf(adpu_buffer + header_size + j, "%02X", data[i] & 0xff);
+	adpu_buffer[header_size + j] = '*';
+
 	MXMessage* pmessage;
 	BUFFERPARM	Buffer;
 
@@ -341,11 +319,11 @@ void Send_APDU(MXCom* pcom, BYTE cla, BYTE ins, BYTE p1, BYTE p2, int datasize, 
 	Buffer.BufferSize = totalsize;
 	Buffer.BufferContent = adpu_buffer;
 
-	pmessage = MXPutMessage(pcom, "TCP", "Stream");
+	pmessage = MXCreateMessage(pcom->MX, "TCP", "Stream");
 	MXSetValue(pmessage, "Buffer", 1, &Buffer);
-
+	MXSend(pcom->MX, pcom, pmessage);
+	MXFreeMessage(pcom->MX, pmessage);
 	free(adpu_buffer);
-
 }
 
 void s_printf(char* message, char* format, char* string)

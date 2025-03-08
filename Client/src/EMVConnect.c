@@ -18,18 +18,18 @@ MXCom* Connect_EMVServer(CC* pcc, CARD* pCard) {
 	}
 	s_printf(smessage, "%s", "Open Connection With EMV Server \n");
 
-	MXAddComCallBack(pmx, pCom, "APDU", "C-APDU", MXONRECV, OnRecvAPDU, pCard);
-	MXAddComCallBack(pmx, pCom, "APDU", "R-APDU", MXONSEND, OnSendAPDU, pCard);
-	MXAddComCallBack(pmx, pCom, "APDU", "SendACFirst", MXONRECV, OnRecvACFirst, pCard);
-	MXAddComCallBack(pmx, pCom, "APDU", "RecvACFirst", MXONSEND, OnSendACFirst, pCard);
+	MXAddComCallBack(pmx, pCom, "APDU", "C-APDU",		MXONRECV, OnRecvAPDU, pCard);
+	MXAddComCallBack(pmx, pCom, "APDU", "R-APDU",		MXONSEND, OnSendAPDU, pCard);
+	MXAddComCallBack(pmx, pCom, "APDU", "SendACFirst",	MXONRECV, OnRecvACFirst, pCard);
+	MXAddComCallBack(pmx, pCom, "APDU", "RecvACFirst",	MXONSEND, OnSendACFirst, pCard);
 	MXAddComCallBack(pmx, pCom, "APDU", "SendACSecond", MXONRECV, OnRecvACSecond, pCard);
 	MXAddComCallBack(pmx, pCom, "APDU", "RecvACSecond", MXONSEND, OnSendACSecond, pCard);
-	MXAddComCallBack(pmx, pCom, "APDU", "RecvVerify", MXONSEND, OnSendVerify, pCard);
-	MXAddComCallBack(pmx, pCom, "APDU", "SendVerify", MXONRECV, OnRecvVerify, pCard);
-	MXAddComCallBack(pmx, pCom, "APDU", "SendATR", MXONSEND, OnSendATR, pCard);
-	MXAddComCallBack(pmx, pCom, "APDU", "SendTransaction", MXONSEND, OnSendTransaction, pCard);
+	MXAddComCallBack(pmx, pCom, "APDU", "RecvVerify",	MXONSEND, OnSendVerify, pCard);
+	MXAddComCallBack(pmx, pCom, "APDU", "SendVerify",	MXONRECV, OnRecvVerify, pCard);
+	MXAddComCallBack(pmx, pCom, "APDU", "SendATR",			MXONSEND, OnSendATR, pCard);
+	MXAddComCallBack(pmx, pCom, "APDU", "SendTransaction",  MXONSEND, OnSendTransaction, pCard);
 	MXAddComCallBack(pmx, pCom, "APDU", "SendAppliSelection", MXONRECV, OnRecvSendAppliSelection, pCard);
-	MXAddComCallBack(pmx, pCom, "APDU", "SendCommand", MXONRECV, OnRecvSendCommand, pCard);
+	MXAddComCallBack(pmx, pCom, "APDU", "SendCommand",        MXONRECV, OnRecvSendCommand, pCard);
 	pCard->pCom = pCom;
 	return pCom;
 }
@@ -92,9 +92,9 @@ int OnRecvSendCommand(MXMessage* pmessage, MXCom* pcom, void* applicationfield)
 
 	s_printf(smessage, "%s", "Receiving APDU Command from Server \n");
 
-	Send_APDU(EMVRooterCom, 0x00, 0xCA, p1, p2, 0, outData, 0);
+	Send_APDU(EMVRooterCom, 0x80, 0xCA, p1, p2, 0, outData, 0);
 
-	if (!CardAPDU(pCard, 0x00, 0xCA, p1, p2, 0, (unsigned char*)"", &outDataSize, outData))
+	if (!CardAPDU(pCard, 0x80, 0xCA, p1, p2, 0, (unsigned char*)"", &outDataSize, outData))
 	{
 		sprintf(strError, "%s", "APDU failed, transmission error\n");
 
@@ -127,7 +127,7 @@ int OnRecvSendCommand(MXMessage* pmessage, MXCom* pcom, void* applicationfield)
 	MXSetValue(Outpmessage, "P1", 1, &p1);
 	MXSetValue(Outpmessage, "P2", 1, &p2);
 
-	Send_APDU(EMVRooterCom, 0x00, 0xCA, p1, p2, outDataSize, outData, 1);
+	Send_APDU(EMVRooterCom, 0x80, 0xCA, p1, p2, outDataSize, outData, 1);
 
 	return 1;
 }
