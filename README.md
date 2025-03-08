@@ -1,0 +1,1 @@
+The primary aim of this website is to offer a tutorial-style presentation focusing on the transaction profile of the EMV debit and credit payment application. The goal is to facilitate a better understanding of the EMV payment method for individuals who lack the time to thoroughly read the complete specification.
