@@ -3,8 +3,8 @@ COMP32_REP = C:/Programs/MinGW/lib
 
 INC_REP = C:/PROJECTS_CROSS/NetProg/include
 
-OBJ32= ../x86/obj/Card.o ../x86/obj/EMVError.o ../x86/obj/EMVTools.o
-OBJ64= ../x64/obj/Card.o ../x64/obj/EMVError.o ../x64/obj/EMVTools.o
+OBJ32= ../x86/obj/Card.o ../x86/obj/EMVError.o ../x86/obj/EMVTools.o ../x86/obj/EMVConnect.o ../x86/obj/RouterConnect.o
+OBJ64= ../x64/obj/Card.o ../x64/obj/EMVError.o ../x64/obj/EMVTools.o ../x64/obj/EMVConnect.o ../x64/obj/RouterConnect.o
 
 
 ../x86/obj/%.o: ../../../../src/%.c

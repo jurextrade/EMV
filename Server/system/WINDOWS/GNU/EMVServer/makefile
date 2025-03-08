@@ -3,8 +3,8 @@ COMP32_REP = C:/Programs/MinGW/lib
 
 INC_REP = C:/PROJECTS_CROSS/NetProg/include
 
-OBJ32= ../x86/obj/EMVTrace.o ../x86/obj/EMVTools.o ../x86/obj/EMVTag.o ../x86/obj/EMVFile.o  ../x86/obj/EMVError.o ../x86/obj/EMVCallback.o ../x86/obj/EMV.o  ../x86/obj/CB2A.o  ../x86/obj/tlv.o 
-OBJ64= ../x64/obj/EMVTrace.o ../x64/obj/EMVTools.o ../x64/obj/EMVTag.o ../x64/obj/EMVFile.o  ../x64/obj/EMVError.o ../x64/obj/EMVCallback.o ../x64/obj/EMV.o  ../x64/obj/CB2A.o  ../x64/obj/tlv.o 
+OBJ32= ../x86/obj/EMVTrace.o ../x86/obj/EMVTools.o ../x86/obj/EMVTag.o ../x86/obj/EMVFile.o  ../x86/obj/EMVError.o ../x86/obj/EMVConnect.o ../x86/obj/RouterConnect.o ../x86/obj/EMV.o  ../x86/obj/CB2A.o  ../x86/obj/tlv.o 
+OBJ64= ../x64/obj/EMVTrace.o ../x64/obj/EMVTools.o ../x64/obj/EMVTag.o ../x64/obj/EMVFile.o  ../x64/obj/EMVError.o ../x64/obj/EMVConnect.o ../x64/obj/RouterConnect.o ../x64/obj/EMV.o  ../x64/obj/CB2A.o  ../x64/obj/tlv.o 
 
 ../x86/obj/%.o: ../../../../src/%.c
 	g++ -c $< -DYY_USE_PROTOS -DWINDOWS -I$(INC_REP) -Wno-write-strings -o  $@
