@@ -89,6 +89,7 @@ int OnSendCommand(MXMessage* pmessage, MXCom* pcom, void* applicationfield)
 
 	BYTE P1 = *(BYTE*)MXGetValue(pmessage, "P1", 1);
 	BYTE P2 = *(BYTE*)MXGetValue(pmessage, "P2", 1);
+	return 1;
 }
 
 

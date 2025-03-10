@@ -6,10 +6,13 @@
       "AbsoluteMoniker": "D:0:0:{4AF0C9A3-BF2D-49DF-A265-2EF59B5E311D}|..\\..\\..\\Server\\system\\WINDOWS\\VS\\EMVServer\\EMVServer.vcxproj|C:\\PROJECTS_CROSS\\EMV\\Server\\src\\RouterConnect.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CCDE63D7-0322-4ED3-9F30-2037A60C82D6}|..\\..\\..\\Client\\system\\WINDOWS\\VS\\EMVClient\\EMVClient.vcxproj|C:\\PROJECTS_CROSS\\EMV\\Client\\src\\RouterConnect.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{4AF0C9A3-BF2D-49DF-A265-2EF59B5E311D}|..\\..\\..\\Server\\system\\WINDOWS\\VS\\EMVServer\\EMVServer.vcxproj|C:\\PROJECTS_CROSS\\EMV\\Server\\src\\EMVTrace.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CCDE63D7-0322-4ED3-9F30-2037A60C82D6}|..\\..\\..\\Client\\system\\WINDOWS\\VS\\EMVClient\\EMVClient.vcxproj|C:\\PROJECTS_CROSS\\EMV\\Client\\src\\EMVConnect.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{4AF0C9A3-BF2D-49DF-A265-2EF59B5E311D}|..\\..\\..\\Server\\system\\WINDOWS\\VS\\EMVServer\\EMVServer.vcxproj|C:\\PROJECTS_CROSS\\EMV\\Server\\src\\EMV.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CCDE63D7-0322-4ED3-9F30-2037A60C82D6}|..\\..\\..\\Client\\system\\WINDOWS\\VS\\EMVClient\\EMVClient.vcxproj|C:\\PROJECTS_CROSS\\EMV\\Client\\src\\RouterConnect.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{4AF0C9A3-BF2D-49DF-A265-2EF59B5E311D}|..\\..\\..\\Server\\system\\WINDOWS\\VS\\EMVServer\\EMVServer.vcxproj|C:\\PROJECTS_CROSS\\EMV\\Server\\src\\EMV.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
@@ -18,13 +21,13 @@
       "AbsoluteMoniker": "D:0:0:{4AF0C9A3-BF2D-49DF-A265-2EF59B5E311D}|..\\..\\..\\Server\\system\\WINDOWS\\VS\\EMVServer\\EMVServer.vcxproj|C:\\PROJECTS_CROSS\\EMV\\Server\\src\\EMVConnect.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4AF0C9A3-BF2D-49DF-A265-2EF59B5E311D}|..\\..\\..\\Server\\system\\WINDOWS\\VS\\EMVServer\\EMVServer.vcxproj|C:\\PROJECTS_CROSS\\EMV\\Server\\src\\EMVTrace.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{CCDE63D7-0322-4ED3-9F30-2037A60C82D6}|..\\..\\..\\Client\\system\\WINDOWS\\VS\\EMVClient\\EMVClient.vcxproj|C:\\PROJECTS_CROSS\\EMV\\Client\\src\\EMVConnect.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4AF0C9A3-BF2D-49DF-A265-2EF59B5E311D}|..\\..\\..\\Server\\system\\WINDOWS\\VS\\EMVServer\\EMVServer.vcxproj|C:\\PROJECTS_CROSS\\EMV\\Server\\src\\EMVTools.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{9921976B-54F8-40D4-812D-E5334CF1E619}|..\\..\\..\\..\\NetProg\\system\\WINDOWS\\VS\\NetProg\\NetProg.vcxproj|C:\\PROJECTS_CROSS\\NetProg\\src\\sc.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4AF0C9A3-BF2D-49DF-A265-2EF59B5E311D}|..\\..\\..\\Server\\system\\WINDOWS\\VS\\EMVServer\\EMVServer.vcxproj|C:\\PROJECTS_CROSS\\EMV\\Server\\src\\EMV.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{CCDE63D7-0322-4ED3-9F30-2037A60C82D6}|..\\..\\..\\Client\\system\\WINDOWS\\VS\\EMVClient\\EMVClient.vcxproj|C:\\PROJECTS_CROSS\\EMV\\Client\\src\\Card.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
@@ -43,9 +46,6 @@
     },
     {
       "AbsoluteMoniker": "D:0:0:{4AF0C9A3-BF2D-49DF-A265-2EF59B5E311D}|..\\..\\..\\Server\\system\\WINDOWS\\VS\\EMVServer\\EMVServer.vcxproj|C:\\PROJECTS_CROSS\\EMV\\Server\\src\\EMVFile.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4AF0C9A3-BF2D-49DF-A265-2EF59B5E311D}|..\\..\\..\\Server\\system\\WINDOWS\\VS\\EMVServer\\EMVServer.vcxproj|C:\\PROJECTS_CROSS\\EMV\\Server\\src\\EMVTools.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{4AF0C9A3-BF2D-49DF-A265-2EF59B5E311D}|..\\..\\..\\Server\\system\\WINDOWS\\VS\\EMVServer\\EMVServer.vcxproj|C:\\PROJECTS_CROSS\\EMV\\Server\\src\\EMVTag.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
@@ -78,31 +78,32 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 8,
               "Title": "sc.c",
               "DocumentMoniker": "C:\\PROJECTS_CROSS\\NetProg\\src\\sc.c",
               "RelativeDocumentMoniker": "..\\..\\..\\..\\NetProg\\src\\sc.c",
               "ToolTip": "C:\\PROJECTS_CROSS\\NetProg\\src\\sc.c",
               "RelativeToolTip": "..\\..\\..\\..\\NetProg\\src\\sc.c",
-              "ViewState": "AQIAACcFAAAAAAAAAAAAACcFAABLAAAA",
+              "ViewState": "AQIAACQFAAAAAAAAAIBJwCcFAABLAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
               "WhenOpened": "2025-03-05T02:29:16.035Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 2,
               "Title": "EMV.h",
               "DocumentMoniker": "C:\\PROJECTS_CROSS\\EMV\\Server\\src\\EMV.h",
               "RelativeDocumentMoniker": "..\\..\\..\\Server\\src\\EMV.h",
               "ToolTip": "C:\\PROJECTS_CROSS\\EMV\\Server\\src\\EMV.h",
               "RelativeToolTip": "..\\..\\..\\Server\\src\\EMV.h",
-              "ViewState": "AQIAAHsEAAAAAAAAAAAvwI0EAAAaAAAA",
+              "ViewState": "AQIAACMBAAAAAAAAAAAAAPYAAAAMAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-03-04T11:30:54.205Z"
+              "WhenOpened": "2025-03-04T11:30:54.205Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "Card.h",
               "DocumentMoniker": "C:\\PROJECTS_CROSS\\EMV\\Client\\src\\Card.h",
               "RelativeDocumentMoniker": "..\\..\\..\\Client\\src\\Card.h",
@@ -114,32 +115,33 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 6,
               "Title": "EMVConnect.c",
               "DocumentMoniker": "C:\\PROJECTS_CROSS\\EMV\\Client\\src\\EMVConnect.c",
               "RelativeDocumentMoniker": "..\\..\\..\\Client\\src\\EMVConnect.c",
               "ToolTip": "C:\\PROJECTS_CROSS\\EMV\\Client\\src\\EMVConnect.c",
               "RelativeToolTip": "..\\..\\..\\Client\\src\\EMVConnect.c",
-              "ViewState": "AQIAAKIAAAAAAAAAAAAAAL4AAAAOAAAA",
+              "ViewState": "AQIAAKIAAAAAAAAAAAAAAKMAAAALAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
               "WhenOpened": "2025-03-04T11:03:27.549Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 7,
               "Title": "EMVTools.c",
               "DocumentMoniker": "C:\\PROJECTS_CROSS\\EMV\\Server\\src\\EMVTools.c",
               "RelativeDocumentMoniker": "..\\..\\..\\Server\\src\\EMVTools.c",
               "ToolTip": "C:\\PROJECTS_CROSS\\EMV\\Server\\src\\EMVTools.c",
               "RelativeToolTip": "..\\..\\..\\Server\\src\\EMVTools.c",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAAVAAAA",
+              "ViewState": "AQIAAEkAAAAAAAAAAAAvwFsAAAAcAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
-              "WhenOpened": "2025-03-04T10:58:03.219Z"
+              "WhenOpened": "2025-03-04T10:58:03.219Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 14,
               "Title": "EMVFile.c",
               "DocumentMoniker": "C:\\PROJECTS_CROSS\\EMV\\Server\\src\\EMVFile.c",
               "RelativeDocumentMoniker": "..\\..\\..\\Server\\src\\EMVFile.c",
@@ -169,14 +171,14 @@
               "RelativeDocumentMoniker": "..\\..\\..\\Server\\src\\RouterConnect.c",
               "ToolTip": "C:\\PROJECTS_CROSS\\EMV\\Server\\src\\RouterConnect.c",
               "RelativeToolTip": "..\\..\\..\\Server\\src\\RouterConnect.c",
-              "ViewState": "AQIAANMAAAAAAAAAAAAYwOUAAAA/AAAA",
+              "ViewState": "AQIAAFYBAAAAAAAAAAAvwGIBAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
               "WhenOpened": "2025-03-04T10:57:54.032Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 12,
               "Title": "main.cpp",
               "DocumentMoniker": "C:\\PROJECTS_CROSS\\EMV\\Server\\src\\main.cpp",
               "RelativeDocumentMoniker": "..\\..\\..\\Server\\src\\main.cpp",
@@ -188,44 +190,46 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 1,
               "Title": "EMVTrace.c",
               "DocumentMoniker": "C:\\PROJECTS_CROSS\\EMV\\Server\\src\\EMVTrace.c",
               "RelativeDocumentMoniker": "..\\..\\..\\Server\\src\\EMVTrace.c",
               "ToolTip": "C:\\PROJECTS_CROSS\\EMV\\Server\\src\\EMVTrace.c",
               "RelativeToolTip": "..\\..\\..\\Server\\src\\EMVTrace.c",
-              "ViewState": "AQIAAJkDAAAAAAAAAAAvwKsDAAARAAAA",
+              "ViewState": "AQIAABQCAAAAAAAAAAAvwC8CAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
-              "WhenOpened": "2025-03-04T10:57:20.019Z"
+              "WhenOpened": "2025-03-04T10:57:20.019Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "EMVConnect.c",
               "DocumentMoniker": "C:\\PROJECTS_CROSS\\EMV\\Server\\src\\EMVConnect.c",
               "RelativeDocumentMoniker": "..\\..\\..\\Server\\src\\EMVConnect.c",
               "ToolTip": "C:\\PROJECTS_CROSS\\EMV\\Server\\src\\EMVConnect.c",
               "RelativeToolTip": "..\\..\\..\\Server\\src\\EMVConnect.c",
-              "ViewState": "AQIAAFwAAAAAAAAAAAAvwH0AAAAAAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAFsAAAAKAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
-              "WhenOpened": "2025-03-04T10:55:40.395Z"
+              "WhenOpened": "2025-03-04T10:55:40.395Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "EMV.c",
               "DocumentMoniker": "C:\\PROJECTS_CROSS\\EMV\\Server\\src\\EMV.c",
               "RelativeDocumentMoniker": "..\\..\\..\\Server\\src\\EMV.c",
               "ToolTip": "C:\\PROJECTS_CROSS\\EMV\\Server\\src\\EMV.c",
               "RelativeToolTip": "..\\..\\..\\Server\\src\\EMV.c",
-              "ViewState": "AQIAAHQLAAAAAAAAAAAYwJcLAAARAAAA",
+              "ViewState": "AQIAABYPAAAAAAAAAAAnwCgPAAANAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
               "WhenOpened": "2025-03-04T06:28:47.041Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "RouterConnect.c",
               "DocumentMoniker": "C:\\PROJECTS_CROSS\\EMV\\Client\\src\\RouterConnect.c",
               "RelativeDocumentMoniker": "..\\..\\..\\Client\\src\\RouterConnect.c",
@@ -238,7 +242,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 13,
               "Title": "apdu.mx",
               "DocumentMoniker": "C:\\PROJECTS_CROSS\\EMV\\Server\\MX\\apdu.mx",
               "RelativeDocumentMoniker": "..\\..\\..\\Server\\MX\\apdu.mx",
@@ -250,7 +254,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 11,
               "Title": "EMVConnect.h",
               "DocumentMoniker": "C:\\PROJECTS_CROSS\\EMV\\Server\\src\\EMVConnect.h",
               "RelativeDocumentMoniker": "..\\..\\..\\Server\\src\\EMVConnect.h",
@@ -262,13 +266,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 10,
               "Title": "main.cpp",
               "DocumentMoniker": "C:\\PROJECTS_CROSS\\EMV\\Client\\src\\main.cpp",
               "RelativeDocumentMoniker": "..\\..\\..\\Client\\src\\main.cpp",
               "ToolTip": "C:\\PROJECTS_CROSS\\EMV\\Client\\src\\main.cpp",
               "RelativeToolTip": "..\\..\\..\\Client\\src\\main.cpp",
-              "ViewState": "AQIAAEEBAAAAAAAAAAAAAAAAAAAAAAAA",
+              "ViewState": "AQIAAD4BAAAAAAAAAIBJwAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-03-04T11:21:43.052Z"
             }

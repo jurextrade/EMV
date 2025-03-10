@@ -515,7 +515,7 @@ void EMVTraceCVM (EMVClient* pclient)
 	}
 
 	s_printf(smessage, pclient, "%s", strace);
-
+	Send_CVM(EMVRooterCom, pclient, pCVMData, outSize);
 	printf ("\n");
 }
 
@@ -557,7 +557,7 @@ void EMVTraceTVR (EMVClient* pclient, EMV_BITS* pTVR, char* label)
 	sprintf (strace + i, "%50s : %s\n", "Script processing failed after final GENERATE AC",		(pTVR[B5] & b5) ? "YES" : "NO");		 i = strlen(strace);
 	
 	s_printf(smessage, pclient, "%s", strace);
-	Send_Command(EMVRooterCom, pclient, label, ((long long)pTVR[B1] << 32 |  pTVR[B2] << 24 | pTVR[B3] << 16 | pTVR[B4] << 8 | pTVR[B5]));
+	Send_Command(EMVRooterCom, pclient, label, ((long long)pTVR[B1] << 32 | (long long)pTVR[B2] << 24 | (long long)pTVR[B3] << 16 | (long long)pTVR[B4] << 8 | (long long)pTVR[B5]));
 
 	printf ("\n");
 }

@@ -317,6 +317,40 @@ void Send_Info(MXCom* pcom, EMVClient* pclient, char* command, char* message)
 
 }
 
+void Send_CVM(MXCom* pcom, EMVClient* pclient, BYTE* scvm, int size)
+{
+	if (!pcom) {
+		return;
+	}
+	char		message[1000] = { 0 };
+
+	int userid_size = strlen(pclient->UserID) + 1; // add '^'
+	int header_size = strlen("CVM") + userid_size + 2;
+	char header[20];
+
+	sprintf(header, "*%s^%s^", "CVM", pclient->UserID);
+
+	char* Output = (char*)malloc(2 * size);
+	int length = CharArrayToHexaCharArray(scvm, 0, size, Output);
+
+	memcpy(message + header_size, Output, length);
+	memcpy(message, header, header_size);
+
+	message[length + header_size] = '*';
+
+	MXMessage* pmessage;
+	BUFFERPARM	Buffer;
+
+	Buffer.BufferType = 'T';
+	Buffer.BufferSize = length + header_size + 1;
+	Buffer.BufferContent = (char*)message;
+
+
+	pmessage = MXPutMessage(pcom, "TCP", "Stream");
+	MXSetValue(pmessage, "Buffer", 1, &Buffer);
+	free(Output);
+}
+
 void Send_Command(MXCom* pcom, EMVClient* pclient, char* command, long long par)
 {
 	if (!pcom) {

@@ -1192,7 +1192,7 @@ extern void			Send_End(MXCom* pcom, EMVClient* pclient);
 
 extern void			Send_Trace(MXCom* pcom, EMVClient* pclient, char* message);
 extern void			Send_Info(MXCom* pcom, EMVClient* pclient, char* command, char* message);
-
+extern void			Send_CVM(MXCom* pcom, EMVClient* pclient, BYTE* scvm, int size);
 extern void			Send_TLV(MXCom* pcom, EMVClient* pclient, BYTE* tlvbuffer, int tlvsize);
 
 extern void			Send_APDU(MXCom* pcom, EMVClient* pclient, BYTE cla, BYTE ins, BYTE p1, BYTE p2, int datasize, BYTE* data, int way);
