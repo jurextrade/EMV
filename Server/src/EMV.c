@@ -1126,21 +1126,55 @@ int EMVProcessingRestrictions (EMV* pemv, EMVClient* pclient)
 				AppVersionCard = TLVGetTag (pclient->pTLV, TAG_APPLICATION_VERSION_NUMBER_CARD, &OutSize);
 				if (AppVersionCard == NULL)
 				{
+					if (pemv->DebugEnabled)
+					{
+						char strace[1000];
+						memset(strace, 0, 1000);
+						sprintf(strace, "\n%s\n", "Card Application Version Number is Missing");
+						Send_Info(EMVRooterCom, pclient, "INFO", strace);
+					}
 					return EMV_OK;
 				}
 				AppVersionTerminal = pclient->pApplication->AID[pclient->IndexApplicationSelected].ApplicationVersionNumber; //TLVGetTag (pclient->pTLV, TAG_APPLICATION_VERSION_NUMBER_TERMINAL, &OutSize);
 				if (AppVersionTerminal == NULL)
 				{
+					if (pemv->DebugEnabled)
+					{
+						char strace[1000];
+						memset(strace, 0, 1000);
+						sprintf(strace, "\n%s\n", "Terminal Application Version Number is Missing");
+						Send_Info(EMVRooterCom, pclient, "INFO", strace);
+					}
 					return EMV_OK;
 				}
-				if (pemv->DebugEnabled)
-				{
-					EMVTraceHexaBuffer (pclient->pEMV, "\n       -- Card Application Version Number: ", AppVersionCard, OutSize, "\n");
-					EMVTraceHexaBuffer (pclient->pEMV, "       -- Terminal Application Version Number: ", AppVersionTerminal, OutSize, "\n");
-				}
-				if (memcmp (AppVersionCard, AppVersionTerminal, OutSize) != 0)
-					EMVSetTVR (pemv, pclient, ICC_and_terminal_have_different_application_versions, 1);
 
+				if (memcmp(AppVersionCard, AppVersionTerminal, OutSize) != 0)
+				{
+					EMVSetTVR(pemv, pclient, ICC_and_terminal_have_different_application_versions, 1);
+					if (pemv->DebugEnabled)
+					{
+						EMVTraceHexaBuffer(pclient->pEMV, "\n       -- Card Application Version Number: ", AppVersionCard, OutSize, "\n");
+						EMVTraceHexaBuffer(pclient->pEMV, "       -- Terminal Application Version Number: ", AppVersionTerminal, OutSize, "\n");
+						char strace[1000];
+						memset(strace, 0, 1000);
+						sprintf(strace, "\n%s\n", "Card And Terminal have different Application Version Number ");
+						Send_Info(EMVRooterCom, pclient, "INFO", strace);
+
+					}
+				}
+				else
+				{
+					if (pemv->DebugEnabled)
+					{
+						EMVTraceHexaBuffer(pclient->pEMV, "\n       -- Card Application Version Number: ", AppVersionCard, OutSize, "\n");
+						EMVTraceHexaBuffer(pclient->pEMV, "       -- Terminal Application Version Number: ", AppVersionTerminal, OutSize, "\n");
+						char strace[1000];
+						memset(strace, 0, 1000);
+						sprintf(strace, "\n%s\n",  "Card And Terminal have same Application Version Number ");
+						Send_Info(EMVRooterCom, pclient, "INFO", strace);
+					}
+
+				}
 				return EMV_OK;
 
 			}
@@ -1233,11 +1267,12 @@ int EMVProcessingRestrictions (EMV* pemv, EMVClient* pclient)
 
 				DateGetLocalDateHour (strdate, strtime);
 				CharArrayToBCDArray (strdate, 6, 6, "n", dcbstrdate);
+
+
 				if (pemv->DebugEnabled)
 				{
 					EMVTraceHexaBuffer(pclient->pEMV, "\n       -- Current Date: ", dcbstrdate, 3, "\n");
 				}
-
 
 				ExpirationDate = TLVGetTag (pclient->pTLV, TAG_APPLICATION_EXPIRATION_DATE, &OutSize);
 				if (ExpirationDate != NULL)
@@ -1247,8 +1282,17 @@ int EMVProcessingRestrictions (EMV* pemv, EMVClient* pclient)
 						EMVTraceHexaBuffer(pclient->pEMV, "       -- Expiration Date: ", ExpirationDate, OutSize, "\n");
 					}
 
-					if (strncmp ((char*)ExpirationDate, (char*)dcbstrdate, OutSize) < 0)
-						EMVSetTVR (pemv, pclient, Expired_application, 1);
+					if (strncmp((char*)ExpirationDate, (char*)dcbstrdate, OutSize) < 0)
+					{
+						EMVSetTVR(pemv, pclient, Expired_application, 1);
+						if (pemv->DebugEnabled)
+						{
+							char strace[1000];
+							memset(strace, 0, 1000);
+							sprintf(strace, "\n%s\n", "Card Expired ");
+							Send_Info(EMVRooterCom, pclient, "INFO", strace);
+						}
+					}
 				}
 
 				EffectiveDate = TLVGetTag (pclient->pTLV, TAG_APPLICATION_EFFECTIVE_DATE, &OutSize);
@@ -1258,11 +1302,23 @@ int EMVProcessingRestrictions (EMV* pemv, EMVClient* pclient)
 					{
 						EMVTraceHexaBuffer(pclient->pEMV, "       -- Effective Date: ", EffectiveDate, OutSize, "\n");
 					}
-					if (strncmp ((char*)EffectiveDate, (char*)dcbstrdate, OutSize) > 0)
-						EMVSetTVR (pemv, pclient, Application_not_yet_effective, 1);
+					
+					if (strncmp((char*)EffectiveDate, (char*)dcbstrdate, OutSize) > 0)
+					{
+						EMVSetTVR(pemv, pclient, Application_not_yet_effective, 1);
+						if (pemv->DebugEnabled)
+						{
+							char strace[1000];
+							memset(strace, 0, 1000);
+							sprintf(strace, "\n%s\n", "Card Not yest effective");
+							Send_Info(EMVRooterCom, pclient, "INFO", strace);
+						}
+					}
 				}
 				else
-					EMVSetTVR (pemv, pclient, Application_not_yet_effective, 1);
+				{
+					EMVSetTVR(pemv, pclient, Application_not_yet_effective, 1);
+				}
 
 				return EMV_OK;
 			}
