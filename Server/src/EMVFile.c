@@ -40,7 +40,7 @@ void EMVLoadAcceptor (EMV* pemv)  //TAG DF04  DF20-DF21-DF22-DF23 File index 4
 	
 	pemv->pAcceptor = NULL;
 
-	sprintf (filename, "%s\\WPAF\\%s", Directory, "SIT_D753.wp");
+	sprintf (filename, "%s\\config\\%s", Directory, "emv_acceptor.conf");
 	
 	pFileCom = MXOpenFile (pemv->pMX, filename, "r", IOPROTO_FIOP, 'D', 63);
 	if (!pFileCom) return; 
@@ -62,7 +62,7 @@ void EMVLoadApplications (EMV* pemv)    //DF17
 	
 	
 
-	sprintf (filename, "%s\\WPAF\\%s", Directory, "EPV_D787.wp");
+	sprintf (filename, "%s\\config\\%s", Directory, "emv_applications.conf");
 	
 	pFileCom = MXOpenFile (pemv->pMX, filename, "r", IOPROTO_FIOP, 'D', 63);
 	if (!pFileCom) return; 
@@ -84,7 +84,7 @@ void EMVLoadTacs (EMV* pemv)    //DF18
 	
 
 
-	sprintf (filename, "%s\\WPAF\\%s", Directory, "EPT_D778.wp");
+	sprintf (filename, "%s\\config\\%s", Directory, "emv_tacs.conf");
 	
 	pFileCom = MXOpenFile (pemv->pMX, filename, "r", IOPROTO_FIOP, 'D', 63);
 	if (!pFileCom) return; 
@@ -107,7 +107,7 @@ void EMVLoadCurrencies (EMV* pemv)
 	
 
 
-	sprintf (filename, "%s\\WPAF\\%s", Directory, "MON_D747.wp");
+	sprintf (filename, "%s\\config\\%s", Directory, "emv_currencies.conf");
 	
 	pFileCom = MXOpenFile (pemv->pMX, filename, "r", IOPROTO_FIOP, 'D', 63);
 	if (!pFileCom) return; 
@@ -130,7 +130,7 @@ void EMVLoadExceptionCards (EMV* pemv)
 	
 	pemv->ExceptionCardList = NULL;	
 
-	sprintf (filename, "%s\\WPAF\\%s", Directory, "APL_D253.wp");
+	sprintf (filename, "%s\\config\\%s", Directory, "emv_exceptioncards.conf");
 	
 	pFileCom = MXOpenFile (pemv->pMX, filename, "r", IOPROTO_FIOP, 'D', 63);
 	if (!pFileCom) return; 
@@ -152,7 +152,7 @@ void EMVLoadRangeBins (EMV* pemv)
 	
 	pemv->RangBinList = NULL;
 
-	sprintf (filename, "%s\\WPAF\\%s", Directory, "APB_D236.wp");
+	sprintf (filename, "%s\\config\\%s", Directory, "emv_rangebins.conf");
 
 	
 	pFileCom = MXOpenFile (pemv->pMX, filename, "r", IOPROTO_FIOP, 'D', 63);
@@ -175,7 +175,7 @@ void EMVLoadAuthorityPublicKeys (EMV* pemv)
 	char				filename[200]; 
 	
 	
-	sprintf (filename, "%s\\WPAF\\%s", Directory, "EPK_D782.wp");
+	sprintf (filename, "%s\\config\\%s", Directory, "emv_authoritypublickeys.conf");
 
 	
 	pFileCom = MXOpenFile (pemv->pMX, filename, "r", IOPROTO_FIOP, 'D', 63);

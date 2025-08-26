@@ -2824,9 +2824,9 @@ int EMVSelectApplication (EMV* pemv, EMVClient* pclient, int indexApplication)
 	if (pemv->DebugEnabled)
 	{
 		char strace[1000] = { 0 };
-		char applidfname[50] = { 0 };
+		unsigned char applidfname[50] = { 0 };
 
-		CharToHexaChar(pclient->candidateApplications[indexApplication].DFName, &applidfname, pclient->candidateApplications[indexApplication].DFNameLength * 2);
+		CharToHexaChar(pclient->candidateApplications[indexApplication].DFName, applidfname, pclient->candidateApplications[indexApplication].DFNameLength * 2);
 		sprintf(strace, ">>SELECT application index: %d, %s\n", indexApplication, applidfname);
 		s_printf(smessage, pclient, "%s", strace);
 		Send_Info(EMVRooterCom, pclient, "INFO", strace);
@@ -3724,7 +3724,7 @@ int EMVOnRecvApplicationSelection (EMV* pemv, EMVClient* pclient, BYTE* outData,
 		EMVSetApplication (pemv, pclient, pApplication);
 
 		// Application selected ok, get processing option
-		EMVGetProcessingOption(pemv, pclient, &lcData, lcSize);
+		EMVGetProcessingOption(pemv, pclient, lcData, lcSize);
 	}
 	else
 	if (pclient->SubStep == EMV_SUBSTEP_GET_PROCESSING_OPTIONS)
