@@ -1,6 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
 
-
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -8,99 +7,15 @@
 #include "cb2a.h"
 
 
-char   Directory[300];
-int    EMVServerPort		= 2000;
-
-char   EMVRooter[300]		= "217.112.89.92";
-int	   EMVRooterPort		= 3008;
-
-char   LoginServer[300]	    = "www.jurextrade.com";
-
-MXCom* EMVRooterCom			= NULL;
-
-char   smessage[5000];
 
 using namespace std;
 
-// -----------------------------------------------------------------------MAIN MX PROCEDURE  -------------------------------------------------------
-
-int OnConnect(MXCom* pcom, void* applicationfield)
-{
-	EMV* pemv = (EMV*)applicationfield;
-	EMVClient* pclient;
-
-	pclient = EMVInitClient(pemv);
-
-	//DOUDOU	
-	/*
-		strcpy (pPointOfSale->SIRET,							"00000001999301");
-		strcpy (pPointOfSale->PointAcceptationIdentification,	"98765432");
-		strcpy (pPointOfSale->PointAcceptationLogicalNumber,	"001");
-		strcpy (pPointOfSale->SystemAcceptationIdentification,	"TST5A742");
-		strcpy (pPointOfSale->SystemAcceptationLogicalNumber,	"001");
-		strcpy (pPointOfSale->SystemAcceptationLogicalNumber,	"001");
-		strcpy(pPointOfSale->MerchantContractNumber,			"1999301");
-
-		memcpy(pPointOfSale->MerchantCategoryCode, "\x89\x99", 8);
-		strcpy(pPointOfSale->MerchantIdentifier, "1999301        ");
-		strcpy(pPointOfSale->MerchantNameAndLocation, "Gabriel Jureidini 20 rue des belles feuilles paris 750116");
-
-	*/
-
-
-	pclient->pPointOfSale->pCom = pcom;
-
-	printf("\nOpen Connection With Point Of Sale \n");
-	MXAddComCallBack(pemv->pMX, pcom, "APDU", "UserInfo",			MXONRECV, OnRecvUserInfo,		pclient);
-	MXAddComCallBack(pemv->pMX, pcom, "APDU", "C-APDU",				MXONSEND, OnSendAPDU,			pclient);
-	MXAddComCallBack(pemv->pMX, pcom, "APDU", "R-APDU",				MXONRECV, OnRecvAPDU,			pclient);
-
-	MXAddComCallBack(pemv->pMX, pcom, "APDU", "SendACFirst",		MXONSEND, OnSendACFirst,		pclient);
-	MXAddComCallBack(pemv->pMX, pcom, "APDU", "RecvACFirst",		MXONRECV, OnRecvACFirst,		pclient);
-	MXAddComCallBack(pemv->pMX, pcom, "APDU", "SendACSecond",		MXONSEND, OnSendACSecond,		pclient);
-	MXAddComCallBack(pemv->pMX, pcom, "APDU", "RecvACSecond",		MXONRECV, OnRecvACSecond,		pclient);
-
-	MXAddComCallBack(pemv->pMX, pcom, "APDU", "SendATR",			MXONRECV, OnRecvATR,			pclient);
-	MXAddComCallBack(pemv->pMX, pcom, "APDU", "SendError",			MXONRECV, OnRecvError,			pclient);
-	MXAddComCallBack(pemv->pMX, pcom, "APDU", "SendTransaction",	MXONRECV, OnRecvTransaction,	pclient);
-	MXAddComCallBack(pemv->pMX, pcom, "APDU", "SendACFirst",		MXONRECV, OnRecvACFirst,		pclient);
-	MXAddComCallBack(pemv->pMX, pcom, "APDU", "RecvAppliSelection", MXONRECV, OnRecvAppliSelection, pclient);
-	MXAddComCallBack(pemv->pMX, pcom, "APDU", "RecvCommand",		MXONRECV, OnRecvCommand,		pclient);
-	MXAddComCallBack(pemv->pMX, pcom, "APDU", "SendCommand",        MXONSEND, OnSendCommand,        pclient);
-	MXAddComCallBack(pemv->pMX, pcom, "APDU", "RecvVerify",			MXONRECV, OnRecvVerify,			pclient);
-
-	return 1;
-}
-
-int OnClose(MXCom* pcom, void* applicationfield)
-{
-	EMV* pemv = (EMV*)applicationfield;
-
-
-	if (pcom == pemv->pRouterCom) {
-		printf("Close Connection With Rooter Server \n");
-		pemv->pRouterCom = NULL;
-		EMVRooterCom = NULL;
-		printf("Something wrong we connect again\n");
-		Connect_RouterServer(pemv);
-	}
-	else
-	{
-		EMVClient* pclient = EMVGetClientFromCom(pemv, pcom);
-		printf("Close Connection With Point Of Sale  \n");
-
-		EMVEndClient(pemv, pclient);
-	}
-
-	return 1;
-
-}
-
+// -----------------------------------------------------------------------MAIN PROCEDURE  -------------------------------------------------------
 
 int EMVReadFile (EMV* pemv)
 {
 	char filename[200]; 
-	sprintf (filename, "%s\\FILES\\%s", Directory, "FILES.csv"); 
+	sprintf (filename, "%s\\Files\\%s", Directory, "FILES.csv"); 
 
 	ifstream inFile;
     inFile.open(filename);
@@ -168,7 +83,7 @@ int EMVReadFile (EMV* pemv)
 int EMVReadApduErrorFile(EMV* pemv)
 {
 	char filename[200];
-	sprintf(filename, "%s\\FILES\\%s", Directory, "SW1SW2.csv");
+	sprintf(filename, "%s\\Files\\%s", Directory, "SW1SW2.csv");
 
 	ifstream inFile;
 	inFile.open(filename);
@@ -220,7 +135,7 @@ int EMVReadApduErrorFile(EMV* pemv)
 int EMVReadTagFile (EMV* pemv)
 {
 	char filename[200]; 
-	sprintf (filename, "%s\\FILES\\%s", Directory, "TAGS.csv"); 
+	sprintf (filename, "%s\\Files\\%s", Directory, "TAGS.csv"); 
 
 	ifstream inFile;
     inFile.open(filename);
@@ -279,7 +194,7 @@ int EMVReadTagFile (EMV* pemv)
 int CB2AReadTagFile (CB2A* pcb2a)
 {
 	char filename[200]; 
-	sprintf (filename, "%s\\FILES\\%s", Directory, "CB2A.csv"); 
+	sprintf (filename, "%s\\Files\\%s", Directory, "CB2A.csv"); 
 
 	ifstream inFile;
     inFile.open(filename);
@@ -423,12 +338,13 @@ int main(int argc, char** argv)
 {
 	EMV*	pemv;
 	MX		mx;
-	char	filename[200];
+
 
 	if (argc >= 2) {
 		printf("The argument supplied for EMV Rooter is %s\n", argv[1]);
 		strcpy(EMVRooter, argv[1]);
 	}
+
 	if (argc >= 3) {
 		printf("The argument supplied for Login Server is %s\n", argv[2]);
 		strcpy(LoginServer, argv[2]);
@@ -450,27 +366,28 @@ int main(int argc, char** argv)
 			*(lastslash) = 0;
 	}
 	
-	sprintf (filename, "%s\\MX\\%s", Directory, "apdu.mx"); 
+	//char	filename[200];
+	//sprintf (filename, "%s\\MX\\%s", Directory, "apdu.mx"); 
 	
-	MXInit (&mx, MXSERVER, NULL, NULL, EMVServerPort,  filename);	
+	MXInit (&mx, MXSERVER, NULL, NULL, EMVServerPort,  NULL);	
+	MXAddAPDUCommands(&mx);
 
-	pemv	= EMVInit (&mx);
+	pemv = EMVInit(&mx);
 	
-
-	MXAddGeneralConnectCallBack (&mx, MXONCONNECT, OnConnect, pemv);
-	MXAddGeneralConnectCallBack (&mx, MXONCLOSE,   OnClose,   pemv);
-	Connect_RouterServer(pemv);
-	/*
-	if (Connect_RouterServer(pemv) == NULL)
+	if (EMVLoadProject(pemv, DefaultProjectName) < 0)     //load local demo project 
 	{
-		EMVEnd(pemv);
-		MXEnd(&mx);
-		return 0;
+		printf("Could not find Project %s\n", DefaultProjectName);
 	}
-	*/
+
+	Connect_RouterServer(pemv);
+
+	MXAddGeneralConnectCallBack (&mx, MXONCONNECT, OnConnect, pemv); //connections from clients only
+	MXAddGeneralConnectCallBack (&mx, MXONCLOSE,   OnClose,   pemv);
+	
+
+
 	MXDispatchEvents (&mx, NULL);
 	
-
 	EMVEnd(pemv);
     MXEnd (&mx);
 	

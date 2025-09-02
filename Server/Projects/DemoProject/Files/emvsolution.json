@@ -1,0 +1,145 @@
+{
+  "Applications": [
+    {
+      "RID": "a000000333",
+      "ClassName": "EMVApplication",
+      "Code": "15",
+      "AID": [
+        {
+          "AID": "a000000333010103",
+          "ClassName": "EMVAid",
+          "Code": "16",
+          "ApplicationVersionNumber": "0020",
+          "Priority": 8,
+          "applicationSelectionIndicator": 1,
+          "ForceTransaction": 1,
+          "TerminalActionCodeDenial": "0010000000",
+          "TerminalActionCodeOnline": "D84004F800",
+          "TerminalActionCodeDefault": "D84000A800"
+        },
+        {
+          "AID": "a000000333010102",
+          "ClassName": "EMVAid",
+          "Code": "17",
+          "ApplicationVersionNumber": "0020",
+          "Priority": 8,
+          "applicationSelectionIndicator": 1,
+          "ForceTransaction": 1,
+          "TerminalActionCodeDenial": "0010000000",
+          "TerminalActionCodeOnline": "D84004F800",
+          "TerminalActionCodeDefault": "D84000A800"
+        },
+        {
+          "AID": "a000000333010101",
+          "ClassName": "EMVAid",
+          "Code": "18",
+          "ApplicationVersionNumber": "0020",
+          "Priority": 8,
+          "applicationSelectionIndicator": 1,
+          "ForceTransaction": 1,
+          "TerminalActionCodeDenial": "0010000000",
+          "TerminalActionCodeOnline": "d84004f800",
+          "TerminalActionCodeDefault": "d84000a800"
+        }
+      ]
+    },
+    {
+      "RID": "a000000003",
+      "ClassName": "EMVApplication",
+      "Code": "19",
+      "AID": [
+        {
+          "AID": "a0000000031010",
+          "ClassName": "EMVAid",
+          "Code": "20",
+          "ApplicationVersionNumber": "008C",
+          "Priority": 127,
+          "applicationSelectionIndicator": 1,
+          "ForceTransaction": 31,
+          "TerminalActionCodeDenial": "0000000000",
+          "TerminalActionCodeOnline": "0000000000",
+          "TerminalActionCodeDefault": "0000000000"
+        },
+        {
+          "AID": "a0000000032010",
+          "ClassName": "EMVAid",
+          "Code": "21",
+          "ApplicationVersionNumber": "008C",
+          "Priority": 127,
+          "applicationSelectionIndicator": 1,
+          "ForceTransaction": 30,
+          "TerminalActionCodeDenial": "0000000000",
+          "TerminalActionCodeOnline": "0000000000",
+          "TerminalActionCodeDefault": "0000000000"
+        }
+      ]
+    },
+    {
+      "RID": "A000000042",
+      "ClassName": "EMVApplication",
+      "Code": "24",
+      "AID": [
+        {
+          "AID": "A0000000421010",
+          "ClassName": "EMVAid",
+          "Code": "25",
+          "ApplicationVersionNumber": "0002",
+          "Priority": 254,
+          "applicationSelectionIndicator": 1,
+          "ForceTransaction": 31,
+          "TerminalActionCodeDenial": "0000000000",
+          "TerminalActionCodeOnline": "0000000000",
+          "TerminalActionCodeDefault": "0000000000"
+        },
+        {
+          "AID": "A0000000422010",
+          "ClassName": "EMVAid",
+          "Code": "26",
+          "ApplicationVersionNumber": "0002",
+          "Priority": 254,
+          "applicationSelectionIndicator": 1,
+          "ForceTransaction": 30,
+          "TerminalActionCodeDenial": "0000000000",
+          "TerminalActionCodeOnline": "0000000000",
+          "TerminalActionCodeDefault": "0000000000"
+        }
+      ]
+    }
+  ],
+  "Terminals": [
+    {
+      "ClassName": "EMVTerminal",
+      "Code": "27",
+      "IFDSerialNumber": "12345678",
+      "TerminalCountryCode": "0250",
+      "TerminalType": "22",
+      "TerminalCapabilities": "60B8C8",
+      "AdditionalTerminalCapabilities": "E100F0A001",
+      "TTQ": "86404000"
+    }
+  ],
+  "Clients": [],
+  "Acquirer": {
+    "ClassName": "EMVAcquirer",
+    "Code": "28",
+    "AcquirerIdentifier": "045334814806"
+  },
+  "Acceptor": {
+    "ClassName": "EMVAcceptor",
+    "Code": "29",
+    "MerchantCategoryCode": "8050",
+    "MerchantIdentifier": "10549223015         ",
+    "MerchantNameAndLocation": "SALON CARTES RANG 1 75016   ",
+    "TerminalIdentification": "01",
+    "MerchantContractNumber": "0549223",
+    "MerchantBillMode": "",
+    "MerchantActivationCode": "",
+    "SystemAcceptationIdentification": "********",
+    "SIRET": "10610602410627"
+  },
+  "ApplicationsCount": 0,
+  "TerminalsCount": 1,
+  "ExceptionCardList": [],
+  "RangBinList": [],
+  "ApplicationCurrencyCode": ""
+}

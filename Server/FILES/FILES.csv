@@ -1,36 +1,8 @@
 index;file;format;description
 01;MON_D747;BYTE ParOpen CHAR[3] CurrencyCode CHAR[3] Currency BYTE CurrencyExponent CHAR[7] CurrencyExchangeRate BYTE CurrencyExchangeRateExponent BYTE CurrencyActive BYTE CurrencyToPrint BYTE CurrencyExchangeRateToPrint BYTE ParClose BYTE[2] CR;Monnaie ou devise
-02;AMP_D771;;Message porteur
-03;AMS_D773;;Message Accepteur
 04;SIT_D753;BYTE ParOpen CHAR[8] SystemAcceptationIdentification CHAR[14] SIRET CHAR[4] MerchantCategoryCode CHAR[20] MerchantContractNumber CHAR[20] TerminalIdentification CHAR[20] MerchantIdentifier CHAR[60] MerchantNameAndLocation CHAR[11] AcquirerIdentifier BYTE p BYTE p1 BYTE ParClose BYTE[2] CR;Paramètres accepteur
-05;TIC_D755;;Edition ticket porteur
-06;COR_D756;;Edition ticket compte rendu
-07;APP_D757;;Paramètres applicatifs
-08;APS_D769;;Appel
 09;EPV_D787;BYTE ParOpen CHAR[10] RID CHAR[22] PIX CHAR[4] ApplicationVersionNumber CHAR[2] Priority BYTE ForceTransaction BYTE ParClose BYTE[2] CR;Liste des données spécifiques EMV par AID
-10;;;RUF
-11;EPD_D600;;Liste des DOL EMV
-12;APD_D767;;Risque acquéreur
 13;APL_D253;BYTE ParOpen CHAR[40] Pan BYTE Status BYTE ParClose BYTE[2] CR;Liste de contrôle de numéros de carte porteur
 14;APB_D236;BYTE ParOpen CHAR[19] FromBin CHAR[19] ToBin CHAR[2] Status CHAR[2] TreatmentCode CHAR[158] RUF BYTE ParClose BYTE[2] CR;Liste de BINs agrées CB
-15;;;RUF
 16;EPT_D778;BYTE ParOpen CHAR[10] RID CHAR[22] PIX CHAR[10] TerminalActionCodeDenial CHAR[10] TerminalActionCodeOnline CHAR[10] TerminalActionCodeDefault BYTE ParClose BYTE[2] CR;Liste des TAC EMV
-17;DEV_D774;;Autre monnaie ou devise
-18;APH_D777;;Paramètres d’horodatage GMT
 19;EPK_D782;BYTE ParOpen CHAR[10] RID CHAR[20] RUF CHAR[6] CertificationAuthorityPublicKeyIndex	CHAR[6] IssuerPublicKeyExponent CHAR[4] IssuerPublicKeyModulusSize CHAR[512] IssuerPublicKeyModulus CHAR[256] IssuerPublicKeyRemainder BYTE ParClose BYTE[2] CR; Liste clés publiques d'authentification EMV
-20;EPV_D787;;Liste des AID EMV
-21;;;Télécommunication télécollecte
-22;;;Télécommunication téléparamétrage
-23;;;Télécommunication autorisation
-24;;;RUF
-25;;;Télécommunication téléchargement env. 1 
-26;;;Télécommunication téléchargement env. 2 
-27;EPA_D73;;Appel aléatoire EMV
-28;;; Identifiant pseudo-session de l’accepteur de carte
-29;;;Liste des données complémentaires EMV pour télécollecte
-32;;;Identifiant pseudo-session étendu de l'accepteur de carte
-34;;;Paramètres spécifiques au paiement sans contact
-35;;;Paramètres « Dynamic Reader Limits » pour le paiement sans contact
-36;LBL_ACC;;Paramètres édition première ligne ticket
-37;;;Fonctions
-38;;;Désactivation Produits Carte

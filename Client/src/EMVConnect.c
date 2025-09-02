@@ -2,6 +2,103 @@
 
 #include "Card.h"
 
+int MXAddAPDUCommands(MX* pmx)
+{
+	MXDialogClass* pclass;
+
+	pclass = MXCreateDialogClass(pmx, "APDU", 7);
+
+	MXCreateMessageClass(pmx, pclass, "UserInfo", 1, 2, 
+		"STRING", 1, "UserName",
+		"STRING", 1, "UserPassword");
+
+	MXCreateMessageClass(pmx, pclass, "SendTransaction", 2, 4, 
+		"CHAR", 1, "Type",
+		"STRING", 1, "Currency",
+		"STRING", 1, "Amount",
+		"BYTE", 1, "Media");
+
+	/* active connection */
+
+	MXCreateMessageClass(pmx, pclass, "SendATR", 3, 1, 
+		"STRING", 1, "Atr");
+
+	MXCreateMessageClass(pmx, pclass, "SendError", 4, 1, 
+		"STRING", 1, "Error");
+
+	MXCreateMessageClass(pmx, pclass, "C-APDU", 5, 6, 
+		"BYTE", 1, "Cla",
+		"BYTE", 1, "Ins",
+		"BYTE", 1, "P1",
+		"CHAR", 1, "P2",
+		"STRING", 1, "Size",
+		"BUFFER", 1, "Data");
+
+	MXCreateMessageClass(pmx, pclass, "R-APDU", 6, 4, 
+		"BYTE", 1, "Cla",
+		"BYTE", 1, "Ins",
+		"WORD", 1, "Size",
+		"BUFFER", 1, "Data");
+
+	MXCreateMessageClass(pmx, pclass, "SendACFirst", 7, 6,
+		"BYTE", 1, "Cla",
+		"BYTE", 1, "Ins",
+		"BYTE", 1, "P1",
+		"CHAR", 1, "P2",
+		"STRING", 1, "Size",
+		"BUFFER", 1, "Data");
+
+	MXCreateMessageClass(pmx, pclass, "RecvACFirst", 8, 4,
+		"BYTE", 1, "Cla",
+		"BYTE", 1, "Ins",
+		"LONG", 1, "Size",
+		"BUFFER", 1, "Data");
+
+	MXCreateMessageClass(pmx, pclass, "SendACSecond", 9, 6,
+		"BYTE", 1, "Cla",
+		"BYTE", 1, "Ins",
+		"BYTE", 1, "P1",
+		"CHAR", 1, "P2",
+		"STRING", 1, "Size",
+		"BUFFER", 1, "Data");
+
+	MXCreateMessageClass(pmx, pclass, "RecvACSecond", 10, 4,
+		"BYTE", 1, "Cla",
+		"BYTE", 1, "Ins",
+		"LONG", 1, "Size",
+		"BUFFER", 1, "Data");
+
+	MXCreateMessageClass(pmx, pclass, "SendAppliSelection", 11, 4,
+		"BYTE", 1, "Count",
+		"BYTE", 5, "Priority",
+		"BYTE", 5, "Index",
+		"STRING", 5, "Label");
+
+	MXCreateMessageClass(pmx, pclass, "RecvAppliSelection", 12, 1,
+		"CHAR", 1, "Index");
+
+	MXCreateMessageClass(pmx, pclass, "SendCommand", 13, 2,
+		"BYTE", 1, "P1",
+		"BYTE", 1, "P2");
+
+	MXCreateMessageClass(pmx, pclass, "RecvCommand", 14, 4,
+		"BYTE", 1, "P1",
+		"BYTE", 1, "P2",
+		"LONG", 1, "Size",
+		"BUFFER", 1, "Data");
+
+	MXCreateMessageClass(pmx, pclass, "SendVerify", 15, 1,
+		"BYTE", 1, "Enciphered");
+
+	MXCreateMessageClass(pmx, pclass, "RecvVerify", 16, 1,
+		"BUFFER", 1, "Data");
+
+	MXCreateMessageClass(pmx, pclass, "Abort", 17, 1,
+		"STRING", 1, "Reason");
+
+	return 1;
+}
+
 
 // ----------------------------------------------------------------------- CONNECTION AND COMMUNICATION WITH EMV SERVER -------------------------------------------------------
 
@@ -525,7 +622,7 @@ int SendTransaction(MXCom* pcom, char type, char* currency, char* amount, BYTE m
 	return 0;
 }
 
-int SendATR(MXCom* pcom, char* atr)
+int SendATR(MXCom* pcom, unsigned char* atr)
 {
 
 	printf("Send ATR to EMV Server\n");
@@ -539,4 +636,122 @@ int SendATR(MXCom* pcom, char* atr)
 	MXFreeMessage(pcom->MX, pmessage);
 
 	return 0;
+}
+
+int OnConnect(MXCom* pcom, void* applicationfield)
+{
+	CC* pcc = (CC*)applicationfield;
+	CardContext* pCardContext = pcc->pCardContext;
+	return 1;
+}
+
+int OnClose(MXCom* pcom, void* applicationfield)
+{
+	CC* pcc = (CC*)applicationfield;
+	CardContext* pCardContext = pcc->pCardContext;
+	if (pcom != pcc->pRouterCom)
+	{
+		s_printf(smessage, "%s", "Close Connection With EMV Server \n");
+		pCardContext->ShouldRelase = 1;
+		pCardContext->pCurrentState->dwCurrentState = 0;
+
+	}
+	else
+	{
+		printf("Close Connection With Rooter Server \n");
+		pcc->pRouterCom = NULL;
+
+		printf("Something wrong we connect again\n");
+		Connect_RouterServer(pcc);
+	}
+	return 1;
+}
+
+int CardApplicationProcedure(MX* pmx, void* applicationfield)
+{
+	CC* pcc = (CC*)applicationfield;
+
+	CardContext* pCardContext = pcc->pCardContext;
+	char* szReaderList = NULL;
+
+	DWORD	dwReaderListSize = 0,
+		dwNewState,
+		dwOldState;
+
+	HRESULT	hr;
+	BOOL	fEvent = FALSE;
+
+	LONG    lReturn;
+
+
+	if (pCardContext->ReadersCount == 0) {
+		lReturn = Readers_Init(pCardContext);
+		if (lReturn != 0L)
+		{
+			return ReaderPlugging(pCardContext, lReturn);
+		}
+	}
+
+	hr = SCardGetStatusChange(pCardContext->hContext, pCardContext->TimeOut, pCardContext->ReadersStates, pCardContext->ReadersCount);
+	if (hr != SCARD_S_SUCCESS)
+	{
+		if (hr != SCARD_E_TIMEOUT)
+		{
+			s_printf(smessage, "%s\n", CardStrError(hr));
+			CardContext_End(pCardContext);													// init context
+			pcc->pCardContext = CardContext_Init();													// init context
+			return 1;
+		}
+	}
+
+	if (pCardContext->pCurrentState->dwCurrentState != pCardContext->pCurrentState->dwEventState)   // state of reader not the same
+	{
+
+		DWORD dwStateMask = ~(SCARD_STATE_UNAWARE |
+			SCARD_STATE_IGNORE |
+			SCARD_STATE_UNAVAILABLE |
+			SCARD_STATE_ATRMATCH |
+			SCARD_STATE_EXCLUSIVE |
+			SCARD_STATE_INUSE |
+			SCARD_STATE_MUTE |
+			SCARD_STATE_UNPOWERED);
+
+
+		dwNewState = pCardContext->pCurrentState->dwEventState & dwStateMask;
+		dwOldState = pCardContext->pCurrentState->dwCurrentState & dwStateMask;
+
+		if (dwNewState != dwOldState)
+		{
+			pCardContext->pCurrentState->dwCurrentState = pCardContext->pCurrentState->dwEventState;
+			if ((pCardContext->pCurrentState->dwEventState & SCARD_STATE_EMPTY) == SCARD_STATE_EMPTY)
+			{
+				// Card Removed
+				pCardContext->ShouldRelase = 0;
+
+				if (pcc->pRouterCom == NULL) {
+					Connect_RouterServer(pcc);
+				}
+				s_printf(smessage, "%s\n", "Insert Card");
+				return 1;
+				//	OnCardDisconnected(pCard);
+				//	pCard->TimeOut = INFINITE;
+
+			}
+			if ((pCardContext->pCurrentState->dwEventState & SCARD_STATE_PRESENT) == SCARD_STATE_PRESENT)
+			{
+				if (pCardContext->ShouldRelase)
+				{
+					s_printf(smessage, "%s\n", "Transaction Completed please Remove Card");
+				}
+				else
+					if (OnCardConnected(pcc) != 0) {
+						s_printf(smessage, "%s\n", "System Problem Remove Card");
+					}
+				return 1;
+				//	pCard->TimeOut = INFINITE;
+				//	pCardContext->pCurrentState->dwCurrentState = pCardContext->pCurrentState->dwEventState;
+			}
+		}
+	}
+	return 1;  // 0 means block !
 }

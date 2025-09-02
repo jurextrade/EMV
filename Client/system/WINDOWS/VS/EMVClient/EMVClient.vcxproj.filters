@@ -1,19 +1,37 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\src\Card.c" />
-    <ClCompile Include="..\..\..\..\src\EMVError.c" />
-    <ClCompile Include="..\..\..\..\src\EMVTools.c" />
-    <ClCompile Include="..\..\..\..\src\main.cpp" />
-    <ClCompile Include="..\..\..\..\src\EMVConnect.c" />
-    <ClCompile Include="..\..\..\..\src\RouterConnect.c" />
+    <ClCompile Include="..\..\..\..\src\Card.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\EMVConnect.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\EMVError.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\EMVTools.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\RouterConnect.c">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="include">
       <UniqueIdentifier>{1d0c18fd-64a5-4865-b9ca-128952528423}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Files">
+    <Filter Include="src">
+      <UniqueIdentifier>{c059c5c2-594c-472d-ac6a-2fb1a3688062}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MX">
       <UniqueIdentifier>{421603b7-8884-478e-bc50-c3f0f257757e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files">
+      <UniqueIdentifier>{4c2993d8-345b-4fc5-b4ef-c2846462e417}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -29,6 +47,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\MX\apdu.mx">
+      <Filter>MX</Filter>
+    </None>
+    <None Include="..\..\..\..\Files\SW1SW2.csv">
       <Filter>Files</Filter>
     </None>
   </ItemGroup>

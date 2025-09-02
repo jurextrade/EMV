@@ -8,7 +8,7 @@ OBJ64= ../x64/obj/Card.o ../x64/obj/EMVError.o ../x64/obj/EMVTools.o ../x64/obj/
 
 
 ../x86/obj/%.o: ../../../../src/%.c
-	g++ -c $< -DYY_USE_PROTOS -DWINDOWS -I$(INC_REP) -Wno-write-strings -o  $@
+	g++ -c $< -DYY_USE_PROTOS -DWINDOWS -I$(INC_REP)  -Wno-write-strings -o  $@
 
 ../x86/obj/main.o: ../../../../src/main.cpp
 	g++ -c ../../../../src/main.cpp -DYY_USE_PROTOS -DWINDOWS -I$(INC_REP) -Wno-write-strings -o ../x86/obj/main.o
@@ -23,7 +23,7 @@ EMVClient32: ../x86/obj/main.o $(OBJ32)
 	g++  -o ../x86/exe/EMVClient32 ../x86/obj/main.o $(OBJ32) -LC:/PROJECTS_CROSS/NetProg/system/WINDOWS/GNU/x86/lib -lNetProg32 -lws2_32  -lodbc32 -lwinscard
 
 EMVClient64: ../x64/obj/main.o $(OBJ64)
-	g++  -o ../x86/exe/EMVClient64 ../x64/obj/main.o $(OBJ64) -LC:/PROJECTS_CROSS/NetProg/system/WINDOWS/GNU/x64/lib -lNetProg64 -lws2_32  -lodbc32 -lwinscard
+	g++  -o ../x64/exe/EMVClient64 ../x64/obj/main.o $(OBJ64) -LC:/PROJECTS_CROSS/NetProg/system/WINDOWS/GNU/x64/lib -lNetProg64 -lws2_32  -lodbc32 -lwinscard
 
 clean32:
 	del ..\x86\obj\*.o 

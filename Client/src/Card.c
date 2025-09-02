@@ -10,23 +10,43 @@ BYTE transactiontype;
 char amount[100];
 char currency[4];
 
+char   Directory[300];
 
+char   EMVServer[300] = "localhost";
+int	   EMVServerPort = 2000;
+
+char   EMVRooter[300] = "localhost";
+int	   EMVRooterPort = 3007;
+
+char   LoginServer[300] = "jurextrade.com";
+
+MXCom* EMVRooterCom = NULL;
+MXCom* EMVServerCom = NULL;
+
+char   smessage[1300];
+
+
+CC* CardConnector = NULL;
 
 CC* CCInit(MX* pmx)
 {
 	CC* pcc = (CC*)malloc(sizeof(CC));
+	
+	if (pcc == NULL)
+	{
+		return NULL;
+	}
+	
 	memset(pcc, 0, sizeof(CC));
 	  
+
 	pcc->pMX = pmx;
 	pcc->pRouterCom = NULL;
 
 
 	pcc->pCardContext = CardContext_Init();
-	if (pcc == NULL)
-	{
-		return NULL;
-	}
-	EMVReadApduErrorFile(pcc->pCardContext);
+
+//	EMVReadApduErrorFile(pcc->pCardContext);
 	return pcc;
 }
 
@@ -61,6 +81,7 @@ CardContext* CardContext_Init()
 	pCardContext->pCurrentCard = NULL;
 	pCardContext->ShouldRelase = 0;
 	pCardContext->appApduErrors = NULL;
+	pCardContext->nbrTryConnect = 0;
 
 	return pCardContext;
 }
@@ -84,12 +105,62 @@ LONG CardContext_End(CardContext* pCardContext)
 }
 
 
+
+long Readers_Init(CardContext* pCardContext)
+{
+	LONG            lReturn;
+	DWORD           cch = SCARD_AUTOALLOCATE;
+
+
+	pCardContext->nbrTryConnect++;
+
+	lReturn = SCardListReaders(pCardContext->hContext, SCARD_ALL_READERS, (LPTSTR)&pCardContext->pReaders, &cch);
+
+	if (lReturn != SCARD_S_SUCCESS || *pCardContext->pReaders == '\0')
+	{
+		s_printf(smessage, "%s\n", CardStrError(lReturn));
+		if (pCardContext->nbrTryConnect == 5 || lReturn == SCARD_E_SERVICE_STOPPED)    //reinitialize context
+		{
+			int webuser = CardConnector->pCardContext->WebUser;
+
+			s_printf(smessage, "%s initializing Context Required..... \n", CardStrError(lReturn));
+			
+			CardContext_End(CardConnector->pCardContext);
+			CardConnector->pCardContext = CardContext_Init();
+			CardConnector->pCardContext->WebUser = webuser;
+
+		}
+
+		return lReturn;
+	}
+
+	LPTSTR          pReader = pCardContext->pReaders;
+
+	while (*pReader != '\0')
+	{
+		SCARD_READERSTATE		State;
+		State.dwCurrentState = SCARD_STATE_UNAWARE;
+		State.dwEventState = SCARD_STATE_UNKNOWN;
+		State.szReader = pReader;
+		s_printf(smessage, "Reader: %s\n", pReader);
+		pReader = pReader + strlen(pReader) + 1;
+
+		pCardContext->ReadersStates[pCardContext->ReadersCount] = State;
+		pCardContext->ReadersCount++;
+		pCardContext->nbrTryConnect = 0;
+	}
+	pCardContext->pCurrentState = &pCardContext->ReadersStates[0];
+	return 0;
+}
+
 int Card_Init(CardContext* pCardContext, CARD* pCard)
 {
 	SCARDHANDLE		hCardHandle;
 	DWORD           dwAP;
 	LONG            lReturn;
 	BYTE            MediaType;
+
+
 	lReturn = SCardConnect(pCardContext->hContext, pCardContext->pCurrentState->szReader, SCARD_SHARE_SHARED, SCARD_PROTOCOL_T0 | SCARD_PROTOCOL_T1, &hCardHandle, &dwAP);
 
 	if (SCARD_S_SUCCESS != lReturn)
@@ -143,7 +214,7 @@ void Card_End(CARD* pCard)
 //	free(CurrentCard);
 }
 
-int ReaderPlugging(CardContext* pCardContext) {
+int ReaderPlugging(CardContext* pCardContext, long lReturn) {
 
 	char   message[300] = { 0 };
 	if (pCardContext->WebUser == 0) {
@@ -155,7 +226,8 @@ int ReaderPlugging(CardContext* pCardContext) {
 	}
 	else
 	{
-		s_printf(smessage, "%s", "Plug In a Reader and type a char\n>");
+
+		sprintf(smessage, "%s", CardStrError(lReturn));
 		Send_Plug(EMVRooterCom, smessage);
 
 		MXMessage* pmessage = MXRecv(EMVRooterCom->MX, EMVRooterCom);
@@ -191,37 +263,6 @@ int ReaderPlugging(CardContext* pCardContext) {
 }
 
 
-int Readers_Init(CardContext* pCardContext)
-{
-	LONG            lReturn;
-	DWORD           cch = SCARD_AUTOALLOCATE;
-
-	lReturn = SCardListReaders(pCardContext->hContext, SCARD_ALL_READERS, (LPTSTR)&pCardContext->pReaders, &cch);
-
-	if (lReturn != SCARD_S_SUCCESS || *pCardContext->pReaders == '\0')
-	{
-		s_printf(smessage, "%s\n", CardStrError(lReturn));
-		return -1;
-	}
-
-	LPTSTR          pReader = pCardContext->pReaders;
-
-	while (*pReader != '\0')
-	{
-		SCARD_READERSTATE		State;
-		State.dwCurrentState	= SCARD_STATE_UNAWARE;
-		State.dwEventState		= SCARD_STATE_UNKNOWN;				
-		State.szReader			= pReader;
-		s_printf(smessage, "Reader: %s\n", pReader);
-		pReader = pReader + strlen(pReader) + 1;
-
-		pCardContext->ReadersStates[pCardContext->ReadersCount] = State;
-		pCardContext->ReadersCount++;
-	}
-	pCardContext->pCurrentState = &pCardContext->ReadersStates[0];
-	return 0;
-}
-
 int OnCardConnected (CC* pcc)
 {
 	DWORD           dwState, dwProtocol;
@@ -236,7 +277,7 @@ int OnCardConnected (CC* pcc)
 	LONG            lReturn;
 	
 	
-	Send_Start(EMVRooterCom);
+
 
 	lReturn = Card_Init(pCardContext, pCard);  
 
@@ -306,13 +347,13 @@ int OnCardConnected (CC* pcc)
 		//return -1;
 	}
 
-
 	EMVServerCom = Connect_EMVServer(pcc, pCard);
 	if (!EMVServerCom)
 	{
 		return -1;
 	}
 
+	Send_Start(EMVRooterCom);
 	SendUserInfo(pCard->pCom, pcc->UserName, pcc->UserPassword);
 	SendTransaction(pCard->pCom, transactiontype, currency, amount, pCard->MediaType);
 	SendATR(pCard->pCom, strAtr);

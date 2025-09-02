@@ -32,7 +32,7 @@ int EMVGenerateMXFile (EMV* pemv, char* classname, int classindex, char* dialogf
 	return 1;
 }
 
-void EMVLoadAcceptor (EMV* pemv)  //TAG DF04  DF20-DF21-DF22-DF23 File index 4
+int EMVLoadAcceptor (EMV* pemv)  //TAG DF04  DF20-DF21-DF22-DF23 File index 4
 {
 	MXCom*				pFileCom;
 	MXMessage*			pmessage;
@@ -40,10 +40,10 @@ void EMVLoadAcceptor (EMV* pemv)  //TAG DF04  DF20-DF21-DF22-DF23 File index 4
 	
 	pemv->pAcceptor = NULL;
 
-	sprintf (filename, "%s\\config\\%s", Directory, "emv_acceptor.conf");
+	sprintf (filename, "%s\\Projects\\%s\\Files\\%s", Directory, pemv->ProjectName, "emv_acceptor.conf");
 	
 	pFileCom = MXOpenFile (pemv->pMX, filename, "r", IOPROTO_FIOP, 'D', 63);
-	if (!pFileCom) return; 
+	if (!pFileCom) return -1; 
 
 	MXSetIOMessageClass(pFileCom, MXGetMessageClassFromName (MXGetDialogClassFromName (pemv->pMX, "LOAD"), "SIT_D753"));
 	MXAddComCallBack (pemv->pMX, pFileCom,  "LOAD", "SIT_D753", MXONRECV, OnLoadAcceptor, pemv);
@@ -52,9 +52,10 @@ void EMVLoadAcceptor (EMV* pemv)  //TAG DF04  DF20-DF21-DF22-DF23 File index 4
 	MXFreeMessage (pemv->pMX, pmessage);
 	
 	MXCloseCom (pemv->pMX, pFileCom); 
+	return 0;
 }
 
-void EMVLoadApplications (EMV* pemv)    //DF17
+int EMVLoadApplications (EMV* pemv)    //DF17
 {
 	MXCom*				pFileCom;
 	MXMessage*			pmessage;
@@ -62,10 +63,10 @@ void EMVLoadApplications (EMV* pemv)    //DF17
 	
 	
 
-	sprintf (filename, "%s\\config\\%s", Directory, "emv_applications.conf");
+	sprintf (filename, "%s\\Projects\\%s\\Files\\%s", Directory, pemv->ProjectName, "emv_applications.conf");
 	
 	pFileCom = MXOpenFile (pemv->pMX, filename, "r", IOPROTO_FIOP, 'D', 63);
-	if (!pFileCom) return; 
+	if (!pFileCom) return -1; 
 
 	MXSetIOMessageClass(pFileCom, MXGetMessageClassFromName (MXGetDialogClassFromName (pemv->pMX, "LOAD"), "EPV_D787"));
 	MXAddComCallBack (pemv->pMX, pFileCom,  "LOAD", "EPV_D787", MXONRECV, OnLoadApplications, pemv);
@@ -74,20 +75,19 @@ void EMVLoadApplications (EMV* pemv)    //DF17
 		MXFreeMessage (pemv->pMX, pmessage);
 	
 	MXCloseCom (pemv->pMX, pFileCom); 
+	return 0;
 	
 }
-void EMVLoadTacs (EMV* pemv)    //DF18
+int EMVLoadTacs (EMV* pemv)    //DF18
 {
 	MXCom*				pFileCom;
 	MXMessage*			pmessage;
 	char				filename[200]; 
 	
-
-
-	sprintf (filename, "%s\\config\\%s", Directory, "emv_tacs.conf");
+	sprintf (filename, "%s\\Projects\\%s\\Files\\%s", Directory, pemv->ProjectName, "emv_tacs.conf");
 	
 	pFileCom = MXOpenFile (pemv->pMX, filename, "r", IOPROTO_FIOP, 'D', 63);
-	if (!pFileCom) return; 
+	if (!pFileCom) return -1; 
 
 	MXSetIOMessageClass(pFileCom, MXGetMessageClassFromName (MXGetDialogClassFromName (pemv->pMX, "LOAD"), "EPT_D778"));
 	MXAddComCallBack (pemv->pMX, pFileCom,  "LOAD", "EPT_D778", MXONRECV, OnLoadTacs, pemv);
@@ -96,10 +96,11 @@ void EMVLoadTacs (EMV* pemv)    //DF18
 		MXFreeMessage (pemv->pMX, pmessage);
 	
 	MXCloseCom (pemv->pMX, pFileCom); 
+	return 0;
 	
 }
 
-void EMVLoadCurrencies (EMV* pemv)    
+int EMVLoadCurrencies (EMV* pemv)    
 {
 	MXCom*				pFileCom;
 	MXMessage*			pmessage;
@@ -107,10 +108,10 @@ void EMVLoadCurrencies (EMV* pemv)
 	
 
 
-	sprintf (filename, "%s\\config\\%s", Directory, "emv_currencies.conf");
+	sprintf (filename, "%s\\Projects\\%s\\Files\\%s", Directory, pemv->ProjectName, "emv_currencies.conf");
 	
 	pFileCom = MXOpenFile (pemv->pMX, filename, "r", IOPROTO_FIOP, 'D', 63);
-	if (!pFileCom) return; 
+	if (!pFileCom) return -1; 
 
 	MXSetIOMessageClass(pFileCom, MXGetMessageClassFromName (MXGetDialogClassFromName (pemv->pMX, "LOAD"), "MON_D747"));
 	MXAddComCallBack (pemv->pMX, pFileCom,  "LOAD", "MON_D747", MXONRECV, OnLoadCurrencies, pemv);
@@ -119,10 +120,11 @@ void EMVLoadCurrencies (EMV* pemv)
 		MXFreeMessage (pemv->pMX, pmessage);
 	
 	MXCloseCom (pemv->pMX, pFileCom); 
+	return 0;
 	
 }
 
-void EMVLoadExceptionCards (EMV* pemv)
+int EMVLoadExceptionCards (EMV* pemv)
 {
 	MXCom*				pFileCom;
 	MXMessage*			pmessage;
@@ -130,10 +132,10 @@ void EMVLoadExceptionCards (EMV* pemv)
 	
 	pemv->ExceptionCardList = NULL;	
 
-	sprintf (filename, "%s\\config\\%s", Directory, "emv_exceptioncards.conf");
+	sprintf (filename, "%s\\Projects\\%s\\Files\\%s", Directory, pemv->ProjectName, "emv_exceptioncards.conf");
 	
 	pFileCom = MXOpenFile (pemv->pMX, filename, "r", IOPROTO_FIOP, 'D', 63);
-	if (!pFileCom) return; 
+	if (!pFileCom) return -1; 
 
 	MXSetIOMessageClass(pFileCom, MXGetMessageClassFromName (MXGetDialogClassFromName (pemv->pMX, "LOAD"), "APL_D253"));
 	MXAddComCallBack (pemv->pMX, pFileCom,  "LOAD", "APL_D253", MXONRECV, OnLoadExceptionCards, pemv);
@@ -142,9 +144,10 @@ void EMVLoadExceptionCards (EMV* pemv)
 		MXFreeMessage (pemv->pMX, pmessage);
 	
 	MXCloseCom (pemv->pMX, pFileCom); 
+	return 0;
 }
 
-void EMVLoadRangeBins (EMV* pemv)
+int EMVLoadRangeBins (EMV* pemv)
 {
 	MXCom*				pFileCom;
 	MXMessage*			pmessage;
@@ -152,11 +155,11 @@ void EMVLoadRangeBins (EMV* pemv)
 	
 	pemv->RangBinList = NULL;
 
-	sprintf (filename, "%s\\config\\%s", Directory, "emv_rangebins.conf");
+	sprintf (filename, "%s\\Projects\\%s\\Files\\%s", Directory, pemv->ProjectName, "emv_rangebins.conf");
 
 	
 	pFileCom = MXOpenFile (pemv->pMX, filename, "r", IOPROTO_FIOP, 'D', 63);
-	if (!pFileCom) return; 
+	if (!pFileCom) return -1; 
 
 	MXSetIOMessageClass(pFileCom, MXGetMessageClassFromName (MXGetDialogClassFromName (pemv->pMX, "LOAD"), "APB_D236"));
 	MXAddComCallBack (pemv->pMX, pFileCom,  "LOAD", "APB_D236", MXONRECV, OnLoadRangeBins, pemv);
@@ -165,21 +168,22 @@ void EMVLoadRangeBins (EMV* pemv)
 		MXFreeMessage (pemv->pMX, pmessage);
 	
 	MXCloseCom (pemv->pMX, pFileCom); 
+	return 0;
 }
 
 
-void EMVLoadAuthorityPublicKeys (EMV* pemv)
+int EMVLoadAuthorityPublicKeys (EMV* pemv)
 {
 	MXCom*				pFileCom;
 	MXMessage*			pmessage;
 	char				filename[200]; 
 	
 	
-	sprintf (filename, "%s\\config\\%s", Directory, "emv_authoritypublickeys.conf");
+	sprintf (filename, "%s\\Projects\\%s\\Files\\%s", Directory, pemv->ProjectName, "emv_authoritypublickeys.conf");
 
 	
 	pFileCom = MXOpenFile (pemv->pMX, filename, "r", IOPROTO_FIOP, 'D', 63);
-	if (!pFileCom) return; 
+	if (!pFileCom) return -1; 
 
 	MXSetIOMessageClass(pFileCom, MXGetMessageClassFromName (MXGetDialogClassFromName (pemv->pMX, "LOAD"), "EPK_D782"));
 	MXAddComCallBack (pemv->pMX, pFileCom,  "LOAD", "EPK_D782", MXONRECV, OnLoadAuthorityPublicKeys, pemv);
@@ -187,7 +191,17 @@ void EMVLoadAuthorityPublicKeys (EMV* pemv)
 	while (pmessage = MXRecv (pemv->pMX, pFileCom))
 		MXFreeMessage (pemv->pMX, pmessage);
 	
-	MXCloseCom (pemv->pMX, pFileCom); 
+	MXCloseCom (pemv->pMX, pFileCom);
+	return 0;
+}
+
+int EMVLoadTerminals(EMV* pemv)
+{
+	EMVTerminal* pTerminal = EMVInitTerminal(pemv);
+	EMVTerminal Terminal = { "12345678", {0x02, 0x50}, {0xC1, 0x00, 0xF0, 0xA0, 0x01}, {0x60, 0xB8, 0xC8}, 0x22, {0x26, 0x40, 0x40, 0x00} };
+	*pTerminal = Terminal;
+	EMVAddTerminal(pemv, pTerminal);
+	return 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////

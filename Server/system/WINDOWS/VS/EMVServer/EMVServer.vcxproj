@@ -45,14 +45,27 @@
     <ClInclude Include="..\..\..\..\src\tlv.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\..\config\emv_acceptor.conf" />
+    <None Include="..\..\..\..\config\emv_applications.conf" />
+    <None Include="..\..\..\..\config\emv_authoritypublickeys.conf" />
+    <None Include="..\..\..\..\config\emv_currencies.conf" />
+    <None Include="..\..\..\..\config\emv_exceptioncards.conf" />
+    <None Include="..\..\..\..\config\emv_rangebins.conf" />
+    <None Include="..\..\..\..\config\emv_tacs.conf" />
+    <None Include="..\..\..\..\Files\CB2A.csv" />
+    <None Include="..\..\..\..\Files\FILES.csv" />
+    <None Include="..\..\..\..\Files\SW1SW2.csv" />
+    <None Include="..\..\..\..\Files\TAGS.csv" />
     <None Include="..\..\..\..\MX\apdu.mx" />
     <None Include="..\..\..\..\MX\dialogfiles.mx" />
-    <None Include="..\..\..\..\WPAF\apb_d236.wp" />
-    <None Include="..\..\..\..\WPAF\apl_d253.wp" />
-    <None Include="..\..\..\..\WPAF\epk_d782.wp" />
-    <None Include="..\..\..\..\WPAF\ept_d778.wp" />
-    <None Include="..\..\..\..\WPAF\epv_d787.wp" />
-    <None Include="..\..\..\..\WPAF\sit_d753.wp" />
+    <None Include="..\..\..\..\Projects\DemoProject\Files\emvsolution.json" />
+    <None Include="..\..\..\..\Projects\DemoProject\Files\emv_acceptor.conf" />
+    <None Include="..\..\..\..\Projects\DemoProject\Files\emv_applications.conf" />
+    <None Include="..\..\..\..\Projects\DemoProject\Files\emv_authoritypublickeys.conf" />
+    <None Include="..\..\..\..\Projects\DemoProject\Files\emv_currencies.conf" />
+    <None Include="..\..\..\..\Projects\DemoProject\Files\emv_exceptioncards.conf" />
+    <None Include="..\..\..\..\Projects\DemoProject\Files\emv_rangebins.conf" />
+    <None Include="..\..\..\..\Projects\DemoProject\Files\emv_tacs.conf" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4AF0C9A3-BF2D-49DF-A265-2EF59B5E311D}</ProjectGuid>
@@ -106,7 +119,7 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\x86\$(Configuration)\obj\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>..\$(Platform)\$(Configuration)\exec\</OutDir>
+    <OutDir>..\$(Platform)\$(Configuration)\exe\</OutDir>
     <TargetName>$(ProjectName)64</TargetName>
     <IntDir>..\$(Platform)\$(Configuration)\obj\</IntDir>
   </PropertyGroup>
@@ -117,7 +130,7 @@
     <TargetName>$(ProjectName)32</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>..\$(Platform)\$(Configuration)\exec\</OutDir>
+    <OutDir>..\$(Platform)\$(Configuration)\exe\</OutDir>
     <IntDir>..\$(Platform)\$(Configuration)\obj\</IntDir>
     <TargetName>$(ProjectName)64</TargetName>
   </PropertyGroup>
@@ -138,6 +151,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
+    <PostBuildEvent>
+      <Command>if "$(ConfigurationName)" == "Release" ( xcopy "$(TargetDir)$(TargetFileName)" "C:\PROJECTS_CROSS\WEB\EMV\Server\" /y )</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -154,6 +170,9 @@
       <AdditionalDependencies>C:\PROJECTS_CROSS\NetProg\system\WINDOWS\VS\x64\Debug\lib\Netprog64.lib;Winscard.lib;</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>if "$(ConfigurationName)" == "Release" ( xcopy "$(TargetDir)$(TargetFileName)" "C:\PROJECTS_CROSS\WEB\EMV\Server\" /y )</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -173,6 +192,9 @@
       <TargetMachine>MachineX86</TargetMachine>
       <AdditionalDependencies>C:\PROJECTS_CROSS\NetProg\system\WINDOWS\VS\x86\Release\lib\Netprog32.lib;Winscard.lib;</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>if "$(ConfigurationName)" == "Release" ( xcopy "$(TargetDir)$(TargetFileName)" "C:\PROJECTS_CROSS\WEB\EMV\Server\" /y )</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -191,6 +213,9 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <AdditionalDependencies>C:\PROJECTS_CROSS\NetProg\system\WINDOWS\VS\x64\Debug\lib\Netprog64.lib;Winscard.lib;</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>if "$(ConfigurationName)" == "Release" ( xcopy "$(TargetDir)$(TargetFileName)" "C:\PROJECTS_CROSS\WEB\EMV\Server\" /y )</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

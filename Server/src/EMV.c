@@ -1,16 +1,138 @@
 #include "EMV.h"
+#include <sys/stat.h>
 
-// Candidate applications
 
 EMVSelectApplicationInfo standartCandidate;
 EMVSelectApplicationInfo candidateApplications[MAX_CANDIDATE_APPLICATIONS];
 int						candidateApplicationCount;
 int						indexApplicationSelected;
 
+
+char	Directory[300];
+char	DefaultProjectName[200] = "DemoProject";
+
+int		EMVServerPort = 2000;
+
+char	EMVRooter[300] = "locahost";
+int		EMVRooterPort = 3008;
+
+char	LoginServer[300] = "jurextrade.com";
+
+MXCom*	EMVRooterCom = NULL;
+
+char	smessage[5000];
+
+
 #define  EurCode   "x09\x78"
 #define  FranceCode "x02\x50"
 
 //=========================================================================================================================================
+
+int EMVLoadProject(EMV* pemv, char* projectname) {
+
+	char dirname[200];
+	struct stat info;
+	int returnvalue = 0;
+	sprintf(dirname, "%s\\Projects", Directory);
+
+	if (stat(dirname, &info) != 0 || !(info.st_mode & S_IFDIR))
+	{
+
+		_mkdir(dirname);
+		printf("Folder %s missing ... created \n", dirname);
+		returnvalue = -1;
+	}
+
+	sprintf(dirname, "%s\\Projects\\%s", Directory, projectname);
+
+	if (stat(dirname, &info) != 0 || !(info.st_mode & S_IFDIR))
+	{
+		_mkdir(dirname);
+		printf("Could not find %s Folder\n", projectname);
+		returnvalue = -1;
+	}
+	sprintf(dirname, "%s\\Projects\\%s\\Files", Directory, projectname);
+
+	if (stat(dirname, &info) != 0 || !(info.st_mode & S_IFDIR))
+	{
+		_mkdir(dirname);
+		printf("Could not find Files Folder\n");
+		returnvalue = -1;
+	}
+	
+	if (returnvalue != 0)
+	{
+		return returnvalue;
+	}
+
+	strcpy(pemv->ProjectName, projectname);
+
+
+	pemv->ApplicationsCount = 0;
+	pemv->Applications = 0;
+
+	pemv->Terminals = 0;
+	pemv->TerminalsCount = 0;
+
+	memset(&pemv->Settings, 0, sizeof(EMVSettings));
+	pemv->Settings.appSelectionUsePSE = 1;
+	pemv->Settings.appSelectionSupportConfirm = 1;
+	pemv->Settings.appSelectionPartial = 1;
+	pemv->Settings.appSelectionSupport = 1;
+
+	
+	if (EMVLoadAcceptor(pemv) < 0) 				//SIT_D753.wp
+	{
+		printf("Missing File %s\n", "emv_acceptor.conf");
+	}
+	else
+	{
+		EMVTraceAcceptor(pemv);
+		EMVTraceAcquirer(pemv);
+		EMVInitHost(pemv, pemv->pAcquirer, "127.0.0.1", 8000);
+	}
+
+	if (EMVLoadRangeBins(pemv) < 0) 			    //APB_D236.wp
+	{
+		printf ("Missing File %s\n", "emv_rangebins.conf");
+	}
+
+	if (EMVLoadExceptionCards(pemv) < 0) 		//APL_D253.wp
+	{
+		printf ("Missing File %s\n", "emv_exceptioncards.conf");
+	}
+
+	if (EMVLoadAuthorityPublicKeys(pemv) < 0) 	//EPK_D782.wp
+	{
+		printf ("Missing File %s\n", "emv_authoritypublickeys.conf");
+	}
+
+	if (EMVLoadTerminals(pemv) < 0) 
+	{
+		printf ("Missing File %s\n", "emv_acceptor.conf");
+	}
+
+	if (EMVLoadApplications(pemv) < 0) 			//EPV_D787.wp
+	{
+		printf ("Missing File %s\n", "emv_applications.conf");
+	}
+	else
+	{
+		EMVTraceApplications(pemv);
+	}
+
+	if (EMVLoadTacs(pemv) < 0) 					//EPT_D778.wp
+	{
+		printf ("Missing File %s\n", "emv_tacs.conf");
+	}
+
+	if (EMVLoadCurrencies(pemv) < 0) 			//MON_D747.wp
+	{
+		printf("Missing File %s\n", "emv_currencies.conf");
+	}
+	return 0;
+}
+
 
 EMV* EMVInit(MX* pmx)
 {
@@ -23,17 +145,6 @@ EMV* EMVInit(MX* pmx)
 	pemv->pMX				= pmx;
 	pemv->pRouterCom		= NULL;
 
-	pemv->ApplicationsCount = 0;
-	pemv->Applications		= 0;
-
-	pemv->Terminals			= 0;
-	pemv->TerminalsCount	= 0;
-
-	memset(&pemv->Settings, 0, sizeof(EMVSettings));
-	pemv->Settings.appSelectionUsePSE = 1;
-	pemv->Settings.appSelectionSupportConfirm = 1;
-	pemv->Settings.appSelectionPartial = 1;
-	pemv->Settings.appSelectionSupport = 1;
 
 	EMVSetDebugEnabled(pemv, 1);
 
@@ -45,27 +156,11 @@ EMV* EMVInit(MX* pmx)
 	EMVReadApduErrorFile(pemv);		     //SW1SW2.csv
 	EMVReadFile(pemv);					 //FILES.csv
 
-
-	EMVLoadAcceptor(pemv);				//SIT_D753.wp
-	EMVLoadRangeBins(pemv);			    //APB_D236.wp
-	EMVLoadExceptionCards(pemv);		//APL_D253.wp
-	EMVLoadAuthorityPublicKeys(pemv);	//EPK_D782.wp
-
-	EMVLoadTerminals(pemv);
-	EMVLoadApplications(pemv);			//EPV_D787.wp
-	EMVLoadTacs(pemv);					//EPT_D778.wp
-	EMVLoadCurrencies(pemv);			//MON_D747.wp
-
-
-
-	EMVInitHost(pemv, pemv->pAcquirer, "127.0.0.1", 8000);
+	
 
 
 	pemv->pCB2A = CB2AInit(1);
 
-	EMVTraceAcceptor(pemv);
-	EMVTraceAcquirer(pemv);
-	EMVTraceApplications(pemv);
 
 	return pemv;
 }
@@ -102,13 +197,6 @@ void EMVEnd(EMV* pemv)
 }
 
 
-void EMVLoadTerminals (EMV* pemv)
-{
-	EMVTerminal* pTerminal = EMVInitTerminal (pemv);
-    EMVTerminal Terminal  = {"12345678", {0x02, 0x50}, {0xC1, 0x00, 0xF0, 0xA0, 0x01}, {0x60, 0xB8, 0xC8}, 0x22, {0x26, 0x40, 0x40, 0x00}};
-	*pTerminal = Terminal;
-	EMVAddTerminal (pemv, pTerminal);
-}
 
 EMVAuthorityPublicKey* EMVGetAuthorityPublicKeyFromKeyIndex (EMV* pemv, EMVClient* pclient, int keyindex)
 {

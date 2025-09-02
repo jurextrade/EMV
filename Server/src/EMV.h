@@ -798,7 +798,7 @@ typedef struct _EMVSettings
 
 typedef struct _EMV {
 	MX*				pMX;
-
+	char			ProjectName[200];
 	MXCom*			pRouterCom;
 
 	CB2A*			pCB2A;
@@ -928,6 +928,9 @@ extern int		EMVRooterPort;
 extern char		LoginServer[300];
 extern MXCom*	EMVRooterCom;
 extern char		smessage[5000];
+extern int		EMVServerPort;
+extern char		DefaultProjectName[200];
+
 
 //EMV PROCESS FUNCTIONS
 //======================
@@ -1013,7 +1016,7 @@ extern int			EMVTransactionCompletion (EMV* pemv, EMVClient* pclient, int forcet
 
 extern EMV*			EMVInit(MX* pmx);
 extern void			EMVEnd (EMV* pemv);
-
+extern int			EMVLoadProject(EMV* pemv, char* projectname);
 
 
 extern EMVApplication* EMVInitApplication (EMV* pemv);
@@ -1091,12 +1094,14 @@ extern void			EMVSetFunctionAPDU(EMV* pemv, MXMessage* (*f_apdu)(EMV* pemv, EMVC
 extern void			EMVSetTag(EMVClient* pclient, unsigned short tag, BYTE* data, int size);
 
 
-extern void			EMVLoadApplications (EMV* pemv);
-extern void			EMVLoadTacs (EMV* pemv);
-extern void			EMVLoadTerminals (EMV* pemv);
-extern void			EMVLoadExceptionCards (EMV* pemv);
-extern void			EMVLoadRangeBins (EMV* pemv);
-extern void			EMVLoadCurrencies (EMV* pemv);
+extern int			EMVLoadApplications (EMV* pemv);
+extern int			EMVLoadTacs (EMV* pemv);
+extern int			EMVLoadTerminals (EMV* pemv);
+extern int			EMVLoadExceptionCards (EMV* pemv);
+extern int			EMVLoadRangeBins (EMV* pemv);
+extern int			EMVLoadCurrencies (EMV* pemv);
+extern int			EMVLoadAcceptor(EMV* pemv);
+extern int			EMVLoadAuthorityPublicKeys(EMV* pemv);
 
 extern int			EMVParseSelectADF(EMV* pemv, EMVSelectApplicationInfo* appInfo, BYTE* rApdu, int rApduSize);
 extern char			EMVCorrectATR(BYTE* bufATR, int size);
@@ -1122,10 +1127,7 @@ extern int			EMVSetTagValueFromEMVTag (CB2AMessage* pmessage, CB2ATagValue* ptag
 extern int			EMVReadFile (EMV* pemv);
 extern void			EMVAddFile (EMV* pemv, EMVFile* pfile);
 extern int			EMVGenerateMXFile (EMV* pemv, char* classname, int classindex, char* dialogfilename);
-extern void			EMVLoadAcceptor (EMV* pemv);
-extern void			EMVLoadExceptionCards (EMV* pemv);
-extern void			EMVLoadRangeBins (EMV* pemv);
-extern void			EMVLoadAuthorityPublicKeys (EMV* pemv);
+
 
 
 //Tag
@@ -1184,7 +1186,7 @@ extern void			EMVTraceCardStatus (int code);
 extern void			EMVTraceServiceCode (EMVClient* pclient);
 extern void			EMVTraceIIN (EMVClient* pclient, char*cardNumbers);
 
-
+extern int			MXAddAPDUCommands(MX* pmx);
 extern MXCom*		Connect_RouterServer(EMV* pemv);
 extern int			Send_Login(MXCom* pcom, EMVClient* pclient);
 extern void			Send_Start(MXCom* pcom, EMVClient* pclient);

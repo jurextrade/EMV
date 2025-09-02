@@ -130,7 +130,7 @@ int Send_Login(CC* pcc)
 
 		}
 		if (strcmp(WebStatut, "KO") == 0) {
-			printf("Login to Jurextrade Site to follow the transaction on the web, this transaction will be treated on your cmd console only\n");
+			printf("Login to %s Site to follow the transaction on the web, this transaction will be treated on your cmd console only\n", LoginServer);
 			pcc->pCardContext->WebUser = 0;
 		}
 		else

@@ -1,0 +1,11 @@
+C:\PROJECTS_CROSS\EMV\Server\src\CB2A.c;C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x86\Release\obj\CB2A.obj
+C:\PROJECTS_CROSS\EMV\Server\src\EMV.c;C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x86\Release\obj\EMV.obj
+C:\PROJECTS_CROSS\EMV\Server\src\EMVConnect.c;C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x86\Release\obj\EMVConnect.obj
+C:\PROJECTS_CROSS\EMV\Server\src\EMVError.c;C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x86\Release\obj\EMVError.obj
+C:\PROJECTS_CROSS\EMV\Server\src\EMVFile.c;C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x86\Release\obj\EMVFile.obj
+C:\PROJECTS_CROSS\EMV\Server\src\EMVTag.c;C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x86\Release\obj\EMVTag.obj
+C:\PROJECTS_CROSS\EMV\Server\src\EMVTools.c;C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x86\Release\obj\EMVTools.obj
+C:\PROJECTS_CROSS\EMV\Server\src\EMVTrace.c;C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x86\Release\obj\EMVTrace.obj
+C:\PROJECTS_CROSS\EMV\Server\src\main.cpp;C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x86\Release\obj\main.obj
+C:\PROJECTS_CROSS\EMV\Server\src\RouterConnect.c;C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x86\Release\obj\RouterConnect.obj
+C:\PROJECTS_CROSS\EMV\Server\src\tlv.c;C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x86\Release\obj\tlv.obj

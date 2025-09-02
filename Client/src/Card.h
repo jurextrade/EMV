@@ -43,6 +43,7 @@ typedef struct _Card
 typedef struct _CardContext {
 	SCARDCONTEXT		hContext;
 	LPTSTR          	pReaders;
+	int					nbrTryConnect;
 	int					ReadersCount;
 	int					TimeOut;
 	SCARD_READERSTATE*	pCurrentState;
@@ -95,13 +96,13 @@ extern CC*		CardConnector;
 extern MXCom*	EMVRooterCom;
 extern MXCom*	EMVServerCom;
 
-
+extern int			MXAddAPDUCommands(MX* pmx);
 extern int			CardApplicationProcedure(MX* pmx, void* par);
 extern int			OnConnect(MXCom* pcom, void* applicationfield);
 extern int			OnClose(MXCom* pcom, void* applicationfield);
 
-extern int			Readers_Init(CardContext* pCardContext);
-extern int			ReaderPlugging(CardContext* pCardContext);
+extern long			Readers_Init(CardContext* pCardContext);
+extern int			ReaderPlugging(CardContext* pCardContext, long lReturn);
 
 extern				CC* CCInit(MX* pmx);
 extern				void CCEnd(CC* pcc);
@@ -114,8 +115,7 @@ extern CardContext* CardContext_Init();
 extern LONG			CardContext_End(CardContext* pCardContext);
 
 
-extern int			CardInit ();
-extern void			CardEnd ();
+
 extern int			CardRead ();
 extern char			CardAPDU (CARD* pCard, unsigned char cla, unsigned char ins, unsigned char p1, unsigned char p2,  unsigned char dataSize, unsigned char* data,
 								            int* outDataSize, unsigned char* outData);
@@ -126,7 +126,7 @@ extern void			OnCardDisconnected(CARD* pCard);
 extern MXCom*		Connect_EMVServer(CC* pcc, CARD* pCard);
 
 extern int			SendTransaction(MXCom* pcom, char type, char* currency, char* amount, BYTE mediatype);
-extern int			SendATR(MXCom* pcom, char* atr);
+extern int			SendATR(MXCom* pcom, unsigned char* atr);
 extern int			SendUserInfo(MXCom* pcom, char* username, char* password);
 
 extern int          OnRecvACFirst            (MXMessage*  pmessage, MXCom* pcom, void* applicationfield);

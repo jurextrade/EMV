@@ -6,149 +6,16 @@
 #include <sstream>
 #include "Card.h"
 
-
-char   Directory[300];
-
-char   EMVServer[300]		= "217.112.89.92";
-int	   EMVServerPort		= 2000;
-
-char   EMVRooter[300]		= "217.112.89.92";
-int	   EMVRooterPort		= 3007;
-
-char   LoginServer[300]	    = "www.jurextrade.com";
-
-MXCom* EMVRooterCom			= NULL;
-MXCom* EMVServerCom			= NULL;
-
-char   smessage[1300];
-
 using namespace std;
-CC*		CardConnector		= NULL;
+
 
 // -----------------------------------------------------------------------MAIN MX PROCEDURE  -------------------------------------------------------
 
-int OnConnect(MXCom* pcom, void* applicationfield)
-{
-	CC* pcc = (CC*)applicationfield;
-	CardContext* pCardContext = pcc->pCardContext;
-	return 1;
-}
-
-int OnClose(MXCom* pcom, void* applicationfield)
-{
-	CC* pcc = (CC*)applicationfield;
-	CardContext* pCardContext = pcc->pCardContext;
-	if (pcom != pcc->pRouterCom)
-	{
-		s_printf(smessage, "%s", "Close Connection With EMV Server \n");
-		pCardContext->ShouldRelase = 1;
-		pCardContext->pCurrentState->dwCurrentState = 0;
-
-	}
-	else
-	{
-		printf("Close Connection With Rooter Server \n");
-		pcc->pRouterCom = NULL;
-
-		printf("Something wrong we connect again\n");
-		Connect_RouterServer(pcc);
-	}
-	return 1;
-}
-
-int CardApplicationProcedure(MX* pmx, void* applicationfield)
-{
-	CC* pcc = (CC*)applicationfield;
-
-	CardContext* pCardContext = pcc->pCardContext;
-	char* szReaderList = NULL;
-
-	DWORD	dwReaderListSize = 0,
-		dwNewState,
-		dwOldState;
-
-	HRESULT	hr;
-	BOOL	fEvent = FALSE;
-
-	LONG    lReturn;
-
-
-	if (pCardContext->ReadersCount == 0) {
-		lReturn = Readers_Init(pCardContext);
-		if (lReturn == -1)
-		{
-			return ReaderPlugging(pCardContext);
-		}
-	}
-
-	hr = SCardGetStatusChange(pCardContext->hContext, pCardContext->TimeOut, pCardContext->ReadersStates, pCardContext->ReadersCount);
-	if (hr != SCARD_S_SUCCESS)
-	{
-		if (hr != SCARD_E_TIMEOUT)
-		{
-			s_printf(smessage, "%s\n", CardStrError(hr));
-			CardContext_End(pCardContext);													// init context
-			pcc->pCardContext = CardContext_Init();													// init context
-			return 1;
-		}
-	}
-
-	if (pCardContext->pCurrentState->dwCurrentState != pCardContext->pCurrentState->dwEventState)   // state of reader not the same
-	{
-
-		DWORD dwStateMask = ~(SCARD_STATE_UNAWARE |
-			SCARD_STATE_IGNORE |
-			SCARD_STATE_UNAVAILABLE |
-			SCARD_STATE_ATRMATCH |
-			SCARD_STATE_EXCLUSIVE |
-			SCARD_STATE_INUSE |
-			SCARD_STATE_MUTE |
-			SCARD_STATE_UNPOWERED);
-
-
-		dwNewState = pCardContext->pCurrentState->dwEventState & dwStateMask;
-		dwOldState = pCardContext->pCurrentState->dwCurrentState & dwStateMask;
-
-		if (dwNewState != dwOldState)
-		{
-			pCardContext->pCurrentState->dwCurrentState = pCardContext->pCurrentState->dwEventState;
-			if ((pCardContext->pCurrentState->dwEventState & SCARD_STATE_EMPTY) == SCARD_STATE_EMPTY)
-			{
-				// Card Removed
-				pCardContext->ShouldRelase = 0;
-
-				if (pcc->pRouterCom == NULL) {
-					Connect_RouterServer(pcc);
-				}
-				s_printf(smessage, "%s\n", "Insert Card");
-				return 1;
-				//	OnCardDisconnected(pCard);
-				//	pCard->TimeOut = INFINITE;
-
-			}
-			if ((pCardContext->pCurrentState->dwEventState & SCARD_STATE_PRESENT) == SCARD_STATE_PRESENT)
-			{
-				if (pCardContext->ShouldRelase)
-				{
-					s_printf(smessage, "%s\n", "Transaction Completed please Remove Card");
-				}
-				else
-					if (OnCardConnected(pcc) != 0) {
-						s_printf(smessage, "%s\n", "System Problem Remove Card");
-					}
-				return 1;
-				//	pCard->TimeOut = INFINITE;
-				//	pCardContext->pCurrentState->dwCurrentState = pCardContext->pCurrentState->dwEventState;
-			}
-		}
-	}
-	return 1;  // 0 means block !
-}
 
 int main(int argc, char** argv)    // arg : EMVServer EmvRooter
 {
 	MX			mx;
-	char filename[200];
+
 	int	 servertype = 0; // local
 	CC* pcc			= NULL;
 
@@ -186,10 +53,13 @@ int main(int argc, char** argv)    // arg : EMVServer EmvRooter
 
 
 	strcpy(currency, EurCode);
-	sprintf(filename, "%s\\MX\\%s", Directory, "apdu.mx");
 
-	MXInit(&mx, MXCLIENT, NULL, NULL, -1, filename);
-	
+//	char filename[200];
+//	sprintf(filename, "%s\\MX\\%s", Directory, "apdu.mx");
+
+	MXInit(&mx, MXCLIENT, NULL, NULL, -1, NULL);
+	MXAddAPDUCommands(&mx);
+
 	pcc = CCInit(&mx);
 	
 	if (pcc == NULL) {
@@ -271,7 +141,7 @@ int main(int argc, char** argv)    // arg : EMVServer EmvRooter
 int EMVReadApduErrorFile(CardContext* pCardContext)
 {
 	char filename[200];
-	sprintf(filename, "%s\\FILES\\%s", Directory, "SW1SW2.csv");
+	sprintf(filename, "%s\\Files\\%s", Directory, "SW1SW2.csv");
 
 	ifstream inFile;
 	inFile.open(filename);

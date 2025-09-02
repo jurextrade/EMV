@@ -1,3 +1,2 @@
-﻿  tlv.c
-C:\PROJECTS_CROSS\EMV\Server\src\tlv.c(281,18): warning C4244: 'return': conversion from '__int64' to 'int', possible loss of data
-  EMVServer.vcxproj -> C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x64\Debug\exec\EMVServer64.exe
+﻿LINK : warning LNK4098: defaultlib 'MSVCRTD' conflicts with use of other libs; use /NODEFAULTLIB:library
+  EMVServer.vcxproj -> C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x64\Debug\exe\EMVServer64.exe
