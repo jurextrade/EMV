@@ -87,7 +87,7 @@
           "Priority": 254,
           "applicationSelectionIndicator": 1,
           "ForceTransaction": 31,
-          "TerminalActionCodeDenial": "0000000000",
+          "TerminalActionCodeDenial": "2000000000",
           "TerminalActionCodeOnline": "0000000000",
           "TerminalActionCodeDefault": "0000000000"
         },
@@ -99,7 +99,7 @@
           "Priority": 254,
           "applicationSelectionIndicator": 1,
           "ForceTransaction": 30,
-          "TerminalActionCodeDenial": "0000000000",
+          "TerminalActionCodeDenial": "FE00000000",
           "TerminalActionCodeOnline": "0000000000",
           "TerminalActionCodeDefault": "0000000000"
         }
