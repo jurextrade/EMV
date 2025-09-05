@@ -129,6 +129,7 @@ extern int			SendTransaction(MXCom* pcom, char type, char* currency, char* amoun
 extern int			SendATR(MXCom* pcom, unsigned char* atr);
 extern int			SendUserInfo(MXCom* pcom, char* username, char* password);
 
+extern int          OnRecvRUserInfo			 (MXMessage*  pmessage, MXCom* pcom, void* applicationfield);
 extern int          OnRecvACFirst            (MXMessage*  pmessage, MXCom* pcom, void* applicationfield);
 extern int          OnSendACFirst            (MXMessage*  pmessage, MXCom* pcom, void* applicationfield);
 extern int          OnRecvACSecond           (MXMessage*  pmessage, MXCom* pcom, void* applicationfield);
@@ -155,6 +156,7 @@ extern void			Send_Select(MXCom* pcom, char* message);
 extern void			Send_Plug(MXCom* pcom, char* message);
 void				Send_APDU(MXCom* pcom, BYTE cla, BYTE ins, BYTE p1, BYTE p2, int datasize, unsigned char* data, int way);
 extern int			Send_Login(CC* pcc);
+extern int			OnCloseRouter(MXCom* pcom, void* app);
 
 extern int			OnSendRouter(MXMessage* pmessage, MXCom* pcom, void* applicationfield);
 extern int			OnRecvRouter(MXMessage* pmessage, MXCom* pcom, void* applicationfield);

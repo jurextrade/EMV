@@ -1,2 +1,4 @@
 ﻿  Card.c
+  EMVConnect.c
+  Generating Code...
   EMVClient.vcxproj -> C:\PROJECTS_CROSS\EMV\Client\system\WINDOWS\VS\x86\Debug\exe\EMVClient32.exe

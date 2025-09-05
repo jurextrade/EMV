@@ -254,7 +254,7 @@ void EMVTraceServiceCode(EMVClient* pclient)
 
 	s_printf(smessage, pclient, "%s", strace);
 
-	Send_Command(EMVRooterCom, pclient, "SERVICECODE", SB1 << 16 + SB2 << 8 + SB3);
+	Send_Command(EMVRooterCom, pclient, "SERVICECODE", (SB1 << 16) + (SB2 << 8) + SB3);
 }
 
 void EMVTraceTerminalType(EMVClient* pclient)
@@ -522,8 +522,7 @@ void EMVTraceCVM (EMVClient* pclient)
 
 void EMVTraceTVR (EMVClient* pclient, EMV_BITS* pTVR, char* label)
 {
-	char strace[2000];
-	memset(strace, 0, 1000);
+	char strace[2000] = { 0 };
 
 	sprintf(strace, "%5s%s\n", "", label);
 	int i = strlen(strace);
@@ -1218,7 +1217,7 @@ void EMVTraceAcceptor (EMV* pemv)
 	printf("%-10sMerchantIdentifier: %s\n",	"",			pemv->pAcceptor->MerchantIdentifier);
 	printf("%-10sSIRET: %s*\n",	"",	                    pemv->pAcceptor->SIRET);
     printf("%-10sMerchantBillMode: %c\n",	"",			pemv->pAcceptor->MerchantBillMode);
-	printf("%-10sMerchantActivationCode: %s\n",	"",		pemv->pAcceptor->MerchantActivationCode);
+	printf("%-10sMerchantActivationCode: %c\n",	"",		pemv->pAcceptor->MerchantActivationCode);
 	printf("%-10sSystemAcceptationIdentification: %s\n",	"",			pemv->pAcceptor->SystemAcceptationIdentification);
 	printf("%-10sSIRET: %s\n",	"",	pemv->pAcceptor->SIRET);
 	printf("\n");

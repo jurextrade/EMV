@@ -5,14 +5,19 @@
 int MXAddAPDUCommands(MX* pmx)
 {
 	MXDialogClass* pclass;
+	int i = 1;
 
 	pclass = MXCreateDialogClass(pmx, "APDU", 7);
 
-	MXCreateMessageClass(pmx, pclass, "UserInfo", 1, 2, 
+	MXCreateMessageClass(pmx, pclass, "UserInfo", i++, 2,
 		"STRING", 1, "UserName",
 		"STRING", 1, "UserPassword");
 
-	MXCreateMessageClass(pmx, pclass, "SendTransaction", 2, 4, 
+	MXCreateMessageClass(pmx, pclass, "R-UserInfo", i++, 2,
+		"BYTE", 1, "Statut",
+		"STRING", 1, "Explanation");
+
+	MXCreateMessageClass(pmx, pclass, "SendTransaction", i++, 4,
 		"CHAR", 1, "Type",
 		"STRING", 1, "Currency",
 		"STRING", 1, "Amount",
@@ -20,13 +25,13 @@ int MXAddAPDUCommands(MX* pmx)
 
 	/* active connection */
 
-	MXCreateMessageClass(pmx, pclass, "SendATR", 3, 1, 
+	MXCreateMessageClass(pmx, pclass, "SendATR", i++, 1,
 		"STRING", 1, "Atr");
 
-	MXCreateMessageClass(pmx, pclass, "SendError", 4, 1, 
+	MXCreateMessageClass(pmx, pclass, "SendError", i++, 1,
 		"STRING", 1, "Error");
 
-	MXCreateMessageClass(pmx, pclass, "C-APDU", 5, 6, 
+	MXCreateMessageClass(pmx, pclass, "C-APDU", i++, 6,
 		"BYTE", 1, "Cla",
 		"BYTE", 1, "Ins",
 		"BYTE", 1, "P1",
@@ -34,13 +39,13 @@ int MXAddAPDUCommands(MX* pmx)
 		"STRING", 1, "Size",
 		"BUFFER", 1, "Data");
 
-	MXCreateMessageClass(pmx, pclass, "R-APDU", 6, 4, 
+	MXCreateMessageClass(pmx, pclass, "R-APDU", i++, 4,
 		"BYTE", 1, "Cla",
 		"BYTE", 1, "Ins",
 		"WORD", 1, "Size",
 		"BUFFER", 1, "Data");
 
-	MXCreateMessageClass(pmx, pclass, "SendACFirst", 7, 6,
+	MXCreateMessageClass(pmx, pclass, "SendACFirst", i++, 6,
 		"BYTE", 1, "Cla",
 		"BYTE", 1, "Ins",
 		"BYTE", 1, "P1",
@@ -48,13 +53,13 @@ int MXAddAPDUCommands(MX* pmx)
 		"STRING", 1, "Size",
 		"BUFFER", 1, "Data");
 
-	MXCreateMessageClass(pmx, pclass, "RecvACFirst", 8, 4,
+	MXCreateMessageClass(pmx, pclass, "RecvACFirst", i++, 4,
 		"BYTE", 1, "Cla",
 		"BYTE", 1, "Ins",
 		"LONG", 1, "Size",
 		"BUFFER", 1, "Data");
 
-	MXCreateMessageClass(pmx, pclass, "SendACSecond", 9, 6,
+	MXCreateMessageClass(pmx, pclass, "SendACSecond", i++, 6,
 		"BYTE", 1, "Cla",
 		"BYTE", 1, "Ins",
 		"BYTE", 1, "P1",
@@ -62,38 +67,38 @@ int MXAddAPDUCommands(MX* pmx)
 		"STRING", 1, "Size",
 		"BUFFER", 1, "Data");
 
-	MXCreateMessageClass(pmx, pclass, "RecvACSecond", 10, 4,
+	MXCreateMessageClass(pmx, pclass, "RecvACSecond", i++, 4,
 		"BYTE", 1, "Cla",
 		"BYTE", 1, "Ins",
 		"LONG", 1, "Size",
 		"BUFFER", 1, "Data");
 
-	MXCreateMessageClass(pmx, pclass, "SendAppliSelection", 11, 4,
+	MXCreateMessageClass(pmx, pclass, "SendAppliSelection", i++, 4,
 		"BYTE", 1, "Count",
 		"BYTE", 5, "Priority",
 		"BYTE", 5, "Index",
 		"STRING", 5, "Label");
 
-	MXCreateMessageClass(pmx, pclass, "RecvAppliSelection", 12, 1,
+	MXCreateMessageClass(pmx, pclass, "RecvAppliSelection", i++, 1,
 		"CHAR", 1, "Index");
 
-	MXCreateMessageClass(pmx, pclass, "SendCommand", 13, 2,
+	MXCreateMessageClass(pmx, pclass, "SendCommand", i++, 2,
 		"BYTE", 1, "P1",
 		"BYTE", 1, "P2");
 
-	MXCreateMessageClass(pmx, pclass, "RecvCommand", 14, 4,
+	MXCreateMessageClass(pmx, pclass, "RecvCommand", i++, 4,
 		"BYTE", 1, "P1",
 		"BYTE", 1, "P2",
 		"LONG", 1, "Size",
 		"BUFFER", 1, "Data");
 
-	MXCreateMessageClass(pmx, pclass, "SendVerify", 15, 1,
+	MXCreateMessageClass(pmx, pclass, "SendVerify", i++, 1,
 		"BYTE", 1, "Enciphered");
 
-	MXCreateMessageClass(pmx, pclass, "RecvVerify", 16, 1,
+	MXCreateMessageClass(pmx, pclass, "RecvVerify", i++, 1,
 		"BUFFER", 1, "Data");
 
-	MXCreateMessageClass(pmx, pclass, "Abort", 17, 1,
+	MXCreateMessageClass(pmx, pclass, "Abort", i++, 1,
 		"STRING", 1, "Reason");
 
 	return 1;
@@ -115,6 +120,7 @@ MXCom* Connect_EMVServer(CC* pcc, CARD* pCard) {
 	}
 	s_printf(smessage, "%s", "Open Connection With EMV Server \n");
 
+	MXAddComCallBack(pmx, pCom, "APDU", "R-UserInfo",	MXONRECV, OnRecvRUserInfo, pCard);
 	MXAddComCallBack(pmx, pCom, "APDU", "C-APDU",		MXONRECV, OnRecvAPDU, pCard);
 	MXAddComCallBack(pmx, pCom, "APDU", "R-APDU",		MXONSEND, OnSendAPDU, pCard);
 	MXAddComCallBack(pmx, pCom, "APDU", "SendACFirst",	MXONRECV, OnRecvACFirst, pCard);
@@ -129,6 +135,17 @@ MXCom* Connect_EMVServer(CC* pcc, CARD* pCard) {
 	MXAddComCallBack(pmx, pCom, "APDU", "SendCommand",        MXONRECV, OnRecvSendCommand, pCard);
 	pCard->pCom = pCom;
 	return pCom;
+}
+
+int OnRecvRUserInfo(MXMessage* pmessage, MXCom* pcom, void* applicationfield)
+{
+	s_printf(smessage, "%s", "Receive Response to UserInfo \n");
+
+
+	BYTE	statut		= *(BYTE*)MXGetValue(pmessage, "Statut", 1);
+	STRING  explanation = (STRING)MXGetValue(pmessage, "Explanation", 1);
+	return 1;
+
 }
 
 int OnSendAPDU(MXMessage* pmessage, MXCom* pcom, void* applicationfield)
@@ -599,7 +616,18 @@ int SendUserInfo(MXCom* pcom, char* username, char* password)
 	
 	MXFreeMessage(pcom->MX, pmessage);
 
-	return 0;
+	//receive response 
+
+	pmessage = MXRecv(pcom->MX, pcom);
+
+	BYTE	statut = *(BYTE*)MXGetValue(pmessage, "Statut", 1);             //statut = 1 means ok
+	STRING  explanation = (STRING)MXGetValue(pmessage, "Explanation", 1);
+	
+	s_printf(smessage, "%s", explanation);
+
+	MXFreeMessage(pcom->MX, pmessage);
+
+	return (int)statut;
 }
 
 int SendTransaction(MXCom* pcom, char type, char* currency, char* amount, BYTE mediatype)
@@ -641,7 +669,11 @@ int SendATR(MXCom* pcom, unsigned char* atr)
 int OnConnect(MXCom* pcom, void* applicationfield)
 {
 	CC* pcc = (CC*)applicationfield;
-	CardContext* pCardContext = pcc->pCardContext;
+
+	if (pcom != pcc->pRouterCom)
+	{
+		CardContext* pCardContext = pcc->pCardContext;
+	}
 	return 1;
 }
 
@@ -656,14 +688,7 @@ int OnClose(MXCom* pcom, void* applicationfield)
 		pCardContext->pCurrentState->dwCurrentState = 0;
 
 	}
-	else
-	{
-		printf("Close Connection With Rooter Server \n");
-		pcc->pRouterCom = NULL;
 
-		printf("Something wrong we connect again\n");
-		Connect_RouterServer(pcc);
-	}
 	return 1;
 }
 

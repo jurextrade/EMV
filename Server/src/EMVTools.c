@@ -493,23 +493,27 @@ int CharToHexaChar (unsigned char *std, unsigned char *sta, unsigned int l)
  * developpement hexa decimal en valeur HexaDecimale
  * ex :  '3141' -> "1A"
  *
- * \param SReduit Pointeur de la chaine resultat
- * \param SDevel Pointeur de la chaine  origine (2*lg(SReduit))
- * \param LReduit Nombre de caracteres hexadecimal
+ * \param Output Pointeur de la chaine resultat
+ * \param Input Pointeur de la chaine  origine (2*lg(Size))
+ * \param Size Nombre de caracteres hexadecimal
  *
  */
-void NumericDecimalCharToHexaChar( char *SReduit, char *SDevel, int LReduit ) 
+void NumericDecimalCharToHexaChar(char* Input, int Size, char* Output)
 {
 
     char buf [3];
     int rt;
 
-    for ( ; LReduit; LReduit-- ) {
-        memcpy( buf, SDevel, 2 );
+    for ( ; Size; Size-- ) {
+
+        memcpy( buf, Input, 2 );
         buf [2] = '\0';
-        sscanf( ( char * )( buf ), "%02x", ( unsigned char * )( &rt ) );
-        *SReduit++ = ( char )( rt % 256 );
-        SDevel += 2;
+        
+		sscanf((char * )buf, "%02x", &rt);
+
+        *Output++ = ( char )( rt % 256 );
+        
+		Input += 2;
     }/* for */
 }
 

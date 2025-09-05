@@ -16,7 +16,7 @@ char   EMVServer[300] = "localhost";
 int	   EMVServerPort = 2000;
 
 char   EMVRooter[300] = "localhost";
-int	   EMVRooterPort = 3007;
+int	   EMVRooterPort = 3007; 
 
 char   LoginServer[300] = "jurextrade.com";
 
@@ -276,9 +276,6 @@ int OnCardConnected (CC* pcc)
 
 	LONG            lReturn;
 	
-	
-
-
 	lReturn = Card_Init(pCardContext, pCard);  
 
 	if (lReturn != SCARD_S_SUCCESS) {
@@ -348,15 +345,26 @@ int OnCardConnected (CC* pcc)
 	}
 
 	EMVServerCom = Connect_EMVServer(pcc, pCard);
+
 	if (!EMVServerCom)
 	{
 		return -1;
 	}
 
-	Send_Start(EMVRooterCom);
-	SendUserInfo(pCard->pCom, pcc->UserName, pcc->UserPassword);
-	SendTransaction(pCard->pCom, transactiontype, currency, amount, pCard->MediaType);
-	SendATR(pCard->pCom, strAtr);
+	
+	//waiting for response
+
+	int statut = SendUserInfo(pCard->pCom, pcc->UserName, pcc->UserPassword); //synchronous
+	
+
+	if (statut == 1) {
+		Send_Start(EMVRooterCom);  //ready to start a session if no project is loaded Router will ask hhtp user to load a project
+
+		SendTransaction(pCard->pCom, transactiontype, currency, amount, pCard->MediaType);
+
+		SendATR(pCard->pCom, strAtr);
+	}
+
 	return 0;
 }
 
@@ -369,7 +377,6 @@ void OnCardDisconnected(CARD* pCard)
 		pCard->pCom = NULL;
 	}
 }
-
 
 char CardAPDU (CARD* pCard, unsigned char cla, unsigned char ins, unsigned char p1, unsigned char p2,
             			    unsigned char dataSize, unsigned char* data, int* outDataSize, unsigned char* outData)
@@ -386,12 +393,14 @@ char CardAPDU (CARD* pCard, unsigned char cla, unsigned char ins, unsigned char 
 	memcpy(pbSend + 5, data, dataSize);
 
 	lReturn = SCardTransmit(pCard->hCardHandle, &pCard->Request, pbSend, dwSend, NULL, pbRecv, &dwRecv);
+
 	if (SCARD_S_SUCCESS != lReturn)
 	{
 		s_printf(smessage, "%s\n", CardStrError(lReturn));
 		s_printf(smessage, "%s", "Failed SCardTransmit\n");
 		return 0;
 	}
+
 	if (dwRecv >= 2 && pbRecv[0] == 0x6C)
 	{
 		BYTE pbSend2[256] = {cla, ins, p1, p2, pbRecv[1]};
@@ -404,8 +413,8 @@ char CardAPDU (CARD* pCard, unsigned char cla, unsigned char ins, unsigned char 
 			s_printf(smessage, "%s", "Failed SCardTransmit\n");
 			return 0;
 		}
-
 	}
+
 	if (dwRecv >= 2 && pbRecv[0] == 0x61)
 	{
 		BYTE pbSend2[256] = {0x00, 0xC0, 0x00, 0x00, pbRecv[1]};
@@ -420,6 +429,7 @@ char CardAPDU (CARD* pCard, unsigned char cla, unsigned char ins, unsigned char 
 		}
 
 	}
+
 	memcpy(outData, pbRecv, dwRecv);
 	*outDataSize += dwRecv;
 

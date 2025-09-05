@@ -57,7 +57,7 @@
           "applicationSelectionIndicator": 1,
           "ForceTransaction": 31,
           "TerminalActionCodeDenial": "0000000000",
-          "TerminalActionCodeOnline": "0000000000",
+          "TerminalActionCodeOnline": "4000000000",
           "TerminalActionCodeDefault": "0000000000"
         },
         {

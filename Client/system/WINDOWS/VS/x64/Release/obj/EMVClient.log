@@ -1,3 +1,27 @@
-﻿  EMVClient.vcxproj -> C:\PROJECTS_CROSS\EMV\Client\system\WINDOWS\VS\x64\Release\exe\EMVClient64.exe
+﻿  RouterConnect.c
+C:\PROJECTS_CROSS\EMV\Client\src\RouterConnect.c(97,22): warning C4267: '=': conversion from 'size_t' to 'DWORD', possible loss of data
+C:\PROJECTS_CROSS\EMV\Client\src\RouterConnect.c(167,22): warning C4267: '=': conversion from 'size_t' to 'DWORD', possible loss of data
+C:\PROJECTS_CROSS\EMV\Client\src\RouterConnect.c(201,22): warning C4267: '=': conversion from 'size_t' to 'DWORD', possible loss of data
+C:\PROJECTS_CROSS\EMV\Client\src\RouterConnect.c(183,13): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\PROJECTS_CROSS\EMV\Client\src\RouterConnect.c(185,50): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\PROJECTS_CROSS\EMV\Client\src\RouterConnect.c(186,37): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\PROJECTS_CROSS\EMV\Client\src\RouterConnect.c(238,22): warning C4267: '=': conversion from 'size_t' to 'DWORD', possible loss of data
+C:\PROJECTS_CROSS\EMV\Client\src\RouterConnect.c(220,13): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\PROJECTS_CROSS\EMV\Client\src\RouterConnect.c(222,50): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\PROJECTS_CROSS\EMV\Client\src\RouterConnect.c(223,39): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\PROJECTS_CROSS\EMV\Client\src\RouterConnect.c(278,22): warning C4267: '=': conversion from 'size_t' to 'DWORD', possible loss of data
+C:\PROJECTS_CROSS\EMV\Client\src\RouterConnect.c(258,13): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\PROJECTS_CROSS\EMV\Client\src\RouterConnect.c(260,50): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\PROJECTS_CROSS\EMV\Client\src\RouterConnect.c(261,38): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\PROJECTS_CROSS\EMV\Client\src\RouterConnect.c(306,50): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\PROJECTS_CROSS\EMV\Client\src\RouterConnect.c(307,39): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+Netprog64.lib(mx.obj) : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/OPT:ICF' specification
+LINK : warning LNK4098: defaultlib 'MSVCRTD' conflicts with use of other libs; use /NODEFAULTLIB:library
+  Generating code
+  0 of 200 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  EMVClient.vcxproj -> C:\PROJECTS_CROSS\EMV\Client\system\WINDOWS\VS\x64\Release\exe\EMVClient64.exe
   C:\PROJECTS_CROSS\EMV\Client\system\WINDOWS\VS\x64\Release\exe\EMVClient64.exe
   1 File(s) copied

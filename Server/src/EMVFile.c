@@ -1,35 +1,216 @@
 #include "EMV.h"
+#include <sys/stat.h>
 
-void EMVAddFile (EMV* pemv, EMVFile* pfile)
+int tradeprocedure(void* pmessage, BYTE type, char* stream, int size) {
+	printf("%.*s", size, stream);
+	return 1;
+}
+
+int OnCloseHttpServer(MXCom* pcom, void* app) {
+	EMVClient* pclient = (EMVClient*)app;
+
+//	printf("disconnected from Http Server\n");
+	return 0;
+}
+
+int EMVDownloadFile(EMVClient* pclient, char* filename)
 {
-	ListNewr (&pemv->Settings.appFiles, pfile);
+
+	MXCom* pcom = MXOpenTCP(pclient->pEMV->pMX, LoginServer, 80, IPPROTO_HTTP, NULL, NULL, TRUE);
+
+
+	if (!pcom) {
+		printf("Can not connect to HTTP Server\n");
+		return -1;
+	}
+	else
+	{
+	//	MXSetTraceProcedure(pcom, tradeprocedure);
+		MXAddEndingProcedure(pcom, OnCloseHttpServer, pclient);
+		printf("Connected to HTTP Server Ok\n");
+	}
+
+	MXMessage* psend_message;
+	MXMessage* precv_message;
+
+	char url[500] = { 0 };
+	sprintf(url, "GET /members/%s/EMV/%s/Files/%s HTTP/1.1", pclient->UserID, pclient->pEMV->ProjectName, filename);
+
+	psend_message = MXCreateMessage(pcom->MX, HTTP_SYS, "Request");
+	MXSetValue(psend_message, "Request-Line", 1, url);
+	MXSetValue(psend_message, "Host", 1, LoginServer);
+
+	MXSetValue(psend_message, "Accept", 1, "image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, application/vnd.ms-excel, application/msword, application/vnd.ms-powerpoint, */*");
+	MXSetValue(psend_message, "Accept-Language", 1, "fr");
+	MXSetValue(psend_message, "Accept-Encoding", 1, "gzip, deflate");
+	MXSetValue(psend_message, "User-Agent", 1, "Mozilla/4.0 (compatible; MSIE 5.01; Windows NT)");
+	MXSetValue(psend_message, "Proxy-Connection", 1, "Keep-Alive");
+	MXSetValue(psend_message, "Pragma", 1, "no-cache");
+
+
+	MXSend(pcom->MX, pcom, psend_message);
+	MXFreeMessage(pcom->MX, psend_message);
+
+
+	//receive
+
+	precv_message = MXRecv(pcom->MX, pcom);
+	if (!precv_message)                                    // connection closed
+	{
+		return -1;
+	}
+
+	STRING Response = (STRING)MXGetValue(precv_message, "Status-Line", 1);
+	BUFFERPARM* buffer = MXGetValue(precv_message, "Content", 1);
+
+	char recvfilename[500] = { 0 };
+
+	sprintf(recvfilename, "%s\\Projects\\%s\\Files\\%s", Directory, pclient->pEMV->ProjectName, filename);
+
+	FILE* f = fopen(recvfilename, "wb");
+
+	fwrite(buffer->BufferContent, 1, buffer->BufferSize, f);
+
+	fclose(f);
+
+	free(buffer->BufferContent);
+	free(buffer);
+	MXFreeMessage(pcom->MX, precv_message);
+
+	return 1;
 }
 
 
-int EMVGenerateMXFile (EMV* pemv, char* classname, int classindex, char* dialogfilename)
-{
-	FILE *  fileid;
-	List*	FileList = pemv->Settings.appFiles;
+int EMVDownloadProject(EMVClient* pclient) {
 
-	
+	EMVDownloadFile(pclient, "emv_acceptor.conf");
+	EMVDownloadFile(pclient, "emv_rangebins.conf");
+	EMVDownloadFile(pclient, "emv_exceptioncards.conf");
+	EMVDownloadFile(pclient, "emv_authoritypublickeys.conf");
+	EMVDownloadFile(pclient, "emv_acceptor.conf");
+	EMVDownloadFile(pclient, "emv_applications.conf");
+	EMVDownloadFile(pclient, "emv_tacs.conf");
+	EMVDownloadFile(pclient, "emv_currencies.conf");
+	EMVDownloadFile(pclient, "emvsolution.json");
 
-    fileid = fopen(dialogfilename, "w");
-    if (!fileid)
-        return -1;
-
-
-	fprintf (fileid, "%s %d *%s*\n", "DIALOGCLASS", classindex, classname);
-	fprintf (fileid, "%s\n", "BEGIN");
-	while (FileList)
-	{
-		EMVFile* pemvfile = (EMVFile*)FileList->car;
-		if (strcmp (pemvfile->Format, "") != 0) 
-			fprintf (fileid, "%5s %s (%s)\n", "MESSAGECLASS", pemvfile->Name, pemvfile->Format);
-		FileList = FileList->cdr;
-	}
-	fprintf (fileid, "%s\n", "END");
-	fclose (fileid);
+//	MXCloseCom(pclient->pEMV->pMX, pcom);
 	return 1;
+}
+
+
+int EMVLoadProject(EMVClient* pclient, char* projectname, boolean shouldreload)
+{
+
+	char dirname[200];
+	struct stat info;
+	int returnvalue = 0;
+
+	EMV* pemv = (EMV*)pclient->pEMV;
+
+
+	sprintf(dirname, "%s\\Projects", Directory);
+
+	if (stat(dirname, &info) != 0 || !(info.st_mode & S_IFDIR))
+	{
+
+		_mkdir(dirname);
+		printf("Folder %s missing ... created \n", dirname);
+		returnvalue = -1;
+	}
+
+	sprintf(dirname, "%s\\Projects\\%s", Directory, projectname);
+
+	if (stat(dirname, &info) != 0 || !(info.st_mode & S_IFDIR))
+	{
+		_mkdir(dirname);
+		printf("Could not find %s Folder\n", projectname);
+		returnvalue = -1;
+	}
+	sprintf(dirname, "%s\\Projects\\%s\\Files", Directory, projectname);
+
+	if (stat(dirname, &info) != 0 || !(info.st_mode & S_IFDIR))
+	{
+		_mkdir(dirname);
+		printf("Could not find Files Folder\n");
+		returnvalue = -1;
+	}
+
+	if (returnvalue != 0)
+	{
+		shouldreload = TRUE;
+	}
+
+	strcpy(pemv->ProjectName, projectname);
+
+
+	if (shouldreload && EMVDownloadProject(pclient) < 0)
+	{
+		return -1;
+	}
+
+	pemv->ApplicationsCount = 0;
+	pemv->Applications = 0;
+
+	pemv->Terminals = 0;
+	pemv->TerminalsCount = 0;
+
+	memset(&pemv->Settings, 0, sizeof(EMVSettings));
+	pemv->Settings.appSelectionUsePSE = 1;
+	pemv->Settings.appSelectionSupportConfirm = 1;
+	pemv->Settings.appSelectionPartial = 1;
+	pemv->Settings.appSelectionSupport = 1;
+
+
+	if (EMVLoadAcceptor(pemv) < 0) 				//SIT_D753.wp
+	{
+		printf("Missing File %s\n", "emv_acceptor.conf");
+	}
+	else
+	{
+		EMVTraceAcceptor(pemv);
+		EMVTraceAcquirer(pemv);
+		EMVInitHost(pemv, pemv->pAcquirer, "127.0.0.1", 8000);
+	}
+
+	if (EMVLoadRangeBins(pemv) < 0) 			    //APB_D236.wp
+	{
+		printf("Missing File %s\n", "emv_rangebins.conf");
+	}
+
+	if (EMVLoadExceptionCards(pemv) < 0) 		//APL_D253.wp
+	{
+		printf("Missing File %s\n", "emv_exceptioncards.conf");
+	}
+
+	if (EMVLoadAuthorityPublicKeys(pemv) < 0) 	//EPK_D782.wp
+	{
+		printf("Missing File %s\n", "emv_authoritypublickeys.conf");
+	}
+
+	if (EMVLoadTerminals(pemv) < 0)
+	{
+		printf("Missing File %s\n", "emv_acceptor.conf");
+	}
+
+	if (EMVLoadApplications(pemv) < 0) 			//EPV_D787.wp
+	{
+		printf("Missing File %s\n", "emv_applications.conf");
+	}
+	else
+	{
+		EMVTraceApplications(pemv);
+	}
+
+	if (EMVLoadTacs(pemv) < 0) 					//EPT_D778.wp
+	{
+		printf("Missing File %s\n", "emv_tacs.conf");
+	}
+
+	if (EMVLoadCurrencies(pemv) < 0) 			//MON_D747.wp
+	{
+		printf("Missing File %s\n", "emv_currencies.conf");
+	}
+	return 0;
 }
 
 int EMVLoadAcceptor (EMV* pemv)  //TAG DF04  DF20-DF21-DF22-DF23 File index 4
@@ -463,4 +644,37 @@ int OnLoadAuthorityPublicKeys(MXMessage* pmessage, MXCom* pcom, void* applicatio
 
 	return 1;
 
+}
+
+
+void EMVAddFile(EMV* pemv, EMVFile* pfile)
+{
+	ListNewr(&pemv->Settings.appFiles, pfile);
+}
+
+
+int EMVGenerateMXFile(EMV* pemv, char* classname, int classindex, char* dialogfilename)
+{
+	FILE* fileid;
+	List* FileList = pemv->Settings.appFiles;
+
+
+
+	fileid = fopen(dialogfilename, "w");
+	if (!fileid)
+		return -1;
+
+
+	fprintf(fileid, "%s %d *%s*\n", "DIALOGCLASS", classindex, classname);
+	fprintf(fileid, "%s\n", "BEGIN");
+	while (FileList)
+	{
+		EMVFile* pemvfile = (EMVFile*)FileList->car;
+		if (strcmp(pemvfile->Format, "") != 0)
+			fprintf(fileid, "%5s %s (%s)\n", "MESSAGECLASS", pemvfile->Name, pemvfile->Format);
+		FileList = FileList->cdr;
+	}
+	fprintf(fileid, "%s\n", "END");
+	fclose(fileid);
+	return 1;
 }

@@ -17,15 +17,26 @@ MXCom* Connect_RouterServer(EMV* pemv) {
 		pemv->pRouterCom = pCom;
 		printf("Connected to EMV Router Server Ok\n");
 		EMVRooterCom = pCom;
+		MXAddEndingProcedure(pCom, OnCloseRouter, pemv);
 	}
+
 	return pCom;
+}
+
+int OnCloseRouter(MXCom* pcom, void* app) {
+	EMV* pemv = (EMV*)app;
+
+	//printf("disconnected from EMV Router\n");
+	pemv->pRouterCom = NULL;
+	EMVRooterCom = NULL;
+	return 0;
 }
 
 int Send_Login(MXCom* pcom, EMVClient* pclient)
 {
 	MXMessage* pmessage;
 	BUFFERPARM	Buffer;
-	char		message[100];
+	char		message[1000] = { 0 };
 
 	int			lReturn = 0;
 
@@ -36,32 +47,120 @@ int Send_Login(MXCom* pcom, EMVClient* pclient)
 	Buffer.BufferType = 'T';
 	Buffer.BufferSize = strlen(message);
 	Buffer.BufferContent = (char*)&message; // (char*)malloc(strlen(message));
-	//memcpy(Buffer.BufferContent, message, dataSize);
 
 	pmessage = MXCreateMessage(pcom->MX, "TCP", "Stream");
+	
 	MXSetValue(pmessage, "Buffer", 1, &Buffer);
 
 	MXSend(pcom->MX, pcom, pmessage);
+	MXFreeMessage(pcom->MX, pmessage);
+
+
 
 	pmessage = MXRecv(pcom->MX, pcom);
-
 	BUFFERPARM* RecvBuffer = (BUFFERPARM*)MXGetValue(pmessage, "Buffer", 1);
-	if (strncmp(RecvBuffer->BufferContent, "-1", 2) == 0)
+
+	memset(message, 0, 1000);
+	strncpy(message, (char*)RecvBuffer->BufferContent, RecvBuffer->BufferSize);
+
+	free(RecvBuffer->BufferContent);
+	free(RecvBuffer);
+	MXFreeMessage(pcom->MX, pmessage);
+
+// Prepare Response to send to card reader.....
+
+
+
+	char UserId[20] = { 0 };
+	char CardConnected[5] = { 0 };
+	char WebConnected[5] = { 0 };
+	char WebProjectName[50] = { 0 };
+	char ShouldReload[50] = { 0 };
+	
+	boolean shouldreload;
+
+	sscanf(message, "%[^*]*%[^*]*%[^*]*%[^*]*%[^*]*", UserId, CardConnected, WebConnected, WebProjectName, ShouldReload);
+
+	char Reason[400] = { 0 };
+	pmessage = MXCreateMessage(pcom->MX, "APDU", "R-UserInfo");
+
+
+	if (strcmp(CardConnected, "NOK") == 0) 
 	{
-		printf("Indentification Failed\n");
+		strcpy(Reason, "Identification Failed, please log again by rerunning ENVClient Program\n");
+
+		BYTE statut = 0;
+		MXSetValue(pmessage, "Statut", 1, &statut);
+		MXSetValue(pmessage, "Explanation", 1, Reason);
+		
+		s_printf(smessage, pclient, "%s", Reason);
 		lReturn = 0;
 	}
 	else
 	{
-		printf("Indentification Succeeded\n");
-		lReturn = 1;
+		strcpy(pclient->UserID, UserId);
+
+		if (strcmp(WebProjectName, "-") == 0) 
+		{
+			strcpy(Reason, "Identification Succeeded but no specified project to load\n");
+			BYTE statut = 0;
+			MXSetValue(pmessage, "Statut", 1, &statut);
+			MXSetValue(pmessage, "Explanation", 1, Reason);
+
+			s_printf(smessage, pclient, "%s", Reason);
+			lReturn = 0;
+		}
+		else 
+		{
+			if (strcmp(pclient->pEMV->ProjectName, WebProjectName) == 0)  //
+			{
+				if (strcmp(ShouldReload, "no") == 0) {
+					shouldreload = FALSE;
+
+					sprintf(Reason, "Identification Succeeded and project to run not changed and is %s\n", WebProjectName);
+					BYTE statut = 1;
+					MXSetValue(pmessage, "Statut", 1, &statut);
+					MXSetValue(pmessage, "Explanation", 1, Reason);
+					s_printf(smessage, pclient, "%s", Reason);
+					lReturn = 1;
+				}
+				else
+				{
+					shouldreload = TRUE;
+
+					sprintf(Reason, "Identification Succeeded and project to run %s will be reloaded... \n", WebProjectName);
+					EMVLoadProject(pclient, WebProjectName, shouldreload);
+					BYTE statut = 1;
+					MXSetValue(pmessage, "Statut", 1, &statut);
+					MXSetValue(pmessage, "Explanation", 1, Reason);
+					s_printf(smessage, pclient, "%s", Reason);
+		
+					lReturn = 1;
+				}
+
+			} 
+			else
+			{
+				shouldreload = TRUE;
+
+				char Reason[400] = { 0 };
+
+				sprintf(Reason, "Identification Succeeded and new project to run %s will be loaded... \n", WebProjectName);
+				EMVLoadProject(pclient, WebProjectName, shouldreload);
+
+				BYTE statut = 1;
+				MXSetValue(pmessage, "Statut", 1, &statut);
+				MXSetValue(pmessage, "Explanation", 1, &Reason);
+				s_printf(smessage, pclient, "%s", Reason);
+
+				
+				lReturn = 1;
+			}
+
+		}
 	}
-	strncpy(pclient->UserID, RecvBuffer->BufferContent, RecvBuffer->BufferSize);
-	pclient->UserID[RecvBuffer->BufferSize] = 0;
-
-	free(RecvBuffer->BufferContent);
-	free(RecvBuffer);
-
+	MXSend(pcom->MX, pclient->pPointOfSale->pCom, pmessage);
+	MXFreeMessage(pcom->MX, pmessage);
 	return lReturn;
 }
 

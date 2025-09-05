@@ -1,3 +1,14 @@
-﻿  EMVServer.vcxproj -> C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x64\Release\exe\EMVServer64.exe
+﻿  EMVConnect.c
+C:\PROJECTS_CROSS\EMV\Server\src\EMVConnect.c(158,3): warning C4033: 'OnClose' must return a value
+C:\PROJECTS_CROSS\EMV\Server\src\EMVConnect.c(251,63): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
+Netprog64.lib(oslist.obj) : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/OPT:ICF' specification
+LINK : warning LNK4098: defaultlib 'MSVCRTD' conflicts with use of other libs; use /NODEFAULTLIB:library
+  Generating code
+C:\PROJECTS_CROSS\EMV\Server\src\EMVConnect.c(175): warning C4715: 'OnClose': not all control paths return a value
+  2 of 393 functions ( 0.5%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    2 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  EMVServer.vcxproj -> C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x64\Release\exe\EMVServer64.exe
   C:\PROJECTS_CROSS\EMV\Server\system\WINDOWS\VS\x64\Release\exe\EMVServer64.exe
   1 File(s) copied

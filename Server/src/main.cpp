@@ -7,7 +7,6 @@
 #include "cb2a.h"
 
 
-
 using namespace std;
 
 // -----------------------------------------------------------------------MAIN PROCEDURE  -------------------------------------------------------
@@ -31,9 +30,7 @@ int EMVReadFile (EMV* pemv)
 	int k = 0;
 	int p = 0;
 
-
-
-    while (getline (inFile, line))
+	while (getline (inFile, line))
     { 
         linenum++;
 		EMVFile* pemvfile = (EMVFile*)malloc (sizeof(EMVFile)); 
@@ -366,43 +363,50 @@ int main(int argc, char** argv)
 			*(lastslash) = 0;
 	}
 	
-	//char	filename[200];
-	//sprintf (filename, "%s\\MX\\%s", Directory, "apdu.mx"); 
-	
 	MXInit (&mx, MXSERVER, NULL, NULL, EMVServerPort,  NULL);	
 	MXAddAPDUCommands(&mx);
 
 	pemv = EMVInit(&mx);
-	
-	if (EMVLoadProject(pemv, DefaultProjectName) < 0)     //load local demo project 
-	{
-		printf("Could not find Project %s\n", DefaultProjectName);
-	}
+
 
 	Connect_RouterServer(pemv);
 
 	MXAddGeneralConnectCallBack (&mx, MXONCONNECT, OnConnect, pemv); //connections from clients only
 	MXAddGeneralConnectCallBack (&mx, MXONCLOSE,   OnClose,   pemv);
-	
 
+	MXDispatchEvents(&mx, NULL);
 
-	MXDispatchEvents (&mx, NULL);
-	
-	EMVEnd(pemv);
     MXEnd (&mx);
-	
+	EMVEnd(pemv);
+
+
 	return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*	int l;
 	char hour[6];
 	char date[6];
-	BYTE Decimal[50];
+	BYTE Decimal[50] = { 0 };
 	BYTE Ascii[50];
 CB2AMessage* pmessage = CB2AInitMessage (pcb2a, "0100");
 
 	srand((unsigned int) time(NULL));
 	HexaCharToChar ((BYTE *)"0000000000000000", Decimal, 16);
-	NumericDecimalCharToHexaChar (( char *)Decimal, "ab0c" , 50);
+
+	NumericDecimalCharToHexaChar("353741424343", strlen("353741424343")/2,  (char*)Decimal);
 	CharToHexaChar ((BYTE *)"111", Ascii, 6);
 
 	l = CharArrayToBCDArray ("C12345", 6, 12, "x+n", Ascii);

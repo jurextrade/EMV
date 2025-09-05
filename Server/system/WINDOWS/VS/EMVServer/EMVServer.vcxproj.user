@@ -11,12 +11,12 @@
     <LocalDebuggerWorkingDirectory>../../../../</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>127.0.0.1 localhost</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>localhost localhost</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>../../../../</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>127.0.0.1 localhost</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>localhost localhost</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>../../../../</LocalDebuggerWorkingDirectory>
   </PropertyGroup>

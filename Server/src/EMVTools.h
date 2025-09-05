@@ -34,7 +34,7 @@ extern BYTE			CharToBCD (char asciiByte);
 extern BYTE			CharToHexa (char asciiByte);
 extern int			HexaCharToChar (unsigned char *sta, unsigned char *std, unsigned int la);
 extern int			CharToHexaChar (unsigned char *std, unsigned char *sta, unsigned int l);
-extern void			NumericDecimalCharToHexaChar( char *SReduit, char *SDevel, int LReduit );
+extern void			NumericDecimalCharToHexaChar(char* Input, int Size, char* Output);
 
 
 extern void			DateGetGMTDateHour (char* strdate, char* strtime);

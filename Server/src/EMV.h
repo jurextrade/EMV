@@ -798,7 +798,6 @@ typedef struct _EMVSettings
 
 typedef struct _EMV {
 	MX*				pMX;
-	char			ProjectName[200];
 	MXCom*			pRouterCom;
 
 	CB2A*			pCB2A;
@@ -819,6 +818,9 @@ typedef struct _EMV {
 	BYTE			ApplicationCurrencyCode[2];				// Application Currency Code 0x9F42
 	BYTE			ApplicationCurrencyExponent;			// 0x9F44
 	int				DebugEnabled;
+
+	char			ProjectName[200];
+
 	MXMessage*      (*APDU)(struct _EMV* pemv, struct _EMVClient* pclient, BYTE cla, BYTE ins, BYTE p1, BYTE p2, BYTE dataSize, const BYTE* data);
 }EMV;
 
@@ -932,6 +934,8 @@ extern int		EMVServerPort;
 extern char		DefaultProjectName[200];
 
 
+
+
 //EMV PROCESS FUNCTIONS
 //======================
 
@@ -1016,7 +1020,9 @@ extern int			EMVTransactionCompletion (EMV* pemv, EMVClient* pclient, int forcet
 
 extern EMV*			EMVInit(MX* pmx);
 extern void			EMVEnd (EMV* pemv);
-extern int			EMVLoadProject(EMV* pemv, char* projectname);
+extern int			EMVLoadProject(EMVClient* pclient, char* projectnamet, boolean shouldreload);
+extern int			EMVDownloadFile(EMVClient* pclient, char* filename);
+extern int			EMVDownloadProject(EMVClient* pclien);
 
 
 extern EMVApplication* EMVInitApplication (EMV* pemv);
@@ -1188,6 +1194,8 @@ extern void			EMVTraceIIN (EMVClient* pclient, char*cardNumbers);
 
 extern int			MXAddAPDUCommands(MX* pmx);
 extern MXCom*		Connect_RouterServer(EMV* pemv);
+extern int			OnCloseRouter(MXCom* pcom, void* app);
+
 extern int			Send_Login(MXCom* pcom, EMVClient* pclient);
 extern void			Send_Start(MXCom* pcom, EMVClient* pclient);
 extern void			Send_End(MXCom* pcom, EMVClient* pclient);

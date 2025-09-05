@@ -1,5 +1,5 @@
 #include "EMV.h"
-#include <sys/stat.h>
+
 
 
 EMVSelectApplicationInfo standartCandidate;
@@ -13,7 +13,7 @@ char	DefaultProjectName[200] = "DemoProject";
 
 int		EMVServerPort = 2000;
 
-char	EMVRooter[300] = "locahost";
+char	EMVRooter[300] = "localhost";
 int		EMVRooterPort = 3008;
 
 char	LoginServer[300] = "jurextrade.com";
@@ -23,115 +23,12 @@ MXCom*	EMVRooterCom = NULL;
 char	smessage[5000];
 
 
+
 #define  EurCode   "x09\x78"
 #define  FranceCode "x02\x50"
 
 //=========================================================================================================================================
 
-int EMVLoadProject(EMV* pemv, char* projectname) {
-
-	char dirname[200];
-	struct stat info;
-	int returnvalue = 0;
-	sprintf(dirname, "%s\\Projects", Directory);
-
-	if (stat(dirname, &info) != 0 || !(info.st_mode & S_IFDIR))
-	{
-
-		_mkdir(dirname);
-		printf("Folder %s missing ... created \n", dirname);
-		returnvalue = -1;
-	}
-
-	sprintf(dirname, "%s\\Projects\\%s", Directory, projectname);
-
-	if (stat(dirname, &info) != 0 || !(info.st_mode & S_IFDIR))
-	{
-		_mkdir(dirname);
-		printf("Could not find %s Folder\n", projectname);
-		returnvalue = -1;
-	}
-	sprintf(dirname, "%s\\Projects\\%s\\Files", Directory, projectname);
-
-	if (stat(dirname, &info) != 0 || !(info.st_mode & S_IFDIR))
-	{
-		_mkdir(dirname);
-		printf("Could not find Files Folder\n");
-		returnvalue = -1;
-	}
-	
-	if (returnvalue != 0)
-	{
-		return returnvalue;
-	}
-
-	strcpy(pemv->ProjectName, projectname);
-
-
-	pemv->ApplicationsCount = 0;
-	pemv->Applications = 0;
-
-	pemv->Terminals = 0;
-	pemv->TerminalsCount = 0;
-
-	memset(&pemv->Settings, 0, sizeof(EMVSettings));
-	pemv->Settings.appSelectionUsePSE = 1;
-	pemv->Settings.appSelectionSupportConfirm = 1;
-	pemv->Settings.appSelectionPartial = 1;
-	pemv->Settings.appSelectionSupport = 1;
-
-	
-	if (EMVLoadAcceptor(pemv) < 0) 				//SIT_D753.wp
-	{
-		printf("Missing File %s\n", "emv_acceptor.conf");
-	}
-	else
-	{
-		EMVTraceAcceptor(pemv);
-		EMVTraceAcquirer(pemv);
-		EMVInitHost(pemv, pemv->pAcquirer, "127.0.0.1", 8000);
-	}
-
-	if (EMVLoadRangeBins(pemv) < 0) 			    //APB_D236.wp
-	{
-		printf ("Missing File %s\n", "emv_rangebins.conf");
-	}
-
-	if (EMVLoadExceptionCards(pemv) < 0) 		//APL_D253.wp
-	{
-		printf ("Missing File %s\n", "emv_exceptioncards.conf");
-	}
-
-	if (EMVLoadAuthorityPublicKeys(pemv) < 0) 	//EPK_D782.wp
-	{
-		printf ("Missing File %s\n", "emv_authoritypublickeys.conf");
-	}
-
-	if (EMVLoadTerminals(pemv) < 0) 
-	{
-		printf ("Missing File %s\n", "emv_acceptor.conf");
-	}
-
-	if (EMVLoadApplications(pemv) < 0) 			//EPV_D787.wp
-	{
-		printf ("Missing File %s\n", "emv_applications.conf");
-	}
-	else
-	{
-		EMVTraceApplications(pemv);
-	}
-
-	if (EMVLoadTacs(pemv) < 0) 					//EPT_D778.wp
-	{
-		printf ("Missing File %s\n", "emv_tacs.conf");
-	}
-
-	if (EMVLoadCurrencies(pemv) < 0) 			//MON_D747.wp
-	{
-		printf("Missing File %s\n", "emv_currencies.conf");
-	}
-	return 0;
-}
 
 
 EMV* EMVInit(MX* pmx)
@@ -140,27 +37,21 @@ EMV* EMVInit(MX* pmx)
 
 	memset(pemv, 0, sizeof(EMV));
 
-
-
 	pemv->pMX				= pmx;
 	pemv->pRouterCom		= NULL;
+
+	memset(pemv->ProjectName, 0, sizeof(pemv->ProjectName));
 
 
 	EMVSetDebugEnabled(pemv, 1);
 
-
 	EMVSetFunctionAPDU(pemv, EMVSendAPDU);
-
 
 	EMVReadTagFile(pemv);				 //TAGS.csv
 	EMVReadApduErrorFile(pemv);		     //SW1SW2.csv
 	EMVReadFile(pemv);					 //FILES.csv
-
 	
-
-
 	pemv->pCB2A = CB2AInit(1);
-
 
 	return pemv;
 }
@@ -626,7 +517,7 @@ int EMVCandidateListCreation (EMV* pemv, EMVClient* pclient)
 			s_printf(smessage, pclient, "%s", strace);
 		}
 		pclient->RecordNo = 1;
-		pemv->APDU (pemv, pclient, 0x00, INS_SELECT, 0x04, 0x00, strlen(PaySelectString), (unsigned char*)PaySelectString);
+		pemv->APDU (pemv, pclient, 0x00, INS_SELECT, 0x04, 0x00, (BYTE)strlen(PaySelectString), (unsigned char*)PaySelectString);
 	}
 	else
 		return EMVBuildCandidateListUsingListOfAids (pemv, pclient);
@@ -2358,7 +2249,6 @@ EMVClient* EMVInitClient (EMV* pemv)
 	strcpy(pclient->UserID, "-1");
 	ListNewr(&pemv->Clients, pclient);
 
-
 	return pclient;
 }
 
@@ -2404,6 +2294,11 @@ EMVAcquirer* EMVInitAcquirer (EMV* pemv)
 
 void EMVEndAcquirer (EMV* pemv, EMVAcquirer* pacquirer)
 {
+	if (!pacquirer)
+	{
+		return;
+	}
+
 	while (pacquirer->Connections)
 	{
 		EMVAcquirerConnection* pAcquirerConnection = (EMVAcquirerConnection*)pacquirer->Connections->car;

@@ -12,6 +12,11 @@ CB2A* CB2AInit(int protocol)
 
 void CB2AEnd (CB2A* pcb2a)
 {
+	if (!pcb2a)
+	{
+		return;
+	}
+
 	while (pcb2a->Fields)
 	{
 		CB2AField* pfield = (CB2AField*)pcb2a->Fields->car;

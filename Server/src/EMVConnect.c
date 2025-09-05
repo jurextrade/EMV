@@ -5,14 +5,19 @@
 int MXAddAPDUCommands(MX* pmx)
 {
 	MXDialogClass* pclass;
+	int i = 1;
 
 	pclass = MXCreateDialogClass(pmx, "APDU", 7);
 
-	MXCreateMessageClass(pmx, pclass, "UserInfo", 1, 2,
+	MXCreateMessageClass(pmx, pclass, "UserInfo", i++, 2,
 		"STRING", 1, "UserName",
 		"STRING", 1, "UserPassword");
 
-	MXCreateMessageClass(pmx, pclass, "SendTransaction", 2, 4,
+	MXCreateMessageClass(pmx, pclass, "R-UserInfo", i++, 2,
+		"BYTE", 1, "Statut",
+		"STRING", 1, "Explanation");
+
+	MXCreateMessageClass(pmx, pclass, "SendTransaction", i++, 4,
 		"CHAR", 1, "Type",
 		"STRING", 1, "Currency",
 		"STRING", 1, "Amount",
@@ -20,13 +25,13 @@ int MXAddAPDUCommands(MX* pmx)
 
 	/* active connection */
 
-	MXCreateMessageClass(pmx, pclass, "SendATR", 3, 1,
+	MXCreateMessageClass(pmx, pclass, "SendATR", i++, 1,
 		"STRING", 1, "Atr");
 
-	MXCreateMessageClass(pmx, pclass, "SendError", 4, 1,
+	MXCreateMessageClass(pmx, pclass, "SendError", i++, 1,
 		"STRING", 1, "Error");
 
-	MXCreateMessageClass(pmx, pclass, "C-APDU", 5, 6,
+	MXCreateMessageClass(pmx, pclass, "C-APDU", i++, 6,
 		"BYTE", 1, "Cla",
 		"BYTE", 1, "Ins",
 		"BYTE", 1, "P1",
@@ -34,13 +39,13 @@ int MXAddAPDUCommands(MX* pmx)
 		"STRING", 1, "Size",
 		"BUFFER", 1, "Data");
 
-	MXCreateMessageClass(pmx, pclass, "R-APDU", 6, 4,
+	MXCreateMessageClass(pmx, pclass, "R-APDU", i++, 4,
 		"BYTE", 1, "Cla",
 		"BYTE", 1, "Ins",
 		"WORD", 1, "Size",
 		"BUFFER", 1, "Data");
 
-	MXCreateMessageClass(pmx, pclass, "SendACFirst", 7, 6,
+	MXCreateMessageClass(pmx, pclass, "SendACFirst", i++, 6,
 		"BYTE", 1, "Cla",
 		"BYTE", 1, "Ins",
 		"BYTE", 1, "P1",
@@ -48,13 +53,13 @@ int MXAddAPDUCommands(MX* pmx)
 		"STRING", 1, "Size",
 		"BUFFER", 1, "Data");
 
-	MXCreateMessageClass(pmx, pclass, "RecvACFirst", 8, 4,
+	MXCreateMessageClass(pmx, pclass, "RecvACFirst", i++, 4,
 		"BYTE", 1, "Cla",
 		"BYTE", 1, "Ins",
 		"LONG", 1, "Size",
 		"BUFFER", 1, "Data");
 
-	MXCreateMessageClass(pmx, pclass, "SendACSecond", 9, 6,
+	MXCreateMessageClass(pmx, pclass, "SendACSecond", i++, 6,
 		"BYTE", 1, "Cla",
 		"BYTE", 1, "Ins",
 		"BYTE", 1, "P1",
@@ -62,38 +67,38 @@ int MXAddAPDUCommands(MX* pmx)
 		"STRING", 1, "Size",
 		"BUFFER", 1, "Data");
 
-	MXCreateMessageClass(pmx, pclass, "RecvACSecond", 10, 4,
+	MXCreateMessageClass(pmx, pclass, "RecvACSecond", i++, 4,
 		"BYTE", 1, "Cla",
 		"BYTE", 1, "Ins",
 		"LONG", 1, "Size",
 		"BUFFER", 1, "Data");
 
-	MXCreateMessageClass(pmx, pclass, "SendAppliSelection", 11, 4,
+	MXCreateMessageClass(pmx, pclass, "SendAppliSelection", i++, 4,
 		"BYTE", 1, "Count",
 		"BYTE", 5, "Priority",
 		"BYTE", 5, "Index",
 		"STRING", 5, "Label");
 
-	MXCreateMessageClass(pmx, pclass, "RecvAppliSelection", 12, 1,
+	MXCreateMessageClass(pmx, pclass, "RecvAppliSelection", i++, 1,
 		"CHAR", 1, "Index");
 
-	MXCreateMessageClass(pmx, pclass, "SendCommand", 13, 2,
+	MXCreateMessageClass(pmx, pclass, "SendCommand", i++, 2,
 		"BYTE", 1, "P1",
 		"BYTE", 1, "P2");
 
-	MXCreateMessageClass(pmx, pclass, "RecvCommand", 14, 4,
+	MXCreateMessageClass(pmx, pclass, "RecvCommand", i++, 4,
 		"BYTE", 1, "P1",
 		"BYTE", 1, "P2",
 		"LONG", 1, "Size",
 		"BUFFER", 1, "Data");
 
-	MXCreateMessageClass(pmx, pclass, "SendVerify", 15, 1,
+	MXCreateMessageClass(pmx, pclass, "SendVerify", i++, 1,
 		"BYTE", 1, "Enciphered");
 
-	MXCreateMessageClass(pmx, pclass, "RecvVerify", 16, 1,
+	MXCreateMessageClass(pmx, pclass, "RecvVerify", i++, 1,
 		"BUFFER", 1, "Data");
 
-	MXCreateMessageClass(pmx, pclass, "Abort", 17, 1,
+	MXCreateMessageClass(pmx, pclass, "Abort", i++, 1,
 		"STRING", 1, "Reason");
 
 	return 1;
@@ -104,31 +109,20 @@ int OnConnect(MXCom* pcom, void* applicationfield)
 {
 	EMV* pemv = (EMV*)applicationfield;
 
+	if (!pcom->Client->OnPort || pcom->Client->OnPort->Port  != EMVServerPort)    // ignore all close not card reader connection
+	{
+		return 1;
+	}
+
 	EMVClient* pclient;
 
 	pclient = EMVInitClient(pemv);
-
-	//DOUDOU	
-	/*
-		strcpy (pPointOfSale->SIRET,							"00000001999301");
-		strcpy (pPointOfSale->PointAcceptationIdentification,	"98765432");
-		strcpy (pPointOfSale->PointAcceptationLogicalNumber,	"001");
-		strcpy (pPointOfSale->SystemAcceptationIdentification,	"TST5A742");
-		strcpy (pPointOfSale->SystemAcceptationLogicalNumber,	"001");
-		strcpy (pPointOfSale->SystemAcceptationLogicalNumber,	"001");
-		strcpy(pPointOfSale->MerchantContractNumber,			"1999301");
-
-		memcpy(pPointOfSale->MerchantCategoryCode, "\x89\x99", 8);
-		strcpy(pPointOfSale->MerchantIdentifier, "1999301        ");
-		strcpy(pPointOfSale->MerchantNameAndLocation, "Gabriel Jureidini 20 rue des belles feuilles paris 750116");
-
-	*/
-
 
 	pclient->pPointOfSale->pCom = pcom;
 
 	printf("\nOpen Connection With Point Of Sale \n");
 	MXAddComCallBack(pemv->pMX, pcom, "APDU", "UserInfo", MXONRECV, OnRecvUserInfo, pclient);
+
 	MXAddComCallBack(pemv->pMX, pcom, "APDU", "C-APDU", MXONSEND, OnSendAPDU, pclient);
 	MXAddComCallBack(pemv->pMX, pcom, "APDU", "R-APDU", MXONRECV, OnRecvAPDU, pclient);
 
@@ -151,23 +145,20 @@ int OnConnect(MXCom* pcom, void* applicationfield)
 
 int OnClose(MXCom* pcom, void* applicationfield)
 {
+
 	EMV* pemv = (EMV*)applicationfield;
 
 
-	if (pcom == pemv->pRouterCom) {
-		printf("Close Connection With Rooter Server \n");
-		pemv->pRouterCom = NULL;
-		EMVRooterCom = NULL;
-		printf("Something wrong we connect again\n");
-		Connect_RouterServer(pemv);
-	}
-	else
-	{
-		EMVClient* pclient = EMVGetClientFromCom(pemv, pcom);
-		printf("Close Connection With Point Of Sale  \n");
+	if (!pcom->Client->OnPort || pcom->Client->OnPort->Port != EMVServerPort)                  // ignore all close not card reader connection
+	{   
+		return 1;
 
-		EMVEndClient(pemv, pclient);
 	}
+
+	EMVClient* pclient = EMVGetClientFromCom(pemv, pcom);
+	printf("Close Connection With Point Of Sale  \n");
+
+	EMVEndClient(pemv, pclient);
 
 	return 1;
 
@@ -193,9 +184,9 @@ int OnRecvUserInfo(MXMessage* pmessage, MXCom* pcom, void* applicationfield)
 		}
 	}
 
-	if (Send_Login(EMVRooterCom, pclient) != 1)
+	if (Send_Login(EMVRooterCom, pclient) != 0)  //0 means a problem somewhere
 	{
-		printf("Problem in User Information transaction will be treated *****OFFLINE****\n");
+		//printf("Problem in User Information transaction will be treated *****OFFLINE****\n");
 	}
 	//Send_Start(EMVRooterCom, pclient);
 
@@ -514,4 +505,21 @@ int OnRecvAppliSelection(MXMessage* pmessage, MXCom* pcom, void* applicationfiel
 	EMVSelectApplication(pemv, pclient, (int)Index);
 	return 1;
 }
+
+
+//DOUDOU	
+/*
+	strcpy (pPointOfSale->SIRET,							"00000001999301");
+	strcpy (pPointOfSale->PointAcceptationIdentification,	"98765432");
+	strcpy (pPointOfSale->PointAcceptationLogicalNumber,	"001");
+	strcpy (pPointOfSale->SystemAcceptationIdentification,	"TST5A742");
+	strcpy (pPointOfSale->SystemAcceptationLogicalNumber,	"001");
+	strcpy (pPointOfSale->SystemAcceptationLogicalNumber,	"001");
+	strcpy(pPointOfSale->MerchantContractNumber,			"1999301");
+
+	memcpy(pPointOfSale->MerchantCategoryCode, "\x89\x99", 8);
+	strcpy(pPointOfSale->MerchantIdentifier, "1999301        ");
+	strcpy(pPointOfSale->MerchantNameAndLocation, "Gabriel Jureidini 20 rue des belles feuilles paris 750116");
+
+*/
 

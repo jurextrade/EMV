@@ -21,10 +21,19 @@ MXCom* Connect_RouterServer(CC* pcc) {
 		printf("Connected to EMV Router Server Ok\n");
 		EMVRooterCom = pCom;
 	}
-
+	MXAddEndingProcedure(pCom, OnCloseRouter, pcc);
 	MXAddComCallBack(pmx, pCom, "TCP", "Stream", MXONRECV, OnRecvRouter, pcc);
 	MXAddComCallBack(pmx, pCom, "TCP", "Stream", MXONSEND, OnSendRouter, pcc);
 	return pCom;
+}
+
+int OnCloseRouter(MXCom* pcom, void* app) {
+	CC* pcc = (CC*)app;
+
+	printf("disconnected from EMV Router\n");
+	pcc->pRouterCom = NULL;
+	EMVRooterCom = NULL;
+	return 0;
 }
 
 
@@ -160,7 +169,10 @@ void Send_Start(MXCom* pcom) {
 
 	MXMessage* pmessage = pmessage = MXCreateMessage(pcom->MX, "TCP", "Stream");
 	MXSetValue(pmessage, "Buffer", 1, &Buffer);
+	
 	MXSend(pcom->MX, pcom, pmessage);
+
+	MXFreeMessage(pcom->MX, pmessage);
 }
 
 void Send_Plug(MXCom* pcom, char* message)
